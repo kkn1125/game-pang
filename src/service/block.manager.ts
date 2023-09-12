@@ -51,9 +51,17 @@ export default class BlockManager {
     return maps;
   }
 
+  async swapBothCell(srcCell: Cell, destCell: Cell) {
+    await srcCell.swap(destCell);
+    this.map[destCell.y][destCell.x] = Cell.copy(srcCell, destCell);
+    this.map[srcCell.y][srcCell.x] = Cell.copy(destCell, srcCell);
+  }
+
   render() {
-    this.map.flat(1).forEach((cell) => {
-      cell.render();
-    });
+    for (const row of this.map) {
+      for (const cell of row) {
+        cell.render();
+      }
+    }
   }
 }

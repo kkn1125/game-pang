@@ -15,7 +15,7 @@ export const responseBlockAxis = (x: number, y: number) => {
   return [resX, resY];
 };
 
-export const responsePointerAxis = (x: number, y: number) => {
+export const responsePointerAxis = (x: number, y: number): [number, number] => {
   const centerX = innerWidth / 2;
   const centerY = innerHeight / 2;
   // const unitX = Math.floor(x / this.unit);

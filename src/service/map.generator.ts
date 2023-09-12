@@ -26,28 +26,10 @@ export default class MapGenerator {
     this.map = map;
   }
 
-  // animation(time: number) {
-
-  // }
-  // clearRect() {
-  //   gameCtx.clearRect(0, 0, innerWidth, innerHeight);
-  // }
   render() {
     this.clearRect();
-    // if (this.seek !== Math.floor(time)) {
-    //   // timer zone
-    //   this.renderPerSecond.call(this);
-    // }
-    // const [x, y] = this.mapSize;
-
-    // const centerX = innerWidth / 2;
-    // const centerY = innerHeight / 2;
-    // const horizonValue = x * UNIT_SIZE;
-    // const verticalValue = y * UNIT_SIZE;
-    // const halfHorizon = horizonValue / 2;
-    // const halfVertical = verticalValue / 2;
-
     bgCtx.strokeStyle = "#56565656";
+
     for (const row of this.map) {
       for (const cell of row) {
         const [x, y] = responseBlockAxis(

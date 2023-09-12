@@ -1,10 +1,4 @@
-import { effectCtx, gameCtx, UNIT_SIZE } from "@src/util/global";
-import cat from "@src/assets/animals/cat.png";
-import dog from "@src/assets/animals/dog.png";
-import lion from "@src/assets/animals/lion.png";
-import duck from "@src/assets/animals/duck.png";
-import mouse from "@src/assets/animals/mouse.png";
-import rabbit from "@src/assets/animals/rabbit.png";
+import { effectCtx, gameCtx, images, UNIT_SIZE } from "@src/util/global";
 import { responseBlockAxis, responsePointerAxis } from "@src/util/tool";
 
 export default class Cell {
@@ -33,57 +27,24 @@ export default class Cell {
     Cell.autoIncrement++;
   }
 
-  getImage() {
-    const img = document.createElement("img");
-    switch (this.type) {
-      case "cat":
-        img.src = cat;
-        break;
-      case "dog":
-        img.src = dog;
-        break;
-      case "lion":
-        img.src = lion;
-        break;
-      case "duck":
-        img.src = duck;
-        break;
-      case "mouse":
-        img.src = mouse;
-        break;
-      case "rabbit":
-        img.src = rabbit;
-        break;
-    }
-    return img;
-  }
-
   swap(target: Cell) {
-    let resolver1: (value: unknown) => void;
-    let resolver2: (value: unknown) => void;
-    const promise1 = new Promise((resolve) => (resolver1 = resolve));
-    const promise2 = new Promise((resolve) => (resolver2 = resolve));
+    let resolver: (value: unknown) => void;
+    const promise = new Promise((resolve) => (resolver = resolve));
     const selfX = this.x;
     const targetX = target.x;
     if (this.x > target.x) {
-      const thisMove = setInterval(() => {
+      const move = setInterval(() => {
         target.x += 0.1;
-        if (targetX >= this.x) {
-          clearInterval(thisMove);
-          target.x = selfX;
-          resolver1(true);
-        }
-      }, 16);
-      const targetMove = setInterval(() => {
         this.x -= 0.1;
-        if (selfX <= target.x) {
-          clearInterval(targetMove);
+        if (targetX >= this.x && selfX <= target.x) {
+          clearInterval(move);
           this.x = targetX;
-          resolver2(true);
+          target.x = selfX;
+          resolver(true);
         }
       }, 16);
     }
-    return Promise.all([promise1, promise2]);
+    return promise;
   }
 
   highlight(type: string) {
@@ -102,8 +63,9 @@ export default class Cell {
 
   render() {
     const [x, y] = responseBlockAxis(this.x, this.y);
+
     gameCtx.drawImage(
-      this.getImage(),
+      images[this.type],
       this.x * UNIT_SIZE + Math.floor(x - this.x),
       this.y * UNIT_SIZE + Math.floor(y - this.y),
       50,
@@ -119,6 +81,6 @@ export default class Cell {
   }
 
   static copy(cell: Cell, toCell: Cell) {
-    return new Cell(toCell.type, toCell.x, toCell.y, cell.score);
+    return new Cell(cell.type, toCell.x, toCell.y, cell.score);
   }
 }

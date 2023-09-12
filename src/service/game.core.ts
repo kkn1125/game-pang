@@ -25,22 +25,28 @@ export default class GameCore {
   logger: Logger;
 
   constructor() {
+    this.logger = new Logger(this.constructor.name);
+    this.logger.dir("constructor").log("setup game core...");
+
     this.blockManager = new BlockManager();
     this.animator = new Animator();
     this.mapGenerator = new MapGenerator();
     this.scoreCalculator = new ScoreCalculator();
     this.pointer = new Pointer();
-
-    this.logger = new Logger(this.constructor.name);
-    this.logger.dir("constructor").log("setup game core...");
-    this.pointer.inject(this.mapGenerator);
   }
 
   initialize() {
     this.logger.dir("initialize").log("initialize");
     this.setupCanvas();
+    this.injection();
+    
     const map = this.blockManager.initialize();
     this.mapGenerator.initialize(map);
+  }
+
+  injection() {
+    this.pointer.inject(this.blockManager);
+    this.pointer.inject(this.mapGenerator);
   }
 
   handleResizeCanvasSize = () => {
@@ -68,7 +74,6 @@ export default class GameCore {
   }
 
   animation(time: number) {
-    requestAnimationFrame(this.animation.bind(this));
     this.clearRect();
     time *= 0.001;
 
@@ -80,6 +85,8 @@ export default class GameCore {
     this.scoreCalculator.render();
     this.mapGenerator.render();
     this.blockManager.render();
+
+    requestAnimationFrame(this.animation.bind(this));
 
     this.seek = Math.floor(time);
   }
