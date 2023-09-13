@@ -7,7 +7,8 @@
     "dev": "vite",
     "build": "tsc && vite build",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "deploy": "npm run build && cd dist/ && touch .nojekyll && git add -A && git commit -m \"✨ gh-pages\" && git push https://github.com/kkn1125/game-pang.git master:gh-pages -f"
   },
   "dependencies": {
     "chalk": "^5.3.0",

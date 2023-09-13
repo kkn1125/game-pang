@@ -5,11 +5,15 @@ export default defineConfig(({ command, mode }) => {
   // Load env file based on `mode` in the current working directory.
   // Set the third parameter to '' to load all env regardless of the `VITE_` prefix.
   const env = loadEnv(mode, process.cwd(), "");
+
+  const MODE = process.env.NODE_ENV || "production";
+
   return {
     // vite config
     define: {
       __APP_ENV__: JSON.stringify(env.APP_ENV),
     },
+    base: MODE === "development" ? "" : "/game-pang/",
     server: {
       host: process.env.HOST,
       port: Number(process.env.PORT) || 5000,
