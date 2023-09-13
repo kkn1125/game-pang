@@ -1,6 +1,7 @@
 import Cell, { Direciton } from "@src/model/cell";
 import { gameCtx, GAME_X_WIDTH, GAME_Y_WIDTH } from "@src/util/global";
 import Logger from "@src/util/logger";
+import ScoreCalculator from "./score.calculator";
 
 type BlockSize = {
   x: number;
@@ -20,10 +21,16 @@ export default class BlockManager {
   logger: Logger;
   blockSize: BlockSize = { x: 50, y: 50 };
   map: Cell[][] = [];
+  scoreCalculator: ScoreCalculator;
 
-  constructor() {
+  constructor(scoreCalculator: ScoreCalculator) {
     this.logger = new Logger(this.constructor.name);
     this.logger.dir("constructor").log("initialize");
+    this.scoreCalculator = scoreCalculator;
+  }
+
+  scoreUp(score: number) {
+    this.scoreCalculator.scoreUp(score);
   }
 
   initialize() {
@@ -256,9 +263,9 @@ export default class BlockManager {
     const targetY = targetCell.y;
     const temp: Cell[] = [targetCell];
     for (let y = targetY + 1; y < GAME_Y_WIDTH; y++) {
-      console.log(y, targetX);
+      this.logger.dir("downLinePang").log(y, targetX);
       const cell = this.map[y][targetX];
-      console.log(cell);
+      this.logger.dir("downLinePang").log(cell);
       if (cell.type === targetCell.type) {
         temp.push(this.map[y][targetX]);
         continue;
@@ -351,6 +358,7 @@ export default class BlockManager {
 
     pangResult.flat(1).forEach((cell) => {
       cell.pang();
+      this.scoreCalculator.scoreUp(cell.score);
     });
 
     // 점수 획득 시 (팡) 빈 셀 채우기 로직 작성

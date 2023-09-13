@@ -14,7 +14,7 @@
     "isolatedModules": true,
     "noEmit": true,
     // "jsx": "react-jsx",
-    "types": ["src/types/*", "jest"],
+    "types": ["jest"],
     "allowJs": true,
     "paths": {
       "@src/*": ["./src/*"]
@@ -23,7 +23,7 @@
     "noImplicitThis": true,
     "noImplicitAny": false,
     "strictPropertyInitialization": false,
-    
+
     /* Linting */
     "strict": true,
     "allowUnusedLabels": true,

@@ -46,26 +46,26 @@ export default class Pointer {
         this.grab.isSelected = true;
         this.swapTemp.push(this.grab);
       }
-      console.log(this.swapTemp);
+      this.logger.dir("clickCell").log(this.swapTemp);
       if (this.swapTemp.length === 2) {
-        console.log("this.swapTemp length", 2);
+        this.logger.dir("clickCell").log("this.swapTemp length", 2);
         if (
           this.dependency.blockManager &&
           this.swapTemp[0] !== this.swapTemp[1]
         ) {
-          console.log("swap both run");
+          this.logger.dir("clickCell").log("swap both run");
           await this.dependency.blockManager.swapBothCell(
             this.swapTemp[0],
             this.swapTemp[1]
           );
-          console.log("swap both end");
+          this.logger.dir("clickCell").log("swap both end");
         }
 
         this.logger.dir("clickCell").log(this.swapTemp);
         this.swapTemp[0].isSelected = false;
         this.swapTemp[1].isSelected = false;
         this.swapTemp = [];
-        console.log(this.swapTemp);
+        this.logger.dir("clickCell").log(this.swapTemp);
       }
       this.logger.dir("clickCell").debug(this.swapTemp);
     } else {

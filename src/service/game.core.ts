@@ -6,6 +6,7 @@ import {
   GAME_X_WIDTH,
   GAME_Y_WIDTH,
   ROOT,
+  scoreCanvas,
   UNIT_SIZE,
 } from "@src/util/global";
 import Logger from "@src/util/logger";
@@ -29,10 +30,10 @@ export default class GameCore {
     this.logger = new Logger(this.constructor.name);
     this.logger.dir("constructor").log("setup game core...");
 
-    this.blockManager = new BlockManager();
+    this.scoreCalculator = new ScoreCalculator();
+    this.blockManager = new BlockManager(this.scoreCalculator);
     this.animator = new Animator();
     this.mapGenerator = new MapGenerator();
-    this.scoreCalculator = new ScoreCalculator();
     this.pointer = new Pointer();
   }
 
@@ -68,6 +69,8 @@ export default class GameCore {
     gameCanvas.height = innerHeight;
     effectCanvas.width = innerWidth;
     effectCanvas.height = innerHeight;
+    scoreCanvas.width = innerWidth;
+    scoreCanvas.height = innerHeight;
   };
 
   setupCanvas() {
@@ -79,6 +82,8 @@ export default class GameCore {
     ROOT.append(gameCanvas);
     this.logger.dir("setupCanvas").log("add effect canvas");
     ROOT.append(effectCanvas);
+    this.logger.dir("setupCanvas").log("add score canvas");
+    ROOT.append(scoreCanvas);
 
     this.handleResizeCanvasSize();
     this.logger.dir("setupCanvas").log("add event window resize detect");

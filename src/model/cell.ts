@@ -194,12 +194,12 @@ export default class Cell {
       );
     }
 
-    if (this.isSelected) {
-      this.highlight("select");
-    }
-    if (this.isHover) {
-      this.highlight("hover");
-    }
+    // if (this.isSelected) {
+    //   this.highlight("select");
+    // }
+    // if (this.isHover) {
+    //   this.highlight("hover");
+    // }
   }
   renderOtherCanvas(ctx: CanvasRenderingContext2D) {
     const [x, y] = responseBlockAxis(this.x, this.y);
@@ -222,12 +222,12 @@ export default class Cell {
       );
     }
 
-    if (this.isSelected) {
-      this.highlight("select");
-    }
-    if (this.isHover) {
-      this.highlight("hover");
-    }
+    // if (this.isSelected) {
+    //   this.highlight("select");
+    // }
+    // if (this.isHover) {
+    //   this.highlight("hover");
+    // }
   }
 
   static copy(cell: Cell, toCell: Cell) {

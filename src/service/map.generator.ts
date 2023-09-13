@@ -1,6 +1,8 @@
 import Cell from "@src/model/cell";
 import {
   bgCtx,
+  BG_COLOR,
+  effectCtx,
   gameCtx,
   GAME_X_WIDTH,
   GAME_Y_WIDTH,
@@ -28,7 +30,11 @@ export default class MapGenerator {
 
   render() {
     this.clearRect();
-    bgCtx.strokeStyle = "#56565656";
+
+    bgCtx.fillStyle = BG_COLOR + "56";
+    bgCtx.fillRect(0, 0, innerWidth, innerHeight);
+
+    bgCtx.strokeStyle = "#56565626";
 
     for (const row of this.map) {
       for (const cell of row) {
@@ -39,6 +45,36 @@ export default class MapGenerator {
         bgCtx.strokeRect(x, y, UNIT_SIZE, UNIT_SIZE);
       }
     }
+
+    effectCtx.fillStyle = BG_COLOR;
+    // top, bottom
+    effectCtx.fillRect(
+      0,
+      0,
+      innerWidth,
+      (innerHeight - GAME_Y_WIDTH * UNIT_SIZE) / 2
+    );
+    effectCtx.fillRect(
+      0,
+      GAME_Y_WIDTH * UNIT_SIZE + (innerHeight - GAME_Y_WIDTH * UNIT_SIZE) / 2,
+      innerWidth,
+      (innerHeight - GAME_Y_WIDTH * UNIT_SIZE) / 2
+    );
+    // both-side
+    effectCtx.fillRect(
+      0,
+      (innerHeight - GAME_Y_WIDTH * UNIT_SIZE) / 2,
+      innerWidth / 2 - (GAME_X_WIDTH * UNIT_SIZE) / 2,
+      GAME_Y_WIDTH * UNIT_SIZE
+    );
+    effectCtx.fillRect(
+      innerWidth / 2 -
+        (GAME_X_WIDTH * UNIT_SIZE) / 2 +
+        GAME_X_WIDTH * UNIT_SIZE,
+      (innerHeight - GAME_Y_WIDTH * UNIT_SIZE) / 2,
+      innerWidth / 2 - (GAME_X_WIDTH * UNIT_SIZE) / 2,
+      GAME_Y_WIDTH * UNIT_SIZE
+    );
 
     bgCtx.strokeStyle = "black";
   }
