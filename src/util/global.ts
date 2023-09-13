@@ -1,9 +1,9 @@
-import cat from "@src/assets/animals/cat.png";
-import dog from "@src/assets/animals/dog.png";
-import lion from "@src/assets/animals/lion.png";
-import duck from "@src/assets/animals/duck.png";
-import mouse from "@src/assets/animals/mouse.png";
-import rabbit from "@src/assets/animals/rabbit.png";
+import cat from "@src/assets/animals/cat-pad.png";
+import dog from "@src/assets/animals/dog-pad.png";
+import lion from "@src/assets/animals/lion-pad.png";
+import duck from "@src/assets/animals/duck-pad.png";
+import mouse from "@src/assets/animals/mouse-pad.png";
+import rabbit from "@src/assets/animals/rabbit-pad.png";
 
 const catImg = document.createElement("img");
 catImg.src = cat;

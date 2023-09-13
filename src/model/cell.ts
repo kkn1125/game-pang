@@ -1,4 +1,5 @@
 import { effectCtx, gameCtx, images, UNIT_SIZE } from "@src/util/global";
+import Logger from "@src/util/logger";
 import { responseBlockAxis, responsePointerAxis } from "@src/util/tool";
 
 export default class Cell {
@@ -13,6 +14,8 @@ export default class Cell {
   isSelected: boolean;
   isHover: boolean;
 
+  logger: Logger;
+
   constructor(type: string, x: number, y: number, score: number) {
     this.id = Cell.autoIncrement;
     this.type = type;
@@ -25,9 +28,61 @@ export default class Cell {
     this.isHover = false;
 
     Cell.autoIncrement++;
+
+    this.logger = new Logger("Cell");
   }
 
-  swap(target: Cell) {
+  getDirectionWith(dstCell: Cell) {
+    const srcX = this.x;
+    const srcY = this.y;
+    const dstX = dstCell.x;
+    const dstY = dstCell.y;
+    // const srcX = this.x;
+    // const srcY = this.y;
+    // const dstX = dstCell.x;
+    // const dstY = dstCell.y;
+
+    // const sameY = dstY === srcY;
+    // const sameX = dstX === srcX;
+    // const gapX = Math.abs(dstX - srcX);
+    // const gapY = Math.abs(dstY - srcY);
+
+    // const isHorizontalMove = gapX === 1 && sameY;
+    // const isVerticalMove = gapY === 1 && sameX;
+
+    // if (!(isHorizontalMove || isVerticalMove)) {
+    //   return null;
+    // }
+    this.logger.log(srcX, srcY, dstX, dstY);
+    if (dstX > srcX) {
+      // 오른쪽으로 스왑
+      this.logger.dir("getDirectionWith").log("오른쪽으로 스왑");
+      return "right";
+    }
+    if (dstX < srcX) {
+      // 왼쪽으로 스왑
+      this.logger.dir("getDirectionWith").log("왼쪽으로 스왑");
+      return "left";
+    }
+    if (dstY > srcY) {
+      // 아래쪽으로 스왑
+      this.logger.dir("getDirectionWith").log("아래쪽으로 스왑");
+      return "down";
+    }
+    if (dstY < srcY) {
+      // 위쪽으로 스왑
+      this.logger.dir("getDirectionWith").log("위쪽으로 스왑");
+      return "up";
+    }
+
+    this.logger
+      .dir("getDirectionWith")
+      .log(new Error("invalid both cell direction."));
+
+    return null;
+  }
+
+  swapEffect(target: Cell, direction: string) {
     let resolver: (value: unknown) => void;
     const promise = new Promise((resolve) => (resolver = resolve));
     const selfX = this.x;
@@ -38,11 +93,18 @@ export default class Cell {
         this.x -= 0.1;
         if (targetX >= this.x && selfX <= target.x) {
           clearInterval(move);
-          this.x = targetX;
-          target.x = selfX;
+          this.x = selfX;
+          target.x = targetX;
           resolver(true);
         }
+        this.logger
+          .dir("swapEffect")
+          .debug(`from ${this.type} to ${target.type} swapping...`);
       }, 16);
+    } else {
+      setTimeout(() => {
+        resolver(false);
+      }, 0);
     }
     return promise;
   }

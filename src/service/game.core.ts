@@ -23,6 +23,7 @@ export default class GameCore {
   scoreCalculator: ScoreCalculator;
   pointer: Pointer;
   logger: Logger;
+  _dev: boolean;
 
   constructor() {
     this.logger = new Logger(this.constructor.name);
@@ -35,11 +36,22 @@ export default class GameCore {
     this.pointer = new Pointer();
   }
 
+  setOption(property: string, value: string | number | boolean) {
+    if (`_${property}` in this) {
+      this.logger
+        .dir("setOption")
+        .log(`success set option, property: ${property}, value: ${value}`);
+      this[`_${property}`] = value;
+    } else {
+      throw new Error(`${property} is not a valid property`);
+    }
+  }
+
   initialize() {
     this.logger.dir("initialize").log("initialize");
     this.setupCanvas();
     this.injection();
-    
+
     const map = this.blockManager.initialize();
     this.mapGenerator.initialize(map);
   }

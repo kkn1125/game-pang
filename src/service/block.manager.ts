@@ -51,10 +51,71 @@ export default class BlockManager {
     return maps;
   }
 
-  async swapBothCell(srcCell: Cell, destCell: Cell) {
-    await srcCell.swap(destCell);
-    this.map[destCell.y][destCell.x] = Cell.copy(srcCell, destCell);
-    this.map[srcCell.y][srcCell.x] = Cell.copy(destCell, srcCell);
+  isInBoundary(srcCell: Cell, dstCell: Cell) {
+    const srcX = srcCell.x;
+    const srcY = srcCell.y;
+
+    // 상
+    const topCell = this.map[srcY - 1][srcX];
+    // 하
+    const bottomCell = this.map[srcY + 1][srcX];
+    // 좌
+    const leftCell = this.map[srcY][srcX - 1];
+    // 우
+    const rightCell = this.map[srcY][srcX + 1];
+
+    const isIn =
+      topCell === dstCell ||
+      bottomCell === dstCell ||
+      leftCell === dstCell ||
+      rightCell === dstCell;
+
+    this.logger.dir("swapBothCell").dir("isInBoundary").debug(isIn);
+
+    return isIn;
+  }
+
+  async swapBothCell(srcCell: Cell, dstCell: Cell) {
+    this.logger.dir("swapBothCell").debug("before swap both cell:", this.map);
+    this.logger
+      .dir("swapBothCell")
+      .dir("src")
+      .debug("get both cell in this.map", this.map[srcCell.y][srcCell.x]);
+    this.logger
+      .dir("swapBothCell")
+      .dir("dest")
+      .debug("get both cell in this.map", this.map[dstCell.y][dstCell.x]);
+
+    const isBoundary = this.isInBoundary(srcCell, dstCell);
+
+    if (!isBoundary) return;
+
+    const swapDirection = srcCell.getDirectionWith(dstCell);
+    if (swapDirection === null) return;
+
+    this.logger.dir("swapBothCell").log(swapDirection);
+
+    const swapResult = await srcCell.swapEffect(dstCell, swapDirection);
+    if (!swapResult) {
+      this.logger.dir("swapBothCell").error("swap error");
+    }
+
+    this.logger.dir("swapBothCell").debug("success swapEffect.");
+
+    const destCopyCell = Cell.copy(dstCell, srcCell);
+    const srcCopyCell = Cell.copy(srcCell, dstCell);
+    this.map[srcCell.y][srcCell.x] = destCopyCell;
+    this.map[dstCell.y][dstCell.x] = srcCopyCell;
+
+    this.logger.dir("swapBothCell").debug("after swap both cell:", this.map);
+    this.logger
+      .dir("swapBothCell")
+      .dir("src")
+      .debug("get both cell in this.map", this.map[srcCell.y][srcCell.x]);
+    this.logger
+      .dir("swapBothCell")
+      .dir("dest")
+      .debug("get both cell in this.map", this.map[dstCell.y][dstCell.x]);
   }
 
   render() {
