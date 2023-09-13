@@ -2,6 +2,8 @@ import { effectCtx, gameCtx, images, UNIT_SIZE } from "@src/util/global";
 import Logger from "@src/util/logger";
 import { responseBlockAxis, responsePointerAxis } from "@src/util/tool";
 
+export type Direciton = "left" | "right" | "down" | "up" | null;
+
 export default class Cell {
   static autoIncrement: number = 0;
   id: number;
@@ -86,27 +88,75 @@ export default class Cell {
     let resolver: (value: unknown) => void;
     const promise = new Promise((resolve) => (resolver = resolve));
     const selfX = this.x;
+    const selfY = this.y;
     const targetX = target.x;
-    if (this.x > target.x) {
-      const move = setInterval(() => {
-        target.x += 0.1;
-        this.x -= 0.1;
-        if (targetX >= this.x && selfX <= target.x) {
-          clearInterval(move);
-          this.x = selfX;
-          target.x = targetX;
-          resolver(true);
-        }
-        this.logger
-          .dir("swapEffect")
-          .debug(`from ${this.type} to ${target.type} swapping...`);
-      }, 16);
-    } else {
-      setTimeout(() => {
-        resolver(false);
-      }, 0);
+    const targetY = target.y;
+    let move: number;
+    switch (direction) {
+      case "left":
+        move = setInterval(() => {
+          target.x += 0.1;
+          this.x -= 0.1;
+          if (targetX >= this.x && selfX <= target.x) {
+            clearInterval(move);
+            this.x = selfX;
+            target.x = targetX;
+            resolver(true);
+          }
+        }, 16);
+        break;
+      case "right":
+        move = setInterval(() => {
+          target.x -= 0.1;
+          this.x += 0.1;
+          if (targetX <= this.x && selfX >= target.x) {
+            clearInterval(move);
+            this.x = selfX;
+            target.x = targetX;
+            resolver(true);
+          }
+        }, 16);
+        break;
+      case "down":
+        move = setInterval(() => {
+          target.y -= 0.1;
+          this.y += 0.1;
+          if (targetY <= this.y && selfY >= target.y) {
+            clearInterval(move);
+            this.y = selfY;
+            target.y = targetY;
+            resolver(true);
+          }
+        }, 16);
+        break;
+      case "up":
+        move = setInterval(() => {
+          target.y += 0.1;
+          this.y -= 0.1;
+          if (targetY >= this.y && selfY <= target.y) {
+            clearInterval(move);
+            this.y = selfY;
+            target.y = targetY;
+            resolver(true);
+          }
+        }, 16);
+        break;
+      default:
+        setTimeout(() => {
+          resolver(false);
+        }, 0);
+        break;
     }
+    this.logger
+      .dir("swapEffect")
+      .debug(`from ${this.type} to ${target.type} swapping...`);
+
     return promise;
+  }
+
+  pang() {
+    this.type = "";
+    this.isPang = true;
   }
 
   highlight(type: string) {
@@ -125,14 +175,52 @@ export default class Cell {
 
   render() {
     const [x, y] = responseBlockAxis(this.x, this.y);
+    const image = images[this.type];
+    if (image) {
+      gameCtx.drawImage(
+        image,
+        this.x * UNIT_SIZE + Math.floor(x - this.x),
+        this.y * UNIT_SIZE + Math.floor(y - this.y),
+        50,
+        50
+      );
+    } else {
+      gameCtx.fillStyle = "#00000000";
+      gameCtx.fillRect(
+        this.x * UNIT_SIZE + Math.floor(x - this.x),
+        this.y * UNIT_SIZE + Math.floor(y - this.y),
+        UNIT_SIZE,
+        UNIT_SIZE
+      );
+    }
 
-    gameCtx.drawImage(
-      images[this.type],
-      this.x * UNIT_SIZE + Math.floor(x - this.x),
-      this.y * UNIT_SIZE + Math.floor(y - this.y),
-      50,
-      50
-    );
+    if (this.isSelected) {
+      this.highlight("select");
+    }
+    if (this.isHover) {
+      this.highlight("hover");
+    }
+  }
+  renderOtherCanvas(ctx: CanvasRenderingContext2D) {
+    const [x, y] = responseBlockAxis(this.x, this.y);
+    const image = images[this.type];
+    if (image) {
+      ctx.drawImage(
+        image,
+        this.x * UNIT_SIZE + Math.floor(x - this.x),
+        this.y * UNIT_SIZE + Math.floor(y - this.y),
+        50,
+        50
+      );
+    } else {
+      ctx.fillStyle = "#00000000";
+      ctx.fillRect(
+        this.x * UNIT_SIZE + Math.floor(x - this.x),
+        this.y * UNIT_SIZE + Math.floor(y - this.y),
+        UNIT_SIZE,
+        UNIT_SIZE
+      );
+    }
 
     if (this.isSelected) {
       this.highlight("select");
@@ -144,5 +232,17 @@ export default class Cell {
 
   static copy(cell: Cell, toCell: Cell) {
     return new Cell(cell.type, toCell.x, toCell.y, cell.score);
+  }
+
+  deepCopySelf() {
+    return new Cell(this.type, this.x, this.y, this.score);
+  }
+
+  deepCopy(cell: Cell) {
+    return new Cell(cell.type, cell.x, cell.y, cell.score);
+  }
+
+  deepCopyWithAxis(cell: Cell, x: number, y: number) {
+    return new Cell(cell.type, x, y, cell.score);
   }
 }
