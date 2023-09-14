@@ -1,13 +1,19 @@
 import {
   bgCanvas,
+  bgCtx,
   effectCanvas,
+  effectCtx,
   gameCanvas,
   gameCtx,
   GAME_X_WIDTH,
   GAME_Y_WIDTH,
   ROOT,
   scoreCanvas,
+  scoreCtx,
+  selectCanvas,
+  selectCtx,
   UNIT_SIZE,
+  wait,
 } from "@src/util/global";
 import Logger from "@src/util/logger";
 import Animator from "./animator";
@@ -25,6 +31,7 @@ export default class GameCore {
   pointer: Pointer;
   logger: Logger;
   _dev: boolean;
+  canvases: HTMLCanvasElement[] = [];
 
   constructor() {
     this.logger = new Logger(this.constructor.name);
@@ -50,7 +57,13 @@ export default class GameCore {
 
   initialize() {
     this.logger.dir("initialize").log("initialize");
-    this.setupCanvas();
+    this.setupCanvas(
+      bgCanvas,
+      gameCanvas,
+      effectCanvas,
+      scoreCanvas,
+      selectCanvas
+    );
     this.injection();
 
     const map = this.blockManager.initialize();
@@ -63,27 +76,23 @@ export default class GameCore {
   }
 
   handleResizeCanvasSize = () => {
-    bgCanvas.width = innerWidth;
-    bgCanvas.height = innerHeight;
-    gameCanvas.width = innerWidth;
-    gameCanvas.height = innerHeight;
-    effectCanvas.width = innerWidth;
-    effectCanvas.height = innerHeight;
-    scoreCanvas.width = innerWidth;
-    scoreCanvas.height = innerHeight;
+    this.logger
+      .dir("setupCanvas")
+      .dir("handleResizeCanvasSize")
+      .log(`resize all canvas`);
+    for (const canvas of this.canvases) {
+      canvas.width = innerWidth;
+      canvas.height = innerHeight;
+    }
   };
 
-  setupCanvas() {
+  setupCanvas(...canvases: HTMLCanvasElement[]) {
+    this.canvases = canvases;
     this.logger.dir("setupCanvas").log("setup canvas elements");
-
-    this.logger.dir("setupCanvas").log("add background canvas");
-    ROOT.append(bgCanvas);
-    this.logger.dir("setupCanvas").log("add game canvas");
-    ROOT.append(gameCanvas);
-    this.logger.dir("setupCanvas").log("add effect canvas");
-    ROOT.append(effectCanvas);
-    this.logger.dir("setupCanvas").log("add score canvas");
-    ROOT.append(scoreCanvas);
+    for (const canvas of canvases) {
+      this.logger.dir("setupCanvas").log(`add ${canvas.id} canvas`);
+      ROOT.append(canvas);
+    }
 
     this.handleResizeCanvasSize();
     this.logger.dir("setupCanvas").log("add event window resize detect");
@@ -92,11 +101,12 @@ export default class GameCore {
 
   animation(time: number) {
     this.clearRect();
+    const milliseconds = time;
     time *= 0.001;
 
-    if (this.seek !== Math.floor(time)) {
+    if (Math.floor(milliseconds) % 60 === 0) {
       // timer zone
-      this.renderPerSecond.call(this);
+      // this.renderPerSecond.call(this);
     }
 
     this.scoreCalculator.render();
@@ -109,7 +119,11 @@ export default class GameCore {
   }
 
   clearRect() {
+    bgCtx.clearRect(0, 0, innerWidth, innerHeight);
+    scoreCtx.clearRect(0, 0, innerWidth, innerHeight);
     gameCtx.clearRect(0, 0, innerWidth, innerHeight);
+    selectCtx.clearRect(0, 0, innerWidth, innerHeight);
+    effectCtx.clearRect(0, 0, innerWidth, innerHeight);
   }
 
   render() {
@@ -118,6 +132,9 @@ export default class GameCore {
     this.logger.dir("render").log("start calulator rendering...");
     this.logger.dir("render").log("start game map rendering...");
     this.logger.dir("render").log("start block rendering...");
+
+    // start detect pang lines
+    this.blockManager.autoPangAndFill();
 
     requestAnimationFrame(this.animation.bind(this));
   }

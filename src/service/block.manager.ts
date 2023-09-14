@@ -1,5 +1,5 @@
 import Cell, { Direciton } from "@src/model/cell";
-import { gameCtx, GAME_X_WIDTH, GAME_Y_WIDTH } from "@src/util/global";
+import { gameCtx, GAME_X_WIDTH, GAME_Y_WIDTH, wait } from "@src/util/global";
 import Logger from "@src/util/logger";
 import ScoreCalculator from "./score.calculator";
 
@@ -311,6 +311,17 @@ export default class BlockManager {
     return temp;
   }
 
+  async revertSwap(srcCell: Cell, dstCell: Cell) {
+    let resolver: (value: unknown) => void;
+    const promise = new Promise((resolve) => (resolver = resolve));
+    setTimeout(() => {
+      this.swapBothCell(srcCell, dstCell).then(() => {
+        resolver(true);
+      });
+    }, 150);
+    return promise;
+  }
+
   async swapBothCell(srcCell: Cell, dstCell: Cell) {
     this.logger.dir("swapBothCell").debug("before swap both cell:", this.map);
     this.logger
@@ -324,10 +335,10 @@ export default class BlockManager {
 
     const isBoundary = this.isInBoundary(srcCell, dstCell);
 
-    if (!isBoundary) return;
+    if (!isBoundary) return false;
 
     const swapDirection = srcCell.getDirectionWith(dstCell);
-    if (swapDirection === null) return;
+    if (swapDirection === null) return false;
 
     this.logger.dir("swapBothCell").log(swapDirection);
 
@@ -350,29 +361,42 @@ export default class BlockManager {
     this.logger.dir("swapBothCell").dir("check src").debug(swapedSrcCell);
     this.logger.dir("swapBothCell").dir("check dst").debug(swapedDstCell);
 
+    // exec pang
     const pangResult = this.inLinePang(
       swapedDstCell,
       swapedSrcCell,
       swapDirection
     );
 
+    if (pangResult.every((cell) => cell.length === 0)) {
+      this.logger.dir("swapBothCell").debug("no matched cell line");
+      return false;
+    }
+
     pangResult.flat(1).forEach((cell) => {
       cell.pang();
       this.scoreCalculator.scoreUp(cell.score);
     });
+    return true;
+  }
 
-    // 점수 획득 시 (팡) 빈 셀 채우기 로직 작성
-    await this.searchColumnAndFillEmptyCell();
+  async swapBothCellAndFill(srcCell: Cell, dstCell: Cell) {
+    // let resolver: (value: unknown) => void;
+    // const promise = new Promise((resolve) => (resolver = resolve));
+    const isSwapped = await this.swapBothCell(srcCell, dstCell);
+    // console.log("isSwapped", isSwapped);
+    if (!isSwapped) {
+      this.logger.dir("swapBothCellAndFill").error("not swapped");
+      return false;
+    }
 
-    this.logger.dir("swapBothCell").debug("after swap both cell:", this.map);
-    this.logger
-      .dir("swapBothCell")
-      .dir("src")
-      .debug("get both cell in this.map", this.map[srcCell.y][srcCell.x]);
-    this.logger
-      .dir("swapBothCell")
-      .dir("dest")
-      .debug("get both cell in this.map", this.map[dstCell.y][dstCell.x]);
+    await this.searchColumnsAndFillEmptyCell();
+    // setTimeout(() => {
+    //   this.autoPangAndFill().then(() => {
+    //     resolver(true);
+    //   });
+    // }, 100);
+    return true;
   }
 
   getColumnLineFromStartPoint(x: number, startPoint: number) {
@@ -386,8 +410,9 @@ export default class BlockManager {
     }
     return temp;
   }
+
   getColumnLine(x: number) {
-    const yValue = GAME_Y_WIDTH - 1;
+    const yValue = GAME_Y_WIDTH;
     const temp: Cell[] = [];
     for (let level = 0; level < yValue; level++) {
       const cell = this.map[level][x];
@@ -398,13 +423,139 @@ export default class BlockManager {
     return temp;
   }
 
-  async searchColumnAndFillEmptyCell() {
+  getPangableList() {
+    const rows = this.searchRowsAndFilterPangable();
+    const columns = this.searchColumnsAndFilterPangable();
+
+    const rowScores = rows.reduce(
+      (acc, row) =>
+        (acc += (row?.[0].score || 0) * (row.slice(3)?.length || 0)),
+      0
+    );
+    const columnScores = columns.reduce(
+      (acc, column) =>
+        (acc += (column?.[0].score || 0) * (column.slice(3)?.length || 0)),
+      0
+    );
+
     this.logger
-      .dir("searchColumnAndFillEmptyCell")
-      .log("start search empty column and fill cells...");
-    for (let index = 0; index < GAME_X_WIDTH; index++) {
-      await this.columnFillNewAnimals(index);
+      .dir("getPangableList")
+      .debug("추가 점수:", rowScores + columnScores);
+
+    return [...new Set([...rows, ...columns].flat(1))];
+  }
+
+  async autoPangAndFill() {
+    const pangableList = this.getPangableList();
+    // const tempType: string[] = [];
+    pangableList.forEach((cell) => {
+      cell.pang();
+
+      // if (tempType.length === 0 || tempType.includes(cell.type)) {
+      //   tempType.push(cell.type);
+      // } else {
+      //   tempType.splice(0);
+      // }
+
+      // const plusScore = (tempType.length - 3) * cell.score;
+
+      this.scoreCalculator.scoreUp(
+        cell.score /*  + (plusScore > 0 ? plusScore : 0) */
+      );
+    });
+    await this.searchColumnsAndFillEmptyCell();
+
+    const isDone = this.getPangableList().length === 0;
+
+    if (!isDone) {
+      return await this.autoPangAndFill();
     }
+
+    return isDone;
+  }
+
+  // all cell filter pangable by rows
+  searchRowsAndFilterPangable() {
+    // this.logger
+    //   .dir("searchRowsAndFilterPangable")
+    //   .debug("check row cells is pangable");
+
+    const rowTemp: Cell[][] = [];
+    for (const row of this.map) {
+      for (const cell of row) {
+        // 빈 배열 -> 새 배열 추가
+        // 마지막 배열 값의 셀과 현재 셀 값이 다를때 -> 새 배열 추가
+        // 마지막 배열 값이 없을 때 -> 새 배열 추가
+
+        const isEmpty = rowTemp.length === 0;
+        const isEmptyLastArray = rowTemp[rowTemp.length - 1]?.length === 0;
+        const isDifferenceType =
+          rowTemp[rowTemp.length - 1]?.[0]?.type !== cell.type;
+        if (isEmpty || isEmptyLastArray || isDifferenceType) {
+          rowTemp.push([]);
+        }
+
+        rowTemp[rowTemp.length - 1].push(cell);
+      }
+      rowTemp.push([]);
+    }
+    const getPangRows = rowTemp.filter((row) => row.length > 2);
+    // this.logger.dir("searchRowsAndFilterPangable").debug(getPangRows);
+    return getPangRows;
+  }
+
+  // all cell filter pangable by columns
+  searchColumnsAndFilterPangable() {
+    // this.logger
+    //   .dir("searchColumnsAndFilterPangable")
+    //   .debug("check column cells is pangable");
+
+    const columnTemp: Cell[][] = [];
+    for (let index = 0; index < GAME_X_WIDTH; index++) {
+      const columns = this.getColumnLine(index);
+      for (const cell of columns) {
+        // 빈 배열 -> 새 배열 추가
+        // 마지막 배열 값의 셀과 현재 셀 값이 다를때 -> 새 배열 추가
+        // 마지막 배열 값이 없을 때 -> 새 배열 추가
+
+        const isEmpty = columnTemp.length === 0;
+        const isEmptyLastArray =
+          columnTemp[columnTemp.length - 1]?.length === 0;
+        const isDifferenceType =
+          columnTemp[columnTemp.length - 1]?.[0]?.type !== cell.type;
+        if (isEmpty || isEmptyLastArray || isDifferenceType) {
+          columnTemp.push([]);
+        }
+
+        columnTemp[columnTemp.length - 1].push(cell);
+      }
+      columnTemp.push([]);
+    }
+
+    const getPangColumns = columnTemp.filter((column) => column.length > 2);
+    // this.logger.dir("searchColumnsAndFilterPangable").debug(getPangColumns);
+    return getPangColumns;
+  }
+
+  async searchColumnsAndFillEmptyCell() {
+    // this.logger
+    //   .dir("searchColumnsAndFillEmptyCell")
+    //   .log("start search empty column and fill cells...");
+    const promises: Promise<boolean[]>[] = [];
+    for (let index = 0; index < GAME_X_WIDTH; index++) {
+      promises.push(this.columnFillNewAnimals(index));
+    }
+
+    // 전체열 병렬 처리(처럼)하기 위함.
+    await Promise.all(promises);
+
+    const isDone = this.map.flat(1).every((cell) => cell.type !== "");
+
+    if (!isDone) {
+      return await this.searchColumnsAndFillEmptyCell();
+    }
+
+    return isDone;
   }
 
   async columnFillNewAnimals(x: number) {
@@ -421,12 +572,15 @@ export default class BlockManager {
       x
     );
 
+    /* fill column animation */
     const animationTemp: Cell[] = [];
 
     concatOriginAndNewCells.forEach((cell) => {
       const copyCell = cell.deepCopySelf();
       animationTemp.push(copyCell);
-      this.map[cell.y][cell.x] = copyCell;
+      if (this.map?.[cell.y]?.[cell.x]) {
+        this.map[cell.y][cell.x] = copyCell;
+      }
     });
 
     const promiseTemp: Promise<boolean>[] = [];
@@ -448,11 +602,12 @@ export default class BlockManager {
       });
     }
 
-    Promise.all(promiseTemp).then(() => {});
+    return Promise.all(promiseTemp);
+    /* fill column animation */
 
-    this.logger
-      .dir("columnFillNewAnimals")
-      .debug("concatOriginAndNewCells", concatOriginAndNewCells);
+    // this.logger
+    //   .dir("columnFillNewAnimals")
+    //   .debug("concatOriginAndNewCells", concatOriginAndNewCells);
   }
 
   findEmptyCell(cells: Cell[]) {
@@ -473,11 +628,11 @@ export default class BlockManager {
     // const promise: Promise<Cell[]> = new Promise(
     //   (resolve) => (resolver = resolve)
     // );
-    this.logger
-      .dir("searchColumnAndFillEmptyCell")
-      .dir("columnFillNewAnimals")
-      .dir("fillNewCells")
-      .debug(origin, startPoint, emptyAmount);
+    // this.logger
+    //   .dir("searchColumnsAndFillEmptyCell")
+    //   .dir("columnFillNewAnimals")
+    //   .dir("fillNewCells")
+    //   .debug(origin, startPoint, emptyAmount);
     // tempStartPoint 이게 사용되려나?
     let tempStartPoint = startPoint;
     const tempEmptyAmount = emptyAmount;
@@ -493,12 +648,12 @@ export default class BlockManager {
     for (let index = tempEmptyAmount - 1; index >= 0; index--) {
       const [type, score] = this.getRandomCellType();
       const copyCell = new Cell(type, x, index, score);
-      this.logger
-        .dir("searchColumnAndFillEmptyCell")
-        .dir("columnFillNewAnimals")
-        .dir("fillNewCells")
-        .dir("for loop")
-        .debug(copyCell);
+      // this.logger
+      //   .dir("searchColumnsAndFillEmptyCell")
+      //   .dir("columnFillNewAnimals")
+      //   .dir("fillNewCells")
+      //   .dir("for loop")
+      //   .debug(copyCell);
       temp.push(copyCell);
     }
 
@@ -514,9 +669,9 @@ export default class BlockManager {
       const cell = this.map[level][x];
       if (cell.type === "") {
         emptyAmount += 1;
-      }
-      if (startPoint === -1 && cell.type === "") {
-        startPoint = cell.y;
+        if (startPoint < cell.y) {
+          startPoint = cell.y;
+        }
       }
     }
     return [startPoint, emptyAmount];

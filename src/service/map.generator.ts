@@ -29,8 +29,6 @@ export default class MapGenerator {
   }
 
   render() {
-    this.clearRect();
-
     bgCtx.fillStyle = BG_COLOR + "56";
     bgCtx.fillRect(0, 0, innerWidth, innerHeight);
 
@@ -63,17 +61,17 @@ export default class MapGenerator {
     // both-side
     effectCtx.fillRect(
       0,
-      (innerHeight - GAME_Y_WIDTH * UNIT_SIZE) / 2,
+      0,
       innerWidth / 2 - (GAME_X_WIDTH * UNIT_SIZE) / 2,
-      GAME_Y_WIDTH * UNIT_SIZE
+      innerHeight
     );
     effectCtx.fillRect(
       innerWidth / 2 -
         (GAME_X_WIDTH * UNIT_SIZE) / 2 +
         GAME_X_WIDTH * UNIT_SIZE,
-      (innerHeight - GAME_Y_WIDTH * UNIT_SIZE) / 2,
+      0,
       innerWidth / 2 - (GAME_X_WIDTH * UNIT_SIZE) / 2,
-      GAME_Y_WIDTH * UNIT_SIZE
+      innerHeight
     );
 
     bgCtx.strokeStyle = "black";
@@ -81,9 +79,5 @@ export default class MapGenerator {
 
   clearSelect() {
     this.map.flat(1).forEach((cell) => (cell.isSelected = false));
-  }
-
-  clearRect() {
-    bgCtx.clearRect(0, 0, innerWidth, innerHeight);
   }
 }

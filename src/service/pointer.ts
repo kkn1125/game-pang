@@ -4,6 +4,7 @@ import {
   GAME_X_WIDTH,
   GAME_Y_WIDTH,
   UNIT_SIZE,
+  wait,
 } from "@src/util/global";
 import Logger from "@src/util/logger";
 import { capitalize, responsePointerAxis } from "@src/util/tool";
@@ -39,31 +40,82 @@ export default class Pointer {
   }
 
   async clickCell() {
+    // this.logger.debug(this.grab);
+    if (wait.length > 0) {
+      this.logger.dir("clickCell").error("current working click event", wait);
+      this.swapTemp = [];
+      return;
+    }
+
     if (this.grab) {
       this.logger.debug(this.grab);
 
       if (this.swapTemp.length < 2) {
         this.grab.isSelected = true;
+        this.logger.dir("clickCell").log(this.swapTemp);
+        this.logger
+          .dir("clickCell")
+          .dir("select first cell")
+          .debug(this.swapTemp[0]);
         this.swapTemp.push(this.grab);
       }
-      this.logger.dir("clickCell").log(this.swapTemp);
       if (this.swapTemp.length === 2) {
+        this.logger.dir("clickCell").log(this.swapTemp);
         this.logger.dir("clickCell").log("this.swapTemp length", 2);
         if (
           this.dependency.blockManager &&
-          this.swapTemp[0] !== this.swapTemp[1]
+          this.swapTemp[0] !== this.swapTemp[1] &&
+          wait.length === 0
         ) {
+          this.logger
+            .dir("clickCell")
+            .dir("select second cell")
+            .debug(this.grab);
+
+          // commit
+          wait.push(0);
           this.logger.dir("clickCell").log("swap both run");
-          await this.dependency.blockManager.swapBothCell(
+          const isSwapped = await this.dependency.blockManager.swapBothCell(
             this.swapTemp[0],
             this.swapTemp[1]
           );
+
+          if (!isSwapped) {
+            this.logger.dir("swapBothCellAndFill").error("not swapped");
+            // console.log(this.swapTemp);
+            const first =
+              this.dependency.blockManager.map[this.swapTemp[0].y][
+                this.swapTemp[0].x
+              ];
+            const second =
+              this.dependency.blockManager.map[this.swapTemp[1].y][
+                this.swapTemp[1].x
+              ];
+            await this.dependency.blockManager.revertSwap(first, second);
+
+            // release
+            wait.pop();
+
+            this.swapTemp[0] && (this.swapTemp[0].isSelected = false);
+            this.swapTemp[1] && (this.swapTemp[1].isSelected = false);
+
+            this.swapTemp = [];
+
+            return;
+          }
+
+          await this.dependency.blockManager.autoPangAndFill();
+          // release
+          wait.pop();
+
+          this.swapTemp[0] && (this.swapTemp[0].isSelected = false);
+          this.swapTemp[1] && (this.swapTemp[1].isSelected = false);
           this.logger.dir("clickCell").log("swap both end");
         }
 
         this.logger.dir("clickCell").log(this.swapTemp);
-        this.swapTemp[0].isSelected = false;
-        this.swapTemp[1].isSelected = false;
+        this.swapTemp[0] && (this.swapTemp[0].isSelected = false);
+        this.swapTemp[1] && (this.swapTemp[1].isSelected = false);
         this.swapTemp = [];
         this.logger.dir("clickCell").log(this.swapTemp);
       }

@@ -1,4 +1,10 @@
-import { effectCtx, gameCtx, images, UNIT_SIZE } from "@src/util/global";
+import {
+  effectCtx,
+  gameCtx,
+  images,
+  selectCtx,
+  UNIT_SIZE,
+} from "@src/util/global";
 import Logger from "@src/util/logger";
 import { responseBlockAxis, responsePointerAxis } from "@src/util/tool";
 
@@ -160,17 +166,16 @@ export default class Cell {
   }
 
   highlight(type: string) {
-    effectCtx.clearRect(0, 0, innerWidth, innerHeight);
     const [x, y] = responseBlockAxis(this.x * UNIT_SIZE, this.y * UNIT_SIZE);
     switch (type) {
       case "hover":
-        effectCtx.fillStyle = "#56565656";
+        selectCtx.fillStyle = "#56565656";
         break;
       case "select":
-        effectCtx.fillStyle = "#ff000056";
+        selectCtx.fillStyle = "#48c46e56";
         break;
     }
-    effectCtx.fillRect(x, y, 50, 50);
+    selectCtx.fillRect(x, y, UNIT_SIZE, UNIT_SIZE);
   }
 
   render() {
@@ -194,9 +199,9 @@ export default class Cell {
       );
     }
 
-    // if (this.isSelected) {
-    //   this.highlight("select");
-    // }
+    if (this.isSelected) {
+      this.highlight("select");
+    }
     // if (this.isHover) {
     //   this.highlight("hover");
     // }

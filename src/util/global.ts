@@ -43,9 +43,12 @@ export const [bgCanvas, bgCtx] = createCanvas("bg");
 export const [gameCanvas, gameCtx] = createCanvas("game");
 export const [effectCanvas, effectCtx] = createCanvas("effect");
 export const [scoreCanvas, scoreCtx] = createCanvas("score");
+export const [selectCanvas, selectCtx] = createCanvas("select");
 
 export const UNIT_SIZE = 50;
 export const GAME_X_WIDTH = 10;
 export const GAME_Y_WIDTH = 10;
 
 export const BG_COLOR = "#565656";
+
+export const wait: number[] = [];

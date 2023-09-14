@@ -12,10 +12,10 @@ export default class ScoreCalculator {
 
   scoreUp(score: number) {
     this.scores += score;
+    this.logger.dir("scoreUp").debug("get score", score);
   }
 
   render() {
-    scoreCtx.clearRect(0, 0, innerWidth, innerHeight);
     scoreCtx.font = "bold 16px Arial";
     scoreCtx.textAlign = "left";
     scoreCtx.fillStyle = "#000000";
