@@ -1,9 +1,26 @@
 import cat from "@src/assets/animals/cat-pad.png";
 import dog from "@src/assets/animals/dog-pad.png";
-import lion from "@src/assets/animals/lion-pad.png";
 import duck from "@src/assets/animals/duck-pad.png";
+import lion from "@src/assets/animals/lion-pad.png";
 import mouse from "@src/assets/animals/mouse-pad.png";
 import rabbit from "@src/assets/animals/rabbit-pad.png";
+
+// global canvas
+export const MODE = import.meta.env.MODE as string;
+
+export const createCanvas = (id?: string) => {
+  const canvas = document.createElement("canvas") as HTMLCanvasElement;
+
+  const ctx = canvas.getContext("2d", {
+    desynchronized: false,
+    alpha: true,
+    willReadFrequently: false,
+  }) as CanvasRenderingContext2D;
+  if (id) {
+    canvas.id = id;
+  }
+  return [canvas, ctx] as [HTMLCanvasElement, CanvasRenderingContext2D];
+};
 
 const catImg = document.createElement("img");
 catImg.src = cat;
@@ -27,17 +44,6 @@ export const images = {
   rabbit: rabbitImg,
 };
 
-// global canvas
-export const MODE = import.meta.env.MODE as string;
-
-export const createCanvas = (id?: string) => {
-  const canvas = document.createElement("canvas") as HTMLCanvasElement;
-  const ctx = canvas.getContext("2d") as CanvasRenderingContext2D;
-  if (id) {
-    canvas.id = id;
-  }
-  return [canvas, ctx] as [HTMLCanvasElement, CanvasRenderingContext2D];
-};
 export const ROOT = document.querySelector("#root") as HTMLDivElement;
 export const [bgCanvas, bgCtx] = createCanvas("bg");
 export const [gameCanvas, gameCtx] = createCanvas("game");
@@ -45,10 +51,157 @@ export const [effectCanvas, effectCtx] = createCanvas("effect");
 export const [scoreCanvas, scoreCtx] = createCanvas("score");
 export const [selectCanvas, selectCtx] = createCanvas("select");
 
-export const UNIT_SIZE = 50;
-export const GAME_X_WIDTH = 10;
-export const GAME_Y_WIDTH = 10;
+bgCtx.translate(0.5, 0.5);
+gameCtx.translate(0.5, 0.5);
+effectCtx.translate(0.5, 0.5);
+scoreCtx.translate(0.5, 0.5);
+selectCtx.translate(0.5, 0.5);
+
+export const isMobile = window.navigator.userAgent.match(/android|mobile/gi);
+
+export const SUB_OPTIONS = {
+  SIZE: {
+    RATIO: 1,
+  },
+};
+export const OPTIONS = {
+  SIZE: {
+    UNIT: 50,
+  },
+  WIDTH: {
+    GAME: {
+      X: 9,
+      Y: 9,
+    },
+  },
+  ANIMATION: {
+    SPEED: isMobile ? 0.5 : 0.1,
+    FRAME: 16,
+  },
+};
+export const RESPONSIVE_UNIT_SIZE = () =>
+  OPTIONS.SIZE.UNIT + SUB_OPTIONS.SIZE.RATIO;
+// export const UNIT_SIZE = 50;
+// export const GAME_X_WIDTH = 10;
+// export const GAME_Y_WIDTH = 10;
 
 export const BG_COLOR = "#565656";
 
 export const wait: number[] = [];
+
+// export const ANIMATION_SPEED = 0.1;
+// export const ANIMATION_FRAME = 16;
+export const LOG_BLOCK: number[] = [];
+
+export const RUN_MODE = import.meta.env.VITE_RUN_MODE || "none";
+
+type BlockTypeNScore = [string, number];
+
+export const BASE_TYPE_SCORE: BlockTypeNScore[] = [
+  ["dog", 1],
+  ["cat", 2],
+  ["duck", 3],
+  ["mouse", 4],
+  ["lion", 5],
+];
+export const TestCase1 = [
+  [
+    "dog",
+    "dog",
+    "dog",
+    "lion",
+    "lion",
+    "mouse",
+    "dog",
+    "mouse",
+    "cat",
+    "mouse",
+  ],
+  ["dog", "dog", "dog", "mouse", "dog", "lion", "lion", "lion", "mouse", "cat"],
+  ["dog", "lion", "lion", "lion", "dog", "dog", "mouse", "dog", "mouse", "cat"],
+
+  [
+    "dog",
+    "dog",
+    "dog",
+    "lion",
+    "lion",
+    "mouse",
+    "dog",
+    "mouse",
+    "cat",
+    "mouse",
+  ],
+  [
+    "dog",
+    "dog",
+    "lion",
+    "dog",
+    "mouse",
+    "dog",
+    "mouse",
+    "cat",
+    "lion",
+    "mouse",
+  ],
+  [
+    "dog",
+    "mouse",
+    "mouse",
+    "mouse",
+    "dog",
+    "dog",
+    "lion",
+    "mouse",
+    "cat",
+    "mouse",
+  ],
+  [
+    "mouse",
+    "lion",
+    "dog",
+    "dog",
+    "lion",
+    "dog",
+    "dog",
+    "mouse",
+    "mouse",
+    "cat",
+  ],
+  [
+    "mouse",
+    "lion",
+    "dog",
+    "dog",
+    "lion",
+    "dog",
+    "mouse",
+    "mouse",
+    "mouse",
+    "cat",
+  ],
+  [
+    "dog",
+    "lion",
+    "lion",
+    "mouse",
+    "dog",
+    "mouse",
+    "cat",
+    "cat",
+    "cat",
+    "mouse",
+  ],
+  [
+    "dog",
+    "dog",
+    "dog",
+    "lion",
+    "lion",
+    "mouse",
+    "dog",
+    "mouse",
+    "cat",
+    "mouse",
+  ],
+];

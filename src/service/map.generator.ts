@@ -3,23 +3,28 @@ import {
   bgCtx,
   BG_COLOR,
   effectCtx,
-  gameCtx,
-  GAME_X_WIDTH,
-  GAME_Y_WIDTH,
-  UNIT_SIZE,
+  OPTIONS,
+  RESPONSIVE_UNIT_SIZE,
+  SUB_OPTIONS,
 } from "@src/util/global";
 import Logger from "@src/util/logger";
 import { responseBlockAxis } from "@src/util/tool";
-import BlockManager from "./block.manager";
+import BaseModule from "./base.moudle";
 
-export default class MapGenerator {
+export default class MapGenerator extends BaseModule {
   // seek: number = 0;
   map: Cell[][] = [];
   mapSize: [number, number] = [0, 0];
   logger: Logger;
 
-  constructor(x: number = GAME_X_WIDTH, y: number = GAME_Y_WIDTH) {
+  constructor(
+    mode: string,
+    x: number = OPTIONS.WIDTH.GAME.X,
+    y: number = OPTIONS.WIDTH.GAME.Y
+  ) {
+    super(mode);
     this.logger = new Logger(this.constructor.name);
+    this.logger.dir("constructor").log("initialize mode:", mode);
     this.mapSize = [x, y];
   }
 
@@ -37,10 +42,10 @@ export default class MapGenerator {
     for (const row of this.map) {
       for (const cell of row) {
         const [x, y] = responseBlockAxis(
-          cell.x * UNIT_SIZE,
-          cell.y * UNIT_SIZE
+          cell.x * RESPONSIVE_UNIT_SIZE(),
+          cell.y * RESPONSIVE_UNIT_SIZE()
         );
-        bgCtx.strokeRect(x, y, UNIT_SIZE, UNIT_SIZE);
+        bgCtx.strokeRect(x, y, RESPONSIVE_UNIT_SIZE(), RESPONSIVE_UNIT_SIZE());
       }
     }
 
@@ -50,27 +55,28 @@ export default class MapGenerator {
       0,
       0,
       innerWidth,
-      (innerHeight - GAME_Y_WIDTH * UNIT_SIZE) / 2
+      (innerHeight - OPTIONS.WIDTH.GAME.Y * RESPONSIVE_UNIT_SIZE()) / 2
     );
     effectCtx.fillRect(
       0,
-      GAME_Y_WIDTH * UNIT_SIZE + (innerHeight - GAME_Y_WIDTH * UNIT_SIZE) / 2,
+      OPTIONS.WIDTH.GAME.Y * RESPONSIVE_UNIT_SIZE() +
+        (innerHeight - OPTIONS.WIDTH.GAME.Y * RESPONSIVE_UNIT_SIZE()) / 2,
       innerWidth,
-      (innerHeight - GAME_Y_WIDTH * UNIT_SIZE) / 2
+      (innerHeight - OPTIONS.WIDTH.GAME.Y * RESPONSIVE_UNIT_SIZE()) / 2
     );
     // both-side
     effectCtx.fillRect(
       0,
       0,
-      innerWidth / 2 - (GAME_X_WIDTH * UNIT_SIZE) / 2,
+      innerWidth / 2 - (OPTIONS.WIDTH.GAME.X * RESPONSIVE_UNIT_SIZE()) / 2,
       innerHeight
     );
     effectCtx.fillRect(
       innerWidth / 2 -
-        (GAME_X_WIDTH * UNIT_SIZE) / 2 +
-        GAME_X_WIDTH * UNIT_SIZE,
+        (OPTIONS.WIDTH.GAME.X * RESPONSIVE_UNIT_SIZE()) / 2 +
+        OPTIONS.WIDTH.GAME.X * RESPONSIVE_UNIT_SIZE(),
       0,
-      innerWidth / 2 - (GAME_X_WIDTH * UNIT_SIZE) / 2,
+      innerWidth / 2 - (OPTIONS.WIDTH.GAME.X * RESPONSIVE_UNIT_SIZE()) / 2,
       innerHeight
     );
 

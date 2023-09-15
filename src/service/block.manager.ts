@@ -1,31 +1,26 @@
 import Cell, { Direciton } from "@src/model/cell";
-import { gameCtx, GAME_X_WIDTH, GAME_Y_WIDTH, wait } from "@src/util/global";
+import { BASE_TYPE_SCORE, OPTIONS, TestCase1 } from "@src/util/global";
 import Logger from "@src/util/logger";
+import BaseModule from "./base.moudle";
 import ScoreCalculator from "./score.calculator";
 
 type BlockSize = {
   x: number;
   y: number;
 };
-type BlockTypeNScore = [string, number];
 type Axis = [number, number];
 
-export default class BlockManager {
-  types: BlockTypeNScore[] = [
-    ["dog", 1],
-    ["cat", 2],
-    ["duck", 3],
-    ["mouse", 4],
-    ["lion", 5],
-  ];
+export default class BlockManager extends BaseModule {
+  types = BASE_TYPE_SCORE;
   logger: Logger;
   blockSize: BlockSize = { x: 50, y: 50 };
   map: Cell[][] = [];
   scoreCalculator: ScoreCalculator;
 
-  constructor(scoreCalculator: ScoreCalculator) {
+  constructor(mode: string, scoreCalculator: ScoreCalculator) {
+    super(mode);
     this.logger = new Logger(this.constructor.name);
-    this.logger.dir("constructor").log("initialize");
+    this.logger.dir("constructor").log("initialize mode:", mode);
     this.scoreCalculator = scoreCalculator;
   }
 
@@ -34,10 +29,23 @@ export default class BlockManager {
   }
 
   initialize() {
-    const map = this.createMap([GAME_X_WIDTH, GAME_Y_WIDTH]);
-    this.logger.dir("initialize").log("created map", map);
-    this.map = map;
-    return map;
+    if (this.mode !== "test") {
+      const map = this.createMap([OPTIONS.WIDTH.GAME.X, OPTIONS.WIDTH.GAME.Y]);
+      this.logger.dir("initialize").log("created map", map);
+      this.map = map;
+      return map;
+    } else {
+      const map = this.createCustomMap(TestCase1);
+      this.logger.dir("initialize").log("created custom map", map);
+      this.map = map;
+      return map;
+    }
+  }
+
+  getCellScoreByType(type: string) {
+    // const randomTypeIndex = Math.floor(Math.random() * this.types.length);
+    const index = this.types.findIndex((typeScore) => typeScore[0] === type);
+    return this.types[index][1];
   }
 
   getRandomCellType() {
@@ -56,6 +64,12 @@ export default class BlockManager {
       maps.push(cells);
     }
     return maps;
+  }
+
+  createCustomMap(customMap: string[][]) {
+    return customMap.map((row, y) =>
+      row.map((cell, x) => new Cell(cell, x, y, this.getCellScoreByType(cell)))
+    );
   }
 
   isInBoundary(srcCell: Cell, dstCell: Cell) {
@@ -262,7 +276,7 @@ export default class BlockManager {
     const targetX = targetCell.x;
     const targetY = targetCell.y;
     const temp: Cell[] = [targetCell];
-    for (let y = targetY + 1; y < GAME_Y_WIDTH; y++) {
+    for (let y = targetY + 1; y < OPTIONS.WIDTH.GAME.Y; y++) {
       this.logger.dir("downLinePang").log(y, targetX);
       const cell = this.map[y][targetX];
       this.logger.dir("downLinePang").log(cell);
@@ -298,7 +312,7 @@ export default class BlockManager {
     const targetX = targetCell.x;
     const targetY = targetCell.y;
     const temp: Cell[] = [targetCell];
-    for (let x = targetX + 1; x < GAME_X_WIDTH; x++) {
+    for (let x = targetX + 1; x < OPTIONS.WIDTH.GAME.X; x++) {
       const cell = this.map[targetY][x];
       if (cell && cell.type === targetCell.type) {
         temp.push(this.map[targetY][x]);
@@ -412,7 +426,7 @@ export default class BlockManager {
   }
 
   getColumnLine(x: number) {
-    const yValue = GAME_Y_WIDTH;
+    const yValue = OPTIONS.WIDTH.GAME.Y;
     const temp: Cell[] = [];
     for (let level = 0; level < yValue; level++) {
       const cell = this.map[level][x];
@@ -445,7 +459,7 @@ export default class BlockManager {
     return [...new Set([...rows, ...columns].flat(1))];
   }
 
-  async autoPangAndFill() {
+  async autoPangAndFill(loop: boolean = true) {
     const pangableList = this.getPangableList();
     // const tempType: string[] = [];
     pangableList.forEach((cell) => {
@@ -467,7 +481,7 @@ export default class BlockManager {
 
     const isDone = this.getPangableList().length === 0;
 
-    if (!isDone) {
+    if (loop && !isDone) {
       return await this.autoPangAndFill();
     }
 
@@ -511,7 +525,7 @@ export default class BlockManager {
     //   .debug("check column cells is pangable");
 
     const columnTemp: Cell[][] = [];
-    for (let index = 0; index < GAME_X_WIDTH; index++) {
+    for (let index = 0; index < OPTIONS.WIDTH.GAME.X; index++) {
       const columns = this.getColumnLine(index);
       for (const cell of columns) {
         // 빈 배열 -> 새 배열 추가
@@ -542,7 +556,7 @@ export default class BlockManager {
     //   .dir("searchColumnsAndFillEmptyCell")
     //   .log("start search empty column and fill cells...");
     const promises: Promise<boolean[]>[] = [];
-    for (let index = 0; index < GAME_X_WIDTH; index++) {
+    for (let index = 0; index < OPTIONS.WIDTH.GAME.X; index++) {
       promises.push(this.columnFillNewAnimals(index));
     }
 
@@ -559,7 +573,7 @@ export default class BlockManager {
   }
 
   async columnFillNewAnimals(x: number) {
-    const yValue = GAME_Y_WIDTH - 1;
+    const yValue = OPTIONS.WIDTH.GAME.Y - 1;
     const [startPoint, emptyAmount] = this.getEmptyStartPointAndAmount(x);
 
     const columnLine = this.getColumnLineFromStartPoint(x, startPoint);
@@ -593,13 +607,13 @@ export default class BlockManager {
       const tempCellY = tempCell.y;
       tempCell.y -= emptyAmount;
       const aniLoop = setInterval(() => {
-        tempCell.y += 0.05;
+        tempCell.y += OPTIONS.ANIMATION.SPEED / 2;
         if (tempCell.y >= tempCellY) {
           tempCell.y = tempCellY;
           clearInterval(aniLoop);
           resolver(true);
         }
-      });
+      }, OPTIONS.ANIMATION.FRAME);
     }
 
     return Promise.all(promiseTemp);
@@ -661,7 +675,7 @@ export default class BlockManager {
   }
 
   getEmptyStartPointAndAmount(x: number) {
-    const yValue = GAME_Y_WIDTH - 1;
+    const yValue = OPTIONS.WIDTH.GAME.Y - 1;
     let startPoint = -1;
     let emptyAmount = 0;
 

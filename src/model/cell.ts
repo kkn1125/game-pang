@@ -1,12 +1,12 @@
 import {
-  effectCtx,
   gameCtx,
   images,
+  OPTIONS,
+  RESPONSIVE_UNIT_SIZE,
   selectCtx,
-  UNIT_SIZE,
 } from "@src/util/global";
 import Logger from "@src/util/logger";
-import { responseBlockAxis, responsePointerAxis } from "@src/util/tool";
+import { responseBlockAxis } from "@src/util/tool";
 
 export type Direciton = "left" | "right" | "down" | "up" | null;
 
@@ -45,23 +45,7 @@ export default class Cell {
     const srcY = this.y;
     const dstX = dstCell.x;
     const dstY = dstCell.y;
-    // const srcX = this.x;
-    // const srcY = this.y;
-    // const dstX = dstCell.x;
-    // const dstY = dstCell.y;
-
-    // const sameY = dstY === srcY;
-    // const sameX = dstX === srcX;
-    // const gapX = Math.abs(dstX - srcX);
-    // const gapY = Math.abs(dstY - srcY);
-
-    // const isHorizontalMove = gapX === 1 && sameY;
-    // const isVerticalMove = gapY === 1 && sameX;
-
-    // if (!(isHorizontalMove || isVerticalMove)) {
-    //   return null;
-    // }
-    this.logger.log(srcX, srcY, dstX, dstY);
+    this.logger.dir("getDirectionWith").log(srcX, srcY, dstX, dstY);
     if (dstX > srcX) {
       // 오른쪽으로 스왑
       this.logger.dir("getDirectionWith").log("오른쪽으로 스왑");
@@ -101,51 +85,51 @@ export default class Cell {
     switch (direction) {
       case "left":
         move = setInterval(() => {
-          target.x += 0.1;
-          this.x -= 0.1;
+          target.x += OPTIONS.ANIMATION.SPEED / 2;
+          this.x -= OPTIONS.ANIMATION.SPEED / 2;
           if (targetX >= this.x && selfX <= target.x) {
             clearInterval(move);
             this.x = selfX;
             target.x = targetX;
             resolver(true);
           }
-        }, 16);
+        }, OPTIONS.ANIMATION.FRAME);
         break;
       case "right":
         move = setInterval(() => {
-          target.x -= 0.1;
-          this.x += 0.1;
+          target.x -= OPTIONS.ANIMATION.SPEED / 2;
+          this.x += OPTIONS.ANIMATION.SPEED / 2;
           if (targetX <= this.x && selfX >= target.x) {
             clearInterval(move);
             this.x = selfX;
             target.x = targetX;
             resolver(true);
           }
-        }, 16);
+        }, OPTIONS.ANIMATION.FRAME);
         break;
       case "down":
         move = setInterval(() => {
-          target.y -= 0.1;
-          this.y += 0.1;
+          target.y -= OPTIONS.ANIMATION.SPEED / 2;
+          this.y += OPTIONS.ANIMATION.SPEED / 2;
           if (targetY <= this.y && selfY >= target.y) {
             clearInterval(move);
             this.y = selfY;
             target.y = targetY;
             resolver(true);
           }
-        }, 16);
+        }, OPTIONS.ANIMATION.FRAME);
         break;
       case "up":
         move = setInterval(() => {
-          target.y += 0.1;
-          this.y -= 0.1;
+          target.y += OPTIONS.ANIMATION.SPEED / 2;
+          this.y -= OPTIONS.ANIMATION.SPEED / 2;
           if (targetY >= this.y && selfY <= target.y) {
             clearInterval(move);
             this.y = selfY;
             target.y = targetY;
             resolver(true);
           }
-        }, 16);
+        }, OPTIONS.ANIMATION.FRAME);
         break;
       default:
         setTimeout(() => {
@@ -166,7 +150,10 @@ export default class Cell {
   }
 
   highlight(type: string) {
-    const [x, y] = responseBlockAxis(this.x * UNIT_SIZE, this.y * UNIT_SIZE);
+    const [x, y] = responseBlockAxis(
+      this.x * RESPONSIVE_UNIT_SIZE(),
+      this.y * RESPONSIVE_UNIT_SIZE()
+    );
     switch (type) {
       case "hover":
         selectCtx.fillStyle = "#56565656";
@@ -175,27 +162,29 @@ export default class Cell {
         selectCtx.fillStyle = "#48c46e56";
         break;
     }
-    selectCtx.fillRect(x, y, UNIT_SIZE, UNIT_SIZE);
+    selectCtx.fillRect(x, y, RESPONSIVE_UNIT_SIZE(), RESPONSIVE_UNIT_SIZE());
   }
 
   render() {
     const [x, y] = responseBlockAxis(this.x, this.y);
     const image = images[this.type];
     if (image) {
+      gameCtx.imageSmoothingQuality = "low";
+      gameCtx.imageSmoothingEnabled = true;
       gameCtx.drawImage(
         image,
-        this.x * UNIT_SIZE + Math.floor(x - this.x),
-        this.y * UNIT_SIZE + Math.floor(y - this.y),
-        50,
-        50
+        Math.floor(this.x * RESPONSIVE_UNIT_SIZE() + Math.floor(x - this.x)),
+        Math.floor(this.y * RESPONSIVE_UNIT_SIZE() + Math.floor(y - this.y)),
+        RESPONSIVE_UNIT_SIZE(),
+        RESPONSIVE_UNIT_SIZE()
       );
     } else {
       gameCtx.fillStyle = "#00000000";
       gameCtx.fillRect(
-        this.x * UNIT_SIZE + Math.floor(x - this.x),
-        this.y * UNIT_SIZE + Math.floor(y - this.y),
-        UNIT_SIZE,
-        UNIT_SIZE
+        this.x * RESPONSIVE_UNIT_SIZE() + Math.floor(x - this.x),
+        this.y * RESPONSIVE_UNIT_SIZE() + Math.floor(y - this.y),
+        RESPONSIVE_UNIT_SIZE(),
+        RESPONSIVE_UNIT_SIZE()
       );
     }
 
@@ -212,18 +201,18 @@ export default class Cell {
     if (image) {
       ctx.drawImage(
         image,
-        this.x * UNIT_SIZE + Math.floor(x - this.x),
-        this.y * UNIT_SIZE + Math.floor(y - this.y),
-        50,
-        50
+        this.x * RESPONSIVE_UNIT_SIZE() + Math.floor(x - this.x),
+        this.y * RESPONSIVE_UNIT_SIZE() + Math.floor(y - this.y),
+        RESPONSIVE_UNIT_SIZE(),
+        RESPONSIVE_UNIT_SIZE()
       );
     } else {
       ctx.fillStyle = "#00000000";
       ctx.fillRect(
-        this.x * UNIT_SIZE + Math.floor(x - this.x),
-        this.y * UNIT_SIZE + Math.floor(y - this.y),
-        UNIT_SIZE,
-        UNIT_SIZE
+        this.x * RESPONSIVE_UNIT_SIZE() + Math.floor(x - this.x),
+        this.y * RESPONSIVE_UNIT_SIZE() + Math.floor(y - this.y),
+        RESPONSIVE_UNIT_SIZE(),
+        RESPONSIVE_UNIT_SIZE()
       );
     }
 

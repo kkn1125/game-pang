@@ -1,13 +1,15 @@
-import { bgCtx, effectCtx, gameCtx, scoreCtx } from "@src/util/global";
+import { scoreCtx } from "@src/util/global";
 import Logger from "@src/util/logger";
+import BaseModule from "./base.moudle";
 
-export default class ScoreCalculator {
+export default class ScoreCalculator extends BaseModule {
   logger: Logger;
   scores: number = 0;
 
-  constructor() {
+  constructor(mode: string) {
+    super(mode);
     this.logger = new Logger(this.constructor.name);
-    this.logger.dir("initialize").log("initialize");
+    this.logger.dir("constructor").log("initialize mode:", mode);
   }
 
   scoreUp(score: number) {

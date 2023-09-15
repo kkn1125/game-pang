@@ -1,13 +1,8 @@
 import Cell from "@src/model/cell";
-import {
-  effectCtx,
-  GAME_X_WIDTH,
-  GAME_Y_WIDTH,
-  UNIT_SIZE,
-  wait,
-} from "@src/util/global";
+import { RUN_MODE, wait } from "@src/util/global";
 import Logger from "@src/util/logger";
 import { capitalize, responsePointerAxis } from "@src/util/tool";
+import BaseModule from "./base.moudle";
 import BlockManager from "./block.manager";
 import MapGenerator from "./map.generator";
 import ScoreCalculator from "./score.calculator";
@@ -17,16 +12,18 @@ type Dependency = {
   ["scoreCalculator"]?: ScoreCalculator;
   ["blockManager"]?: BlockManager;
 };
-
-export default class Pointer {
+//53389
+export default class Pointer extends BaseModule {
   logger: Logger;
   dependency: Dependency = {};
   grab: Cell | null = null;
   swapTemp: Cell[] = [];
 
-  constructor() {
+  // TODO: mode 받는 공통 상속 클래스 생성하기 2023-09-14 22:30:34
+  constructor(mode: string) {
+    super(mode);
     this.logger = new Logger(this.constructor.name);
-    this.logger.dir("constructor").log("initialize");
+    this.logger.dir("constructor").log("initialize mode:", mode);
 
     window.addEventListener("mousemove", this.moveMouse.bind(this));
     window.addEventListener("mousedown", this.clickCell.bind(this));
@@ -40,7 +37,25 @@ export default class Pointer {
   }
 
   async clickCell() {
-    // this.logger.debug(this.grab);
+    if (this.mode === "test") {
+      if (wait.length === 0) {
+        this.logger.only().dir("test").dir("clickCell").log("auto pang");
+        wait.push(0);
+
+        await this.dependency.blockManager?.autoPangAndFill(false);
+        this.logger.debug(this.grab);
+
+        wait.pop();
+      } else {
+        this.logger
+          .only()
+          .dir("test")
+          .dir("clickCell")
+          .error("blocked click event");
+      }
+      return;
+    }
+
     if (wait.length > 0) {
       this.logger.dir("clickCell").error("current working click event", wait);
       this.swapTemp = [];

@@ -1,5 +1,6 @@
 import chalk from "chalk";
-import { MODE } from "./global";
+import BaseLogger from "./base.logger";
+import { LOG_BLOCK, MODE } from "./global";
 
 export default class Logger {
   name: string = "SYS";
@@ -11,17 +12,26 @@ export default class Logger {
   }
 
   convert(color: string, ...data: any[]) {
-    if(MODE !== 'development') return;
+    if (MODE !== "development") return;
+    if (LOG_BLOCK.length > 0 && !this.name.includes("only")) {
+      return;
+    }
+
     const time = new Date().toLocaleTimeString("ko");
     this._logger.log(
       chalk[color](
-        `[${this.name}]`/* .padEnd(17, " ") */ + " >",
+        `[${this.name}]` /* .padEnd(17, " ") */ + " >",
         chalk.greenBright(...this.directories.map(this.reform))
       ),
       ...data,
       `(${time})`
     );
   }
+
+  only = () => {
+    const logger = new Logger(this.name + ":only");
+    return logger;
+  };
 
   reform(str: string) {
     return `[${str}] >`;
