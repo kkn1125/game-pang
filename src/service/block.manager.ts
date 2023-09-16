@@ -477,15 +477,67 @@ export default class BlockManager extends BaseModule {
         cell.score /*  + (plusScore > 0 ? plusScore : 0) */
       );
     });
-    await this.searchColumnsAndFillEmptyCell();
-
+    await this.searchEmptyColumnsAndFill();
+    // await this.searchColumnsAndFillEmptyCell();
+    console.log("searchEmptyColumnsAndFill done???");
     const isDone = this.getPangableList().length === 0;
-
-    if (loop && !isDone) {
-      return await this.autoPangAndFill();
-    }
+    console.log(isDone);
+    // if (loop && !isDone) {
+    //   return await this.autoPangAndFill();
+    // }
 
     return isDone;
+  }
+
+  // new logic 2023-09-16 17:49:40
+  async searchEmptyColumnsAndFill() {
+    let resolver: (value: boolean) => void;
+    const promise = new Promise((resolve) => (resolver = resolve));
+    const promises: Promise<Cell>[][] = [];
+
+    for (let index = 0; index < OPTIONS.WIDTH.GAME.X; index++) {
+      // promises.push(this.columnFillNewAnimals(index));
+      promises.push(this.fillColumn(index));
+    }
+
+    // 전체열 병렬 처리(처럼)하기 위함.
+
+    return await Promise.all(promises)
+
+    return promise;
+
+    // return true;
+
+    // console.log(this.getColumnLine(1));
+    // console.log(animalCells);
+    // console.log(newCellsLine);
+  }
+
+  fillColumn(index: number) {
+    const promises: Promise<Cell>[] = [];
+    const columnLine = this.getColumnLine(index);
+    const [startPoint, emptyAmount] = this.getEmptyStartPointAndAmount(index);
+    const animalCells = this.filterEmptyCell(columnLine);
+    const newCellsLine = this.fillNewCells(animalCells, emptyAmount, index);
+
+    for (const idx in newCellsLine) {
+      const idxx = Number(idx);
+      const cell = newCellsLine[idxx];
+      this.map[idxx][cell.x] = cell;
+
+      promises.push(
+        new Promise((resolve) => {
+          cell.moveY(idxx).then(() => {
+            cell.y = idxx;
+            // console.log(cell, index);
+            resolve(cell);
+            // if (cell === newCellsLine[newCellsLine.length - 1]) {
+            // }
+          });
+        })
+      );
+    }
+    return promises;
   }
 
   // all cell filter pangable by rows
@@ -552,9 +604,9 @@ export default class BlockManager extends BaseModule {
   }
 
   async searchColumnsAndFillEmptyCell() {
-    // this.logger
-    //   .dir("searchColumnsAndFillEmptyCell")
-    //   .log("start search empty column and fill cells...");
+    this.logger
+      .dir("searchColumnsAndFillEmptyCell")
+      .log("start search empty column and fill cells...");
     const promises: Promise<boolean[]>[] = [];
     for (let index = 0; index < OPTIONS.WIDTH.GAME.X; index++) {
       promises.push(this.columnFillNewAnimals(index));
@@ -565,9 +617,9 @@ export default class BlockManager extends BaseModule {
 
     const isDone = this.map.flat(1).every((cell) => cell.type !== "");
 
-    if (!isDone) {
-      return await this.searchColumnsAndFillEmptyCell();
-    }
+    // if (!isDone) {
+    //   return await this.searchColumnsAndFillEmptyCell();
+    // }
 
     return isDone;
   }
@@ -576,12 +628,12 @@ export default class BlockManager extends BaseModule {
     const yValue = OPTIONS.WIDTH.GAME.Y - 1;
     const [startPoint, emptyAmount] = this.getEmptyStartPointAndAmount(x);
 
-    const columnLine = this.getColumnLineFromStartPoint(x, startPoint);
+    // const columnLine = this.getColumnLineFromStartPoint(x, startPoint);
+    const columnLine = this.getColumnLine(x);
     // console.log(columnLine);
     const filterCells = this.filterEmptyCell(columnLine);
     const concatOriginAndNewCells = this.fillNewCells(
       filterCells,
-      startPoint,
       emptyAmount,
       x
     );
@@ -632,12 +684,7 @@ export default class BlockManager extends BaseModule {
     return cells.filter((cell) => cell.type !== "");
   }
 
-  fillNewCells(
-    origin: Cell[],
-    startPoint: number,
-    emptyAmount: number,
-    x: number
-  ) {
+  fillNewCells(origin: Cell[], emptyAmount: number, x: number) {
     // let resolver: (value: Cell[]) => void;
     // const promise: Promise<Cell[]> = new Promise(
     //   (resolve) => (resolver = resolve)
@@ -648,29 +695,28 @@ export default class BlockManager extends BaseModule {
     //   .dir("fillNewCells")
     //   .debug(origin, startPoint, emptyAmount);
     // tempStartPoint 이게 사용되려나?
-    let tempStartPoint = startPoint;
+    const startPoint = origin[0].y;
     const tempEmptyAmount = emptyAmount;
 
     const temp: Cell[] = origin.map((cell) => {
       const copyCell = cell.deepCopySelf();
-      copyCell.y += emptyAmount;
-      tempStartPoint--;
+      // OPTIONS.WIDTH.GAME.Y - copyCell.y
+      // copyCell.y += emptyAmount;
 
       return copyCell;
     });
 
-    for (let index = tempEmptyAmount - 1; index >= 0; index--) {
+    for (let index = 1; index <= tempEmptyAmount; index++) {
       const [type, score] = this.getRandomCellType();
-      const copyCell = new Cell(type, x, index, score);
+      const copyCell = new Cell(type, x, 1 - index - 1, score);
       // this.logger
       //   .dir("searchColumnsAndFillEmptyCell")
       //   .dir("columnFillNewAnimals")
       //   .dir("fillNewCells")
       //   .dir("for loop")
       //   .debug(copyCell);
-      temp.push(copyCell);
+      temp.unshift(copyCell);
     }
-
     return temp;
   }
 

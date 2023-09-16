@@ -1,6 +1,6 @@
 import "reflect-metadata";
 import GameCore from "./service/game.core";
-import { LOG_BLOCK, MODE, RUN_MODE } from "./util/global";
+import { MODE, RUN_MODE } from "./util/global";
 
 // console.log("LOG_BLOCK");
 // LOG_BLOCK.push(1);

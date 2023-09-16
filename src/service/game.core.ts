@@ -41,7 +41,7 @@ export default class GameCore extends BaseModule {
 
   constructor() {
     super(RUN_MODE);
-    RUN_MODE === "test" && LOG_BLOCK.push(0);
+    // RUN_MODE === "test" && LOG_BLOCK.push(0);
     this.logger = new Logger(this.constructor.name);
     this.logger.dir("constructor").debug("dev", this._dev);
     this.logger.dir("constructor").debug("run mode", this._runMode);

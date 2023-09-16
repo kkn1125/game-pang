@@ -74,6 +74,60 @@ export default class Cell {
     return null;
   }
 
+  moveX(to: number) {
+    let resolver: (value: unknown) => void;
+    const promise = new Promise((resolve) => (resolver = resolve));
+    const fromX = this.x;
+    const toX = to;
+    const direction = fromX !== to && fromX > to;
+    const move = setInterval(() => {
+      this.x +=
+        fromX > to ? -OPTIONS.ANIMATION.SPEED / 2 : OPTIONS.ANIMATION.SPEED / 2;
+      if (direction) {
+        if (toX >= this.x) {
+          clearInterval(move);
+          resolver(true);
+          this.x = fromX;
+        }
+      } else {
+        if (toX <= this.x) {
+          clearInterval(move);
+          resolver(true);
+          this.x = fromX;
+        }
+      }
+    }, OPTIONS.ANIMATION.FRAME);
+    return promise;
+  }
+
+  moveY(to: number): Promise<Cell> {
+    let resolver: (value: Cell) => void;
+    const promise: Promise<Cell> = new Promise(
+      (resolve) => (resolver = resolve)
+    );
+    const fromY = this.y;
+    const toY = to;
+    const direction = fromY !== to && fromY > to;
+    const move = setInterval(() => {
+      this.y +=
+        fromY > to ? -OPTIONS.ANIMATION.SPEED / 2 : OPTIONS.ANIMATION.SPEED / 2;
+      if (direction) {
+        if (toY >= this.y) {
+          clearInterval(move);
+          this.y = fromY;
+          resolver(this);
+        }
+      } else {
+        if (toY <= this.y) {
+          clearInterval(move);
+          this.y = fromY;
+          resolver(this);
+        }
+      }
+    }, OPTIONS.ANIMATION.FRAME);
+    return promise;
+  }
+
   swapEffect(target: Cell, direction: string) {
     let resolver: (value: unknown) => void;
     const promise = new Promise((resolve) => (resolver = resolve));
@@ -84,52 +138,16 @@ export default class Cell {
     let move: number;
     switch (direction) {
       case "left":
-        move = setInterval(() => {
-          target.x += OPTIONS.ANIMATION.SPEED / 2;
-          this.x -= OPTIONS.ANIMATION.SPEED / 2;
-          if (targetX >= this.x && selfX <= target.x) {
-            clearInterval(move);
-            this.x = selfX;
-            target.x = targetX;
-            resolver(true);
-          }
-        }, OPTIONS.ANIMATION.FRAME);
-        break;
       case "right":
-        move = setInterval(() => {
-          target.x -= OPTIONS.ANIMATION.SPEED / 2;
-          this.x += OPTIONS.ANIMATION.SPEED / 2;
-          if (targetX <= this.x && selfX >= target.x) {
-            clearInterval(move);
-            this.x = selfX;
-            target.x = targetX;
-            resolver(true);
-          }
-        }, OPTIONS.ANIMATION.FRAME);
-        break;
-      case "down":
-        move = setInterval(() => {
-          target.y -= OPTIONS.ANIMATION.SPEED / 2;
-          this.y += OPTIONS.ANIMATION.SPEED / 2;
-          if (targetY <= this.y && selfY >= target.y) {
-            clearInterval(move);
-            this.y = selfY;
-            target.y = targetY;
-            resolver(true);
-          }
-        }, OPTIONS.ANIMATION.FRAME);
+        Promise.all([this.moveX(target.x), target.moveX(this.x)]).then(() => {
+          resolver(true);
+        });
         break;
       case "up":
-        move = setInterval(() => {
-          target.y += OPTIONS.ANIMATION.SPEED / 2;
-          this.y -= OPTIONS.ANIMATION.SPEED / 2;
-          if (targetY >= this.y && selfY <= target.y) {
-            clearInterval(move);
-            this.y = selfY;
-            target.y = targetY;
-            resolver(true);
-          }
-        }, OPTIONS.ANIMATION.FRAME);
+      case "down":
+        Promise.all([this.moveY(target.y), target.moveY(this.y)]).then(() => {
+          resolver(true);
+        });
         break;
       default:
         setTimeout(() => {

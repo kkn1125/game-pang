@@ -93,7 +93,7 @@ export const wait: number[] = [];
 // export const ANIMATION_FRAME = 16;
 export const LOG_BLOCK: number[] = [];
 
-export const RUN_MODE = import.meta.env.VITE_RUN_MODE || "none";
+export const RUN_MODE = import.meta.env.VITE_RUN_MODE || "test";
 
 type BlockTypeNScore = [string, number];
 
