@@ -138,6 +138,7 @@ export default class GameCore extends BaseModule {
   injection() {
     this.pointer.inject(this.blockManager);
     this.pointer.inject(this.mapGenerator);
+    this.pointer.inject(this.scoreCalculator);
   }
 
   animation(time: number) {
@@ -148,6 +149,7 @@ export default class GameCore extends BaseModule {
     if (Math.floor(milliseconds) % 60 === 0) {
       // timer zone
       // this.renderPerSecond.call(this);
+      // console.log("map check", this.blockManager.map);
     }
 
     this.scoreCalculator.render();

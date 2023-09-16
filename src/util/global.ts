@@ -85,7 +85,7 @@ export const RESPONSIVE_UNIT_SIZE = () =>
 // export const GAME_X_WIDTH = 10;
 // export const GAME_Y_WIDTH = 10;
 
-export const BG_COLOR = "#565656";
+export const BG_COLOR = "#dddddd";
 
 export const wait: number[] = [];
 
@@ -93,7 +93,7 @@ export const wait: number[] = [];
 // export const ANIMATION_FRAME = 16;
 export const LOG_BLOCK: number[] = [];
 
-export const RUN_MODE = import.meta.env.VITE_RUN_MODE || "test";
+export const RUN_MODE = import.meta.env.VITE_RUN_MODE || "none";
 
 type BlockTypeNScore = [string, number];
 
@@ -204,4 +204,15 @@ export const TestCase1 = [
     "cat",
     "mouse",
   ],
+];
+export const TestCase2 = [
+  ["dog", "dog", "dog", "lion", "lion", "mouse", "dog", "mouse", "cat"],
+  ["dog", "dog", "dog", "mouse", "dog", "lion", "lion", "lion", "mouse"],
+  ["dog", "lion", "lion", "lion", "dog", "dog", "mouse", "dog", "mouse"],
+  ["dog", "dog", "dog", "lion", "lion", "mouse", "dog", "mouse", "cat"],
+  ["dog", "dog", "lion", "dog", "mouse", "dog", "mouse", "cat", "lion"],
+  ["dog", "mouse", "mouse", "mouse", "dog", "dog", "lion", "mouse", "cat"],
+  ["mouse", "lion", "dog", "dog", "lion", "dog", "dog", "mouse", "mouse"],
+  ["mouse", "lion", "dog", "dog", "lion", "dog", "mouse", "mouse", "mouse"],
+  ["dog", "lion", "lion", "mouse", "dog", "mouse", "cat", "cat", "cat"],
 ];

@@ -1,5 +1,10 @@
 import Cell, { Direciton } from "@src/model/cell";
-import { BASE_TYPE_SCORE, OPTIONS, TestCase1 } from "@src/util/global";
+import {
+  BASE_TYPE_SCORE,
+  OPTIONS,
+  TestCase1,
+  TestCase2,
+} from "@src/util/global";
 import Logger from "@src/util/logger";
 import BaseModule from "./base.moudle";
 import ScoreCalculator from "./score.calculator";
@@ -35,7 +40,13 @@ export default class BlockManager extends BaseModule {
       this.map = map;
       return map;
     } else {
-      const map = this.createCustomMap(TestCase1);
+      if (
+        TestCase2.length !== OPTIONS.WIDTH.GAME.Y ||
+        TestCase2[0].length !== OPTIONS.WIDTH.GAME.X
+      ) {
+        throw new Error("Invalid map size");
+      }
+      const map = this.createCustomMap(TestCase2);
       this.logger.dir("initialize").log("created custom map", map);
       this.map = map;
       return map;
@@ -73,17 +84,22 @@ export default class BlockManager extends BaseModule {
   }
 
   isInBoundary(srcCell: Cell, dstCell: Cell) {
-    const srcX = srcCell.x;
-    const srcY = srcCell.y;
+    console.log("srcCell", "dstCell", srcCell, dstCell);
+    const srcX = srcCell?.x;
+    const srcY = srcCell?.y;
+
+    if (srcX === undefined || srcY === undefined) {
+      return false;
+    }
 
     // 상
-    const topCell = this.map?.[srcY - 1]?.[srcX];
+    const topCell = this.map[srcY - 1]?.[srcX];
     // 하
-    const bottomCell = this.map?.[srcY + 1]?.[srcX];
+    const bottomCell = this.map[srcY + 1]?.[srcX];
     // 좌
-    const leftCell = this.map?.[srcY]?.[srcX - 1];
+    const leftCell = this.map[srcY]?.[srcX - 1];
     // 우
-    const rightCell = this.map?.[srcY]?.[srcX + 1];
+    const rightCell = this.map[srcY]?.[srcX + 1];
 
     const isIn =
       topCell === dstCell ||
@@ -341,15 +357,27 @@ export default class BlockManager extends BaseModule {
     this.logger
       .dir("swapBothCell")
       .dir("src")
-      .debug("get both cell in this.map", this.map[srcCell.y][srcCell.x]);
+      .debug("get both cell in this.map", this.map[srcCell?.y]?.[srcCell?.x]);
     this.logger
       .dir("swapBothCell")
       .dir("dest")
-      .debug("get both cell in this.map", this.map[dstCell.y][dstCell.x]);
+      .debug("get both cell in this.map", this.map[dstCell?.y]?.[dstCell?.x]);
 
-    const isBoundary = this.isInBoundary(srcCell, dstCell);
+    if (
+      !this.map[srcCell?.y]?.[srcCell?.x] ||
+      !this.map[dstCell?.y]?.[dstCell?.x]
+    ) {
+      return false;
+    }
 
-    if (!isBoundary) return false;
+    try {
+      const isBoundary = this.isInBoundary(srcCell, dstCell);
+
+      if (!isBoundary) return false;
+    } catch (error) {
+      console.error(error);
+      return false;
+    }
 
     const swapDirection = srcCell.getDirectionWith(dstCell);
     if (swapDirection === null) return false;
@@ -440,17 +468,21 @@ export default class BlockManager extends BaseModule {
   getPangableList() {
     const rows = this.searchRowsAndFilterPangable();
     const columns = this.searchColumnsAndFilterPangable();
-
-    const rowScores = rows.reduce(
-      (acc, row) =>
-        (acc += (row?.[0].score || 0) * (row.slice(3)?.length || 0)),
-      0
-    );
-    const columnScores = columns.reduce(
-      (acc, column) =>
-        (acc += (column?.[0].score || 0) * (column.slice(3)?.length || 0)),
-      0
-    );
+    console.log("pagable", rows, columns);
+    const rowScores = rows.reduce((acc, row) => {
+      // acc += (row?.[0].score || 0) * (row.slice(3)?.length || 0);
+      if (row.length > 3) {
+        acc += row[0].score * row.slice(3).length;
+      }
+      return acc;
+    }, 0);
+    const columnScores = columns.reduce((acc, column) => {
+      // acc += (column?.[0].score || 0) * (column.slice(3)?.length || 0);
+      if (column.length > 3) {
+        acc += column[0].score * column.slice(3).length;
+      }
+      return acc;
+    }, 0);
 
     this.logger
       .dir("getPangableList")
@@ -479,12 +511,12 @@ export default class BlockManager extends BaseModule {
     });
     await this.searchEmptyColumnsAndFill();
     // await this.searchColumnsAndFillEmptyCell();
-    console.log("searchEmptyColumnsAndFill done???");
+    // console.log("searchEmptyColumnsAndFill done???");
     const isDone = this.getPangableList().length === 0;
-    console.log(isDone);
-    // if (loop && !isDone) {
-    //   return await this.autoPangAndFill();
-    // }
+    this.logger.dir("autoPangAndFill").log("isDone", isDone);
+    if (loop && !isDone) {
+      return await this.autoPangAndFill();
+    }
 
     return isDone;
   }
@@ -493,7 +525,7 @@ export default class BlockManager extends BaseModule {
   async searchEmptyColumnsAndFill() {
     let resolver: (value: boolean) => void;
     const promise = new Promise((resolve) => (resolver = resolve));
-    const promises: Promise<Cell>[][] = [];
+    const promises: Promise<Cell[]>[] = [];
 
     for (let index = 0; index < OPTIONS.WIDTH.GAME.X; index++) {
       // promises.push(this.columnFillNewAnimals(index));
@@ -501,8 +533,7 @@ export default class BlockManager extends BaseModule {
     }
 
     // 전체열 병렬 처리(처럼)하기 위함.
-
-    return await Promise.all(promises)
+    return await Promise.all(promises);
 
     return promise;
 
@@ -537,7 +568,7 @@ export default class BlockManager extends BaseModule {
         })
       );
     }
-    return promises;
+    return Promise.all(promises);
   }
 
   // all cell filter pangable by rows

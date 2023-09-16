@@ -37,24 +37,24 @@ export default class Pointer extends BaseModule {
   }
 
   async clickCell() {
-    // if (this.mode === "test") {
-    //   if (wait.length === 0) {
-    //     this.logger.only().dir("test").dir("clickCell").log("auto pang");
-    //     wait.push(0);
+    if (this.mode === "test") {
+      if (wait.length === 0) {
+        this.logger.only().dir("test").dir("clickCell").log("auto pang");
+        wait.push(0);
 
-    //     await this.dependency.blockManager?.autoPangAndFill(false);
-    //     this.logger.debug(this.grab);
+        await this.dependency.blockManager?.autoPangAndFill(false);
+        this.logger.debug(this.grab);
 
-    //     wait.pop();
-    //   } else {
-    //     this.logger
-    //       .only()
-    //       .dir("test")
-    //       .dir("clickCell")
-    //       .error("blocked click event");
-    //   }
-    //   return;
-    // }
+        wait.pop();
+      } else {
+        this.logger
+          .only()
+          .dir("test")
+          .dir("clickCell")
+          .error("blocked click event");
+      }
+      return;
+    }
 
     if (wait.length > 0) {
       this.logger.dir("clickCell").error("current working click event", wait);
@@ -67,12 +67,12 @@ export default class Pointer extends BaseModule {
 
       if (this.swapTemp.length < 2) {
         this.grab.isSelected = true;
+        this.swapTemp.push(this.grab);
         this.logger.dir("clickCell").log(this.swapTemp);
         this.logger
           .dir("clickCell")
           .dir("select first cell")
           .debug(this.swapTemp[0]);
-        this.swapTemp.push(this.grab);
       }
       if (this.swapTemp.length === 2) {
         this.logger.dir("clickCell").log(this.swapTemp);
@@ -90,37 +90,50 @@ export default class Pointer extends BaseModule {
           // commit
           wait.push(0);
           this.logger.dir("clickCell").log("swap both run");
-          const isSwapped = await this.dependency.blockManager.swapBothCell(
+          const isBoundary = this.dependency.blockManager.isInBoundary(
             this.swapTemp[0],
             this.swapTemp[1]
           );
+            console.log('isBoundary',isBoundary)
+          if (isBoundary) {
+            this.dependency.scoreCalculator?.turnCount();
+          }
+          try {
+            const isSwapped = await this.dependency.blockManager.swapBothCell(
+              this.swapTemp[0],
+              this.swapTemp[1]
+            );
 
-          if (!isSwapped) {
-            this.logger.dir("swapBothCellAndFill").error("not swapped");
-            // console.log(this.swapTemp);
-            const first =
-              this.dependency.blockManager.map[this.swapTemp[0].y][
-                this.swapTemp[0].x
-              ];
-            const second =
-              this.dependency.blockManager.map[this.swapTemp[1].y][
-                this.swapTemp[1].x
-              ];
-            await this.dependency.blockManager.revertSwap(first, second);
+            if (!isSwapped) {
+              this.logger.dir("swapBothCellAndFill").error("not swapped");
 
-            // release
-            wait.pop();
+              // console.log(this.swapTemp);
+              const first =
+                this.dependency.blockManager.map?.[this.swapTemp[0]?.y]?.[
+                  this.swapTemp?.[0]?.x
+                ];
+              const second =
+                this.dependency.blockManager.map?.[this.swapTemp[1]?.y]?.[
+                  this.swapTemp?.[1]?.x
+                ];
+              await this.dependency.blockManager.revertSwap(first, second);
 
-            this.swapTemp[0] && (this.swapTemp[0].isSelected = false);
-            this.swapTemp[1] && (this.swapTemp[1].isSelected = false);
+              // release
+              wait.pop();
 
-            this.swapTemp = [];
+              this.swapTemp[0] && (this.swapTemp[0].isSelected = false);
+              this.swapTemp[1] && (this.swapTemp[1].isSelected = false);
 
+              this.swapTemp = [];
+
+              return;
+            }
+          } catch (error) {
             return;
           }
 
           await this.dependency.blockManager.autoPangAndFill();
-          console.log('release??')
+          console.log("release??");
           // release
           wait.pop();
 
@@ -135,10 +148,12 @@ export default class Pointer extends BaseModule {
         this.swapTemp = [];
         this.logger.dir("clickCell").log(this.swapTemp);
       }
-      this.logger.dir("clickCell").debug(this.swapTemp);
+      this.logger.dir("clickCell2").debug(this.swapTemp);
     } else {
       this.logger.dir("clickCell").debug("no grab");
     }
+
+    console.log("map", this.dependency.blockManager?.map);
   }
 
   moveMouse(e: MouseEvent) {

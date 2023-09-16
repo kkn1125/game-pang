@@ -34,19 +34,28 @@ export default class MapGenerator extends BaseModule {
   }
 
   render() {
-    bgCtx.fillStyle = BG_COLOR + "56";
+    bgCtx.fillStyle = BG_COLOR + "b6";
     bgCtx.fillRect(0, 0, innerWidth, innerHeight);
+    if (this.mode === "test") {
 
-    bgCtx.strokeStyle = "#56565626";
+      bgCtx.strokeStyle = "#56565626";
 
-    for (const row of this.map) {
-      for (const cell of row) {
-        const [x, y] = responseBlockAxis(
-          cell.x * RESPONSIVE_UNIT_SIZE(),
-          cell.y * RESPONSIVE_UNIT_SIZE()
-        );
-        bgCtx.strokeRect(x, y, RESPONSIVE_UNIT_SIZE(), RESPONSIVE_UNIT_SIZE());
+      for (const row of this.map) {
+        for (const cell of row) {
+          const [x, y] = responseBlockAxis(
+            cell.x * RESPONSIVE_UNIT_SIZE(),
+            cell.y * RESPONSIVE_UNIT_SIZE()
+          );
+          bgCtx.strokeRect(
+            x,
+            y,
+            RESPONSIVE_UNIT_SIZE(),
+            RESPONSIVE_UNIT_SIZE()
+          );
+        }
       }
+
+      bgCtx.strokeStyle = "black";
     }
 
     effectCtx.fillStyle = BG_COLOR;
@@ -79,8 +88,6 @@ export default class MapGenerator extends BaseModule {
       innerWidth / 2 - (OPTIONS.WIDTH.GAME.X * RESPONSIVE_UNIT_SIZE()) / 2,
       innerHeight
     );
-
-    bgCtx.strokeStyle = "black";
   }
 
   clearSelect() {
