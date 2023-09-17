@@ -84,7 +84,9 @@ export default class BlockManager extends BaseModule {
   }
 
   isInBoundary(srcCell: Cell, dstCell: Cell) {
-    console.log("srcCell", "dstCell", srcCell, dstCell);
+    this.logger
+      .dir("isInBoundary")
+      .debug("srcCell", "dstCell", srcCell, dstCell);
     const srcX = srcCell?.x;
     const srcY = srcCell?.y;
 
@@ -468,7 +470,7 @@ export default class BlockManager extends BaseModule {
   getPangableList() {
     const rows = this.searchRowsAndFilterPangable();
     const columns = this.searchColumnsAndFilterPangable();
-    console.log("pagable", rows, columns);
+    this.logger.dir("getPangableList").debug("pagable", rows, columns);
     const rowScores = rows.reduce((acc, row) => {
       // acc += (row?.[0].score || 0) * (row.slice(3)?.length || 0);
       if (row.length > 3) {

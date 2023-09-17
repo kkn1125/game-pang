@@ -1,4 +1,4 @@
-import { scoreCtx } from "@src/util/global";
+import { OPTIONS, scoreCtx } from "@src/util/global";
 import Logger from "@src/util/logger";
 import BaseModule from "./base.moudle";
 
@@ -10,7 +10,7 @@ export default class ScoreCalculator extends BaseModule {
   constructor(mode: string) {
     super(mode);
     if (mode === "none") {
-      this.turn = 50;
+      this.turn = OPTIONS.GAME.TURN;
     } else if (mode === "test") {
       this.turn = Infinity;
     }
@@ -26,6 +26,26 @@ export default class ScoreCalculator extends BaseModule {
   turnCount() {
     this.logger.dir("turnCount").debug("count minus", this.turn);
     this.turn -= 1;
+  }
+
+  popupEndModal() {
+    const wrap = document.createElement("div");
+    wrap.id = "modal";
+
+    wrap.innerHTML = `
+      <div class="modal-head">
+        <span>
+        Modal
+        </span>
+        <button id="modal-close">&times;</button>
+      </div>
+      <div class="modal-body">
+        <!--새 게임을 시작하시겠습니까?-->
+        <button id="newGame">New Game</button>
+      </div>
+    `;
+
+    document.body.append(wrap);
   }
 
   render() {

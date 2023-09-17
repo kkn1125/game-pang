@@ -6,6 +6,7 @@ import {
   gameCanvas,
   gameCtx,
   LOG_BLOCK,
+  OPTIONS,
   RESPONSIVE_UNIT_SIZE,
   ROOT,
   RUN_MODE,
@@ -23,6 +24,7 @@ import BlockManager from "./block.manager";
 import MapGenerator from "./map.generator";
 import Pointer from "./pointer";
 import ScoreCalculator from "./score.calculator";
+import StoreManager from "./store.manager";
 
 export default class GameCore extends BaseModule {
   seek: number = 0;
@@ -30,14 +32,20 @@ export default class GameCore extends BaseModule {
   animator: Animator;
   mapGenerator: MapGenerator;
   scoreCalculator: ScoreCalculator;
+  storeManager: StoreManager;
   pointer: Pointer;
   logger: Logger;
-  _dev: boolean;
-  _runMode: string;
+
   canvases: HTMLCanvasElement[] = [];
 
+  gameEnd: boolean = false;
+
+  _dev: boolean;
+  _runMode: string;
   _baseWidth: number = innerWidth;
   _baseHeight: number = innerHeight;
+  _storeName: string;
+  _animation: number;
 
   constructor() {
     super(RUN_MODE);
@@ -46,6 +54,48 @@ export default class GameCore extends BaseModule {
     this.logger.dir("constructor").debug("dev", this._dev);
     this.logger.dir("constructor").debug("run mode", this._runMode);
     this.logger.dir("constructor").log("setup game core...");
+
+    window.addEventListener("click", this.handleNewGame.bind(this));
+  }
+
+  newGame() {
+    this.gameEnd = false;
+    // this.stopRender();
+    // this.initialize();
+    // this.render();
+    const map = this.blockManager.initialize();
+    this.mapGenerator.initialize(map);
+    this.scoreCalculator.turn = OPTIONS.GAME.TURN;
+    this.scoreCalculator.scores = 0;
+
+    setTimeout(() => {
+      this.execInitialPang();
+    }, 16);
+  }
+
+  stopRender() {
+    cancelAnimationFrame(this._animation);
+  }
+
+  handleNewGame(e: MouseEvent) {
+    const target = e.target as HTMLButtonElement;
+
+    if (wait.length > 0 && target && target.id === "newGame") {
+      this.newGame();
+      window.removeEventListener("click", this.handleNewGame.bind(this));
+      // target.parentElement?.parentElement?.remove();
+      // console.log(target);
+      wait.splice(0);
+      setTimeout(() => {
+        document.querySelectorAll("#modal").forEach((modal) => modal.remove());
+      }, 10);
+    } else if (target && target.id === "modal-close") {
+      // this.newGame();
+      // window.removeEventListener("click", this.handleNewGame.bind(this));
+      // wait.splice(0);
+      document.querySelectorAll("#modal").forEach((modal) => modal.remove());
+    }
+    document.querySelectorAll("#modal").forEach((modal) => modal.remove());
   }
 
   setOption(property: string, value: string | number | boolean) {
@@ -83,6 +133,7 @@ export default class GameCore extends BaseModule {
     this.animator = new Animator(this.mode);
     this.mapGenerator = new MapGenerator(this.mode);
     this.pointer = new Pointer(this.mode);
+    this.storeManager = new StoreManager(this.mode, this._storeName);
     this.logger.dir("loadModules").log("success!");
   }
 
@@ -146,10 +197,15 @@ export default class GameCore extends BaseModule {
     const milliseconds = time;
     time *= 0.001;
 
-    if (Math.floor(milliseconds) % 60 === 0) {
-      // timer zone
-      // this.renderPerSecond.call(this);
-      // console.log("map check", this.blockManager.map);
+    // if (Math.floor(milliseconds) % 60 === 0) {
+    // timer zone
+    // this.renderPerSecond.call(this);
+    // console.log("map check", this.blockManager.map);
+    // }
+    if (wait.length === 0 && !this.gameEnd && this.scoreCalculator.turn === 0) {
+      wait.push(0);
+      this.gameEnd = true;
+      this.scoreCalculator.popupEndModal();
     }
 
     this.scoreCalculator.render();
@@ -162,7 +218,7 @@ export default class GameCore extends BaseModule {
     selectCtx.restore();
     effectCtx.restore();
 
-    requestAnimationFrame(this.animation.bind(this));
+    this._animation = requestAnimationFrame(this.animation.bind(this));
 
     this.seek = Math.floor(time);
   }
@@ -171,14 +227,14 @@ export default class GameCore extends BaseModule {
     bgCtx.clearRect(0, 0, innerWidth, innerHeight);
     scoreCtx.clearRect(0, 0, innerWidth, innerHeight);
     gameCtx.clearRect(0, 0, innerWidth, innerHeight);
-    selectCtx.clearRect(0, 0, innerWidth, innerHeight);
     effectCtx.clearRect(0, 0, innerWidth, innerHeight);
+    selectCtx.clearRect(0, 0, innerWidth, innerHeight);
 
     bgCtx.save();
     scoreCtx.save();
     gameCtx.save();
-    selectCtx.save();
     effectCtx.save();
+    selectCtx.save();
   }
 
   render() {
@@ -188,6 +244,12 @@ export default class GameCore extends BaseModule {
     this.logger.dir("render").log("start game map rendering...");
     this.logger.dir("render").log("start block rendering...");
 
+    this.execInitialPang();
+
+    this._animation = requestAnimationFrame(this.animation.bind(this));
+  }
+
+  execInitialPang() {
     // start detect pang lines
     if (this.mode !== "test") {
       if (wait.length === 0) {
@@ -197,9 +259,8 @@ export default class GameCore extends BaseModule {
         });
       }
     }
-
-    requestAnimationFrame(this.animation.bind(this));
   }
+
   renderPerSecond() {
     // console.log("hello");
   }

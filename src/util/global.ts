@@ -78,6 +78,9 @@ export const OPTIONS = {
     SPEED: isMobile ? 0.5 : 0.1,
     FRAME: 16,
   },
+  GAME: {
+    TURN: 50,
+  },
 };
 export const RESPONSIVE_UNIT_SIZE = () =>
   OPTIONS.SIZE.UNIT + SUB_OPTIONS.SIZE.RATIO;
@@ -94,6 +97,7 @@ export const wait: number[] = [];
 export const LOG_BLOCK: number[] = [];
 
 export const RUN_MODE = import.meta.env.VITE_RUN_MODE || "none";
+export const STORE_NAME = "pang_store";
 
 type BlockTypeNScore = [string, number];
 

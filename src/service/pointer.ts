@@ -63,7 +63,7 @@ export default class Pointer extends BaseModule {
     }
 
     if (this.grab) {
-      this.logger.debug(this.grab);
+      this.logger.dir("clickCell").debug(this.grab);
 
       if (this.swapTemp.length < 2) {
         this.grab.isSelected = true;
@@ -94,7 +94,7 @@ export default class Pointer extends BaseModule {
             this.swapTemp[0],
             this.swapTemp[1]
           );
-            console.log('isBoundary',isBoundary)
+          this.logger.dir("clickCell").debug("isBoundary", isBoundary);
           if (isBoundary) {
             this.dependency.scoreCalculator?.turnCount();
           }
@@ -133,7 +133,7 @@ export default class Pointer extends BaseModule {
           }
 
           await this.dependency.blockManager.autoPangAndFill();
-          console.log("release??");
+          this.logger.dir("clickCell").debug("release??");
           // release
           wait.pop();
 
@@ -153,7 +153,9 @@ export default class Pointer extends BaseModule {
       this.logger.dir("clickCell").debug("no grab");
     }
 
-    console.log("map", this.dependency.blockManager?.map);
+    this.logger
+      .dir("clickCell")
+      .debug("map", this.dependency.blockManager?.map);
   }
 
   moveMouse(e: MouseEvent) {
