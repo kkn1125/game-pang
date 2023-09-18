@@ -1,4 +1,4 @@
-import { OPTIONS, scoreCtx } from "@src/util/global";
+import { isMobile, OPTIONS, scoreCtx } from "@src/util/global";
 import Logger from "@src/util/logger";
 import BaseModule from "./base.moudle";
 
@@ -53,9 +53,9 @@ export default class ScoreCalculator extends BaseModule {
     scoreCtx.textAlign = "left";
     scoreCtx.fillStyle = "#000000";
     scoreCtx.fillText(
-      `score: ${this.scores} point${this.scores > 1 ? "s" : ""}`,
+      `score: ${this.scores} Point${this.scores > 1 ? "s" : ""}`,
       50,
-      50
+      50 - (isMobile() ? 20 : 0)
     );
     if (this.turn > 5 && this.turn < 10) {
       scoreCtx.fillStyle = "#ffff00";
@@ -63,9 +63,9 @@ export default class ScoreCalculator extends BaseModule {
       scoreCtx.fillStyle = "#ff0000";
     }
     scoreCtx.fillText(
-      `turn: ${this.turn} turn${this.scores > 1 ? "s" : ""}`,
+      `turn: ${this.turn} Turn${this.scores > 1 ? "s" : ""}`,
       50,
-      70
+      70 - (isMobile() ? 20 : 0)
     );
   }
 }

@@ -73,7 +73,8 @@ effectCtx.translate(0.5, 0.5);
 scoreCtx.translate(0.5, 0.5);
 selectCtx.translate(0.5, 0.5);
 
-export const isMobile = window.navigator.userAgent.match(/android|mobile/gi);
+export const isMobile = () =>
+  window.navigator.userAgent.match(/android|mobile/gi);
 
 export const SUB_OPTIONS = {
   SIZE: {
@@ -91,7 +92,7 @@ export const OPTIONS = {
     },
   },
   ANIMATION: {
-    SPEED: isMobile ? 0.5 : 0.1,
+    SPEED: isMobile() ? 0.5 : 0.1,
     FRAME: 16,
   },
   GAME: {
