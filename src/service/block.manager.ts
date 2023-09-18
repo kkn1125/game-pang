@@ -7,13 +7,8 @@ import {
 } from "@src/util/global";
 import Logger from "@src/util/logger";
 import BaseModule from "./base.moudle";
+import QuestManager from "./quest.manager";
 import ScoreCalculator from "./score.calculator";
-
-type BlockSize = {
-  x: number;
-  y: number;
-};
-type Axis = [number, number];
 
 export default class BlockManager extends BaseModule {
   types = BASE_TYPE_SCORE;
@@ -21,12 +16,37 @@ export default class BlockManager extends BaseModule {
   blockSize: BlockSize = { x: 50, y: 50 };
   map: Cell[][] = [];
   scoreCalculator: ScoreCalculator;
+  questManager: QuestManager;
 
-  constructor(mode: string, scoreCalculator: ScoreCalculator) {
+  animalsPang: {
+    [k in Animals]: number;
+  } = {
+    cat: 0,
+    dog: 0,
+    lion: 0,
+    duck: 0,
+    mouse: 0,
+    rabbit: 0,
+    panda: 0,
+    pig: 0,
+    racoon: 0,
+  };
+
+  constructor(
+    mode: string,
+    scoreCalculator: ScoreCalculator,
+    questManager: QuestManager
+  ) {
     super(mode);
     this.logger = new Logger(this.constructor.name);
     this.logger.dir("constructor").log("initialize mode:", mode);
     this.scoreCalculator = scoreCalculator;
+    this.questManager = questManager;
+  }
+
+  containsType(type: string) {
+    // console.log(type)
+    return this.types.some((types) => types[0] === type);
   }
 
   scoreUp(score: number) {
@@ -418,7 +438,10 @@ export default class BlockManager extends BaseModule {
     }
 
     pangResult.flat(1).forEach((cell) => {
+      this.animalsPang[cell.type] += 1;
+      this.questManager.questAmountUp(cell.type);
       cell.pang();
+
       this.scoreCalculator.scoreUp(cell.score);
     });
     return true;
@@ -497,6 +520,8 @@ export default class BlockManager extends BaseModule {
     const pangableList = this.getPangableList();
     // const tempType: string[] = [];
     pangableList.forEach((cell) => {
+      this.animalsPang[cell.type] += 1;
+      this.questManager.questAmountUp(cell.type);
       cell.pang();
 
       // if (tempType.length === 0 || tempType.includes(cell.type)) {

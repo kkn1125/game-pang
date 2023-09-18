@@ -5,7 +5,6 @@ import {
   effectCtx,
   OPTIONS,
   RESPONSIVE_UNIT_SIZE,
-  SUB_OPTIONS,
 } from "@src/util/global";
 import Logger from "@src/util/logger";
 import { responseBlockAxis } from "@src/util/tool";
@@ -37,7 +36,6 @@ export default class MapGenerator extends BaseModule {
     bgCtx.fillStyle = BG_COLOR + "b6";
     bgCtx.fillRect(0, 0, innerWidth, innerHeight);
     if (this.mode === "test") {
-
       bgCtx.strokeStyle = "#56565626";
 
       for (const row of this.map) {

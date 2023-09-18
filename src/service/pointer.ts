@@ -1,17 +1,13 @@
 import Cell from "@src/model/cell";
-import { RUN_MODE, wait } from "@src/util/global";
+import { wait } from "@src/util/global";
 import Logger from "@src/util/logger";
 import { capitalize, responsePointerAxis } from "@src/util/tool";
 import BaseModule from "./base.moudle";
 import BlockManager from "./block.manager";
 import MapGenerator from "./map.generator";
 import ScoreCalculator from "./score.calculator";
+import { Dependency } from "./types";
 
-type Dependency = {
-  ["mapGenerator"]?: MapGenerator;
-  ["scoreCalculator"]?: ScoreCalculator;
-  ["blockManager"]?: BlockManager;
-};
 //53389
 export default class Pointer extends BaseModule {
   logger: Logger;

@@ -1,3 +1,4 @@
+import Quest from "@src/model/quest";
 import {
   bgCanvas,
   bgCtx,
@@ -5,8 +6,9 @@ import {
   effectCtx,
   gameCanvas,
   gameCtx,
-  LOG_BLOCK,
   OPTIONS,
+  questCanvas,
+  questCtx,
   RESPONSIVE_UNIT_SIZE,
   ROOT,
   RUN_MODE,
@@ -23,6 +25,7 @@ import BaseModule from "./base.moudle";
 import BlockManager from "./block.manager";
 import MapGenerator from "./map.generator";
 import Pointer from "./pointer";
+import QuestManager from "./quest.manager";
 import ScoreCalculator from "./score.calculator";
 import StoreManager from "./store.manager";
 
@@ -34,6 +37,7 @@ export default class GameCore extends BaseModule {
   scoreCalculator: ScoreCalculator;
   storeManager: StoreManager;
   pointer: Pointer;
+  questManager: QuestManager;
   logger: Logger;
 
   canvases: HTMLCanvasElement[] = [];
@@ -47,6 +51,8 @@ export default class GameCore extends BaseModule {
   _storeName: string;
   _animation: number;
 
+  questQueue: Quest[] = [];
+
   constructor() {
     super(RUN_MODE);
     // RUN_MODE === "test" && LOG_BLOCK.push(0);
@@ -58,6 +64,15 @@ export default class GameCore extends BaseModule {
     window.addEventListener("click", this.handleNewGame.bind(this));
   }
 
+  initialCommitQuestInQueue() {
+    while (this.questQueue.length > 0) {
+      const quest = this.questQueue.pop();
+      if (quest) {
+        this.questManager.addQuest(quest);
+      }
+    }
+  }
+
   newGame() {
     this.gameEnd = false;
     // this.stopRender();
@@ -67,6 +82,17 @@ export default class GameCore extends BaseModule {
     this.mapGenerator.initialize(map);
     this.scoreCalculator.turn = OPTIONS.GAME.TURN;
     this.scoreCalculator.scores = 0;
+    this.blockManager.animalsPang = {
+      cat: 0,
+      dog: 0,
+      lion: 0,
+      duck: 0,
+      mouse: 0,
+      rabbit: 0,
+      panda: 0,
+      pig: 0,
+      racoon: 0,
+    };
 
     setTimeout(() => {
       this.execInitialPang();
@@ -112,12 +138,16 @@ export default class GameCore extends BaseModule {
   initialize() {
     this.logger.dir("initialize").log("initialize");
     this.loadModules();
+
+    this.initialCommitQuestInQueue();
+
     this.setupCanvas(
       bgCanvas,
       gameCanvas,
       effectCanvas,
       scoreCanvas,
-      selectCanvas
+      selectCanvas,
+      questCanvas
     );
     this.injection();
 
@@ -125,11 +155,20 @@ export default class GameCore extends BaseModule {
     this.mapGenerator.initialize(map);
   }
 
+  autoQuests() {
+    this.questManager.autoQuests();
+  }
+
   loadModules() {
     this.logger.dir("loadModules").log("start...");
     this.scoreCalculator = new ScoreCalculator(this.mode);
-    this.blockManager = new BlockManager(this.mode, this.scoreCalculator);
-    this.blockManager;
+    this.questManager = new QuestManager(this.mode);
+    this.blockManager = new BlockManager(
+      this.mode,
+      this.scoreCalculator,
+      this.questManager
+    );
+    this.questManager.animalsPang = this.blockManager.animalsPang;
     this.animator = new Animator(this.mode);
     this.mapGenerator = new MapGenerator(this.mode);
     this.pointer = new Pointer(this.mode);
@@ -190,6 +229,8 @@ export default class GameCore extends BaseModule {
     this.pointer.inject(this.blockManager);
     this.pointer.inject(this.mapGenerator);
     this.pointer.inject(this.scoreCalculator);
+    this.questManager.inject(this.blockManager);
+    this.questManager.inject(this.scoreCalculator);
   }
 
   animation(time: number) {
@@ -208,15 +249,28 @@ export default class GameCore extends BaseModule {
       this.scoreCalculator.popupEndModal();
     }
 
+    if (Math.floor(time) !== this.seek) {
+      // console.log(
+      //   "this.blockManager.animalsPang",
+      //   this.blockManager.animalsPang
+      // );
+      // console.log(
+      //   "this.questManager.animalsPang",
+      //   this.questManager.animalsPang
+      // );
+    }
+
     this.scoreCalculator.render();
     this.mapGenerator.render();
     this.blockManager.render();
+    this.questManager.render();
 
     bgCtx.restore();
     scoreCtx.restore();
     gameCtx.restore();
     selectCtx.restore();
     effectCtx.restore();
+    questCtx.restore();
 
     this._animation = requestAnimationFrame(this.animation.bind(this));
 
@@ -229,12 +283,14 @@ export default class GameCore extends BaseModule {
     gameCtx.clearRect(0, 0, innerWidth, innerHeight);
     effectCtx.clearRect(0, 0, innerWidth, innerHeight);
     selectCtx.clearRect(0, 0, innerWidth, innerHeight);
+    questCtx.clearRect(0, 0, innerWidth, innerHeight);
 
     bgCtx.save();
     scoreCtx.save();
     gameCtx.save();
     effectCtx.save();
     selectCtx.save();
+    questCtx.save();
   }
 
   render() {
@@ -244,7 +300,9 @@ export default class GameCore extends BaseModule {
     this.logger.dir("render").log("start game map rendering...");
     this.logger.dir("render").log("start block rendering...");
 
-    this.execInitialPang();
+    setTimeout(() => {
+      this.execInitialPang();
+    }, 1000);
 
     this._animation = requestAnimationFrame(this.animation.bind(this));
   }

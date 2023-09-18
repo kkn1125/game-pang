@@ -1,4 +1,5 @@
 import "reflect-metadata";
+import Quest from "./model/quest";
 import GameCore from "./service/game.core";
 import { MODE, RUN_MODE, STORE_NAME } from "./util/global";
 
@@ -12,4 +13,5 @@ gameCore.setOption("runMode", RUN_MODE);
 gameCore.setOption("storeName", STORE_NAME);
 
 gameCore.initialize();
+gameCore.autoQuests();
 gameCore.render();
