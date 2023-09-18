@@ -74,7 +74,7 @@ scoreCtx.translate(0.5, 0.5);
 selectCtx.translate(0.5, 0.5);
 
 export const isMobile = () =>
-  window.navigator.userAgent.match(/android|mobile/gi);
+  !!window.navigator.userAgent.match(/android|mobile/gi);
 
 export const SUB_OPTIONS = {
   SIZE: {

@@ -92,7 +92,7 @@ export default class QuestManager {
     const quests = this.quests.filter((quest) => quest.condition.type === type);
     this.logger.dir("questAmountUp").debug(type);
     quests.forEach((quest) => {
-      console.log(quest);
+      // console.log(quest);
       quest.currentAmount += 1;
     });
   }
@@ -149,7 +149,7 @@ export default class QuestManager {
       if (innerWidth > 900) {
         return contentVisible ? 50 : 100;
       } else {
-        return contentVisible ? 80 : 80;
+        return contentVisible ? 90 : 80;
       }
     })();
     for (const quest of this.quests) {
