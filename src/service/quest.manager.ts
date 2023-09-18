@@ -148,8 +148,10 @@ export default class QuestManager {
     const responseRatio = (() => {
       if (innerWidth > 900) {
         return contentVisible ? 50 : 100;
+      } else if (innerWidth <= 900 && innerWidth >= 500) {
+        return contentVisible ? 50 : 90;
       } else {
-        return contentVisible ? 90 : 80;
+        return contentVisible ? 90 : 95;
       }
     })();
     for (const quest of this.quests) {
