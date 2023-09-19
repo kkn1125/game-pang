@@ -74,6 +74,52 @@ export default class GameCore extends BaseModule {
     }
   }
 
+  async refreshGame() {
+    this.gameEnd = false;
+    this.pointer.gameEnd = false;
+
+    const score = this.scoreCalculator.scores;
+    const turn = this.scoreCalculator.turn;
+    const combo = this.scoreCalculator.combo;
+    const quests = this.questManager.quests.map((q) => {
+      const qst = Quest.createQuest({
+        title: q.title,
+        content: q.content,
+        score: q.result.score,
+        turn: q.result.turn,
+        type: q.condition.type,
+        amount: q.condition.amount,
+      });
+      qst.currentAmount = q.currentAmount;
+      return qst;
+    });
+
+    const map = await this.blockManager.initialize();
+    this.mapGenerator.initialize(map);
+
+    this.blockManager.resetScore();
+    this.blockManager.resetQuest();
+
+    this.scoreCalculator.scores = score;
+    this.scoreCalculator.turn = turn;
+    this.scoreCalculator.combo = combo;
+    this.questManager.quests = quests;
+
+    setTimeout(() => {
+      this.execInitialPang();
+    }, 16);
+  }
+
+  resetScore() {
+    this.scoreCalculator.resetCombos();
+    this.scoreCalculator.resetScores();
+    this.scoreCalculator.resetTurns();
+  }
+
+  resetQuest() {
+    this.questManager.resetQuest();
+  }
+
   async newGame() {
     this.gameEnd = false;
     this.pointer.gameEnd = false;
@@ -82,10 +128,8 @@ export default class GameCore extends BaseModule {
     // this.render();
     const map = await this.blockManager.initialize();
     this.mapGenerator.initialize(map);
-    this.scoreCalculator.resetTurns();
-    this.scoreCalculator.resetScores();
-    this.scoreCalculator.resetCombos();
-    this.questManager.resetQuest();
+    this.resetScore();
+    this.resetQuest();
     this.autoQuests();
     this.blockManager.animalsPang = {
       cat: 0,
@@ -109,10 +153,18 @@ export default class GameCore extends BaseModule {
   }
 
   createNewGameButton() {
+    const wrap = document.createElement("div");
+    wrap.id = "btnWrap";
+
     const button = document.createElement("button");
     button.id = "restartGame";
     button.innerText = "Restart Game";
-    document.body.append(button);
+    const button2 = document.createElement("button");
+    button2.id = "refreshGame";
+    button2.innerText = "재배치";
+
+    wrap.append(button2, button);
+    document.body.append(wrap);
   }
 
   async handleNewGame(e: MouseEvent) {
@@ -131,6 +183,8 @@ export default class GameCore extends BaseModule {
       setTimeout(() => {
         document.querySelectorAll("#modal").forEach((modal) => modal.remove());
       }, 10);
+    } else if (target && target.id === "refreshGame") {
+      await this.refreshGame();
     } else if (target && target.id === "modal-close") {
       // this.newGame();
       // window.removeEventListener("click", this.handleNewGame.bind(this));

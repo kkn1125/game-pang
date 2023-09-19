@@ -16,3 +16,9 @@ gameCore.initialize().then(() => {
   gameCore.autoQuests();
   gameCore.render();
 });
+
+// 2023-09-19 22:41:22
+// todo: 
+// 1. refreshable
+// 2. pangable detect
+// 3. mobile click blue screen issue

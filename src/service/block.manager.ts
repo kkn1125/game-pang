@@ -82,6 +82,15 @@ export default class BlockManager extends BaseModule {
     }
   }
 
+  resetScore() {
+    this.scoreCalculator.resetCombos();
+    this.scoreCalculator.resetScores();
+    this.scoreCalculator.resetTurns();
+  }
+  resetQuest() {
+    this.questManager.resetQuest();
+  }
+
   async removeDuplicate() {
     let resolver: (value: unknown) => void;
     const promise = new Promise((resolve) => {
@@ -98,10 +107,8 @@ export default class BlockManager extends BaseModule {
     await this.autoPangAndFill();
     this.logger.dir("removeDuplicate").log("done remove");
 
-    this.scoreCalculator.resetCombos();
-    this.scoreCalculator.resetScores();
-    this.scoreCalculator.resetTurns();
-    this.questManager.resetQuest();
+    this.resetScore();
+    this.resetQuest();
 
     OPTIONS.ANIMATION.FRAME = BASE_VALUE.FRAME;
     OPTIONS.ANIMATION.SPEED = BASE_VALUE.SPEED;

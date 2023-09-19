@@ -117,6 +117,8 @@ button[id*="Game"] {
   -moz-border-radius: 0.5rem;
   -ms-border-radius: 0.5rem;
   -o-border-radius: 0.5rem;
+
+  max-height: 3.5rem;
 }
 
 button#restartGame {
@@ -124,4 +126,10 @@ button#restartGame {
   bottom: 15px;
   right: 15px;
   padding: 1rem;
+}
+button#refreshGame {
+  position: fixed;
+  bottom: 15px;
+  right: 190px;
+  padding: 0.9rem;
 }

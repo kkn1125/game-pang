@@ -168,14 +168,14 @@ export default class Pointer extends BaseModule {
       const cell = this.getCellInfo(resX, resY);
       this.grab = cell;
       if (cell) {
-        document.body.style.cursor = "pointer";
+        // document.body.style.cursor = "pointer";
       }
       if (!this.grab.isHover) {
         this.grab.isHover = true;
       }
     } catch (error) {
       this.grab = null;
-      document.body.style.cursor = "inherit";
+      // document.body.style.cursor = "inherit";
     }
   }
 
