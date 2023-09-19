@@ -14,3 +14,13 @@ declare type Animals =
   | "panda"
   | "pig"
   | "racoon";
+
+declare type Condition = {
+  type: string;
+  amount: number;
+};
+
+declare type Result = {
+  score: number;
+  turn: number;
+};

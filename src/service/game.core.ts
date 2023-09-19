@@ -62,6 +62,7 @@ export default class GameCore extends BaseModule {
     this.logger.dir("constructor").log("setup game core...");
 
     window.addEventListener("click", this.handleNewGame.bind(this));
+    this.createNewGameButton();
   }
 
   initialCommitQuestInQueue() {
@@ -73,15 +74,19 @@ export default class GameCore extends BaseModule {
     }
   }
 
-  newGame() {
+  async newGame() {
     this.gameEnd = false;
+    this.pointer.gameEnd = false;
     // this.stopRender();
     // this.initialize();
     // this.render();
-    const map = this.blockManager.initialize();
+    const map = await this.blockManager.initialize();
     this.mapGenerator.initialize(map);
-    this.scoreCalculator.turn = OPTIONS.GAME.TURN;
-    this.scoreCalculator.scores = 0;
+    this.scoreCalculator.resetTurns();
+    this.scoreCalculator.resetScores();
+    this.scoreCalculator.resetCombos();
+    this.questManager.resetQuest();
+    this.autoQuests();
     this.blockManager.animalsPang = {
       cat: 0,
       dog: 0,
@@ -103,11 +108,22 @@ export default class GameCore extends BaseModule {
     cancelAnimationFrame(this._animation);
   }
 
-  handleNewGame(e: MouseEvent) {
+  createNewGameButton() {
+    const button = document.createElement("button");
+    button.id = "restartGame";
+    button.innerText = "Restart Game";
+    document.body.append(button);
+  }
+
+  async handleNewGame(e: MouseEvent) {
     const target = e.target as HTMLButtonElement;
 
-    if (wait.length > 0 && target && target.id === "newGame") {
-      this.newGame();
+    if (
+      // wait.length > 0 &&
+      target &&
+      target.id.match(/^(newGame|restartGame)/)
+    ) {
+      await this.newGame();
       window.removeEventListener("click", this.handleNewGame.bind(this));
       // target.parentElement?.parentElement?.remove();
       // console.log(target);
@@ -121,7 +137,6 @@ export default class GameCore extends BaseModule {
       // wait.splice(0);
       document.querySelectorAll("#modal").forEach((modal) => modal.remove());
     }
-    document.querySelectorAll("#modal").forEach((modal) => modal.remove());
   }
 
   setOption(property: string, value: string | number | boolean) {
@@ -135,11 +150,11 @@ export default class GameCore extends BaseModule {
     }
   }
 
-  initialize() {
+  async initialize() {
     this.logger.dir("initialize").log("initialize");
     this.loadModules();
 
-    this.initialCommitQuestInQueue();
+    // this.initialCommitQuestInQueue();
 
     this.setupCanvas(
       bgCanvas,
@@ -151,8 +166,9 @@ export default class GameCore extends BaseModule {
     );
     this.injection();
 
-    const map = this.blockManager.initialize();
+    const map = await this.blockManager.initialize();
     this.mapGenerator.initialize(map);
+    return true;
   }
 
   autoQuests() {
@@ -246,6 +262,7 @@ export default class GameCore extends BaseModule {
     if (wait.length === 0 && !this.gameEnd && this.scoreCalculator.turn === 0) {
       wait.push(0);
       this.gameEnd = true;
+      this.pointer.gameEnd = true;
       this.scoreCalculator.popupEndModal();
     }
 
@@ -302,13 +319,14 @@ export default class GameCore extends BaseModule {
 
     setTimeout(() => {
       this.execInitialPang();
-    }, 1000);
+    }, 500);
 
     this._animation = requestAnimationFrame(this.animation.bind(this));
   }
 
   execInitialPang() {
     // start detect pang lines
+    wait.splice(0);
     if (this.mode !== "test") {
       if (wait.length === 0) {
         wait.push(0);

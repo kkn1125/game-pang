@@ -14,6 +14,7 @@ export default class Pointer extends BaseModule {
   dependency: Dependency = {};
   grab: Cell | null = null;
   swapTemp: Cell[] = [];
+  gameEnd: boolean = false;
 
   // TODO: mode 받는 공통 상속 클래스 생성하기 2023-09-14 22:30:34
   constructor(mode: string) {
@@ -51,7 +52,7 @@ export default class Pointer extends BaseModule {
       }
       return;
     }
-
+    this.logger.dir("clickCell").dir("debug wait").debug("!!!!!!!!wait", wait);
     if (wait.length > 0) {
       this.logger.dir("clickCell").error("current working click event", wait);
       this.swapTemp = [];
@@ -102,7 +103,9 @@ export default class Pointer extends BaseModule {
 
             if (!isSwapped) {
               this.logger.dir("swapBothCellAndFill").error("not swapped");
-
+              if (isBoundary) {
+                this.dependency.scoreCalculator?.divideCombo();
+              }
               // console.log(this.swapTemp);
               const first =
                 this.dependency.blockManager.map?.[this.swapTemp[0]?.y]?.[
@@ -128,6 +131,7 @@ export default class Pointer extends BaseModule {
             return;
           }
 
+          // this.dependency.scoreCalculator?.countUpCombo();
           await this.dependency.blockManager.autoPangAndFill();
           this.logger.dir("clickCell").debug("release??");
           // release
@@ -148,7 +152,6 @@ export default class Pointer extends BaseModule {
     } else {
       this.logger.dir("clickCell").debug("no grab");
     }
-
     this.logger
       .dir("clickCell")
       .debug("map", this.dependency.blockManager?.map);
@@ -159,13 +162,20 @@ export default class Pointer extends BaseModule {
     const y = e.clientY;
     const [resX, resY] = responsePointerAxis(x, y);
     try {
+      if (this.gameEnd) {
+        throw new Error("the game end");
+      }
       const cell = this.getCellInfo(resX, resY);
       this.grab = cell;
+      if (cell) {
+        document.body.style.cursor = "pointer";
+      }
       if (!this.grab.isHover) {
         this.grab.isHover = true;
       }
     } catch (error) {
       this.grab = null;
+      document.body.style.cursor = "inherit";
     }
   }
 

@@ -1,27 +1,37 @@
-# React + TypeScript + Vite
+# Animal Match Game
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+순수자바스크립트로 만들어졌고, 비동기 함수가 주를 이루는 로직과 알고리즘으로 구성되었습니다.
 
-Currently, two official plugins are available:
+## 게임 규칙
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+1. 동물을 클릭하여 상, 하, 좌, 우 1칸 범위의 다른 동물과 자리를 바꿀 수 있습니다.
+2. 자리를 바꾼 후 각 동물이 3개 이상 나열 되면 해당 동물이 사라지고 점수를 얻습니다.
+3. 모든 턴을 소진하면 게임이 종료됩니다.
+4. 콤보를 모으면 가산점수를 얻을 수 있습니다. (퀘스트 점수도 적용)
+   - 10 콤보 이상: 점수 2배
+   - 30 콤보 이상: 점수 3배
+   - 50 콤보 이상: 점수 4배
+   - 70 콤보 이상: 점수 5배
+   - 90 콤보 이상: 점수 6배
+5. 퀘스트는 랜덤하게 자동으로 갱신되고, 클리어 시 추가 점수와 턴은 즉시 적용됩니다.
+6. 동물 자리 교체 후 매치되는 동물이 없다면 턴수가 소진되고 다시 원위치로 돌아옵니다.
+   1. 콤보가 있을 시 콤보의 절반만큼 줄어들며, 절반의 소수를 버림한 값이 적용됩니다.
+   2. 예를 들어, 콤보 5일때 실수하게 되면 2가 되고, 콤보 1일때 실수하면 0이됩니다.
 
-## Expanding the ESLint configuration
+## 퀘스트
 
-If you are developing a production application, we recommend updating the configuration to enable type aware lint rules:
+퀘스트 종류는 점수만 있는 퀘스트와 점수 + 추가 턴이 있는 퀘스트로 나뉩니다.
 
-- Configure the top-level `parserOptions` property like this:
+1. 점수만 있는 퀘스트
+2. 점수 + 턴이 있는 퀘스트
 
-```js
-   parserOptions: {
-    ecmaVersion: 'latest',
-    sourceType: 'module',
-    project: ['./tsconfig.json', './tsconfig.node.json'],
-    tsconfigRootDir: __dirname,
-   },
-```
+## 랭킹
 
-- Replace `plugin:@typescript-eslint/recommended` to `plugin:@typescript-eslint/recommended-type-checked` or `plugin:@typescript-eslint/strict-type-checked`
-- Optionally add `plugin:@typescript-eslint/stylistic-type-checked`
-- Install [eslint-plugin-react](https://github.com/jsx-eslint/eslint-plugin-react) and add `plugin:react/recommended` & `plugin:react/jsx-runtime` to the `extends` list
+준비 중인 기능입니다.
+
+## Author
+
+|                                            Kimson                                             |
+| :-------------------------------------------------------------------------------------------: |
+| <img src="https://avatars.githubusercontent.com/u/71887242?v=4" alt="devkimson" width="150" > |
+|                       [chaplet01@gmail.com](mailto:chaplet01@gmail.com)                       |

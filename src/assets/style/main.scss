@@ -4,6 +4,7 @@ body,
   margin: 0;
   height: 100%;
   overflow: hidden;
+  user-select: none;
 }
 
 #root {
@@ -64,26 +65,6 @@ body,
     padding: 1rem;
   }
 
-  & button {
-    cursor: pointer;
-    padding: 0.5rem 0.7rem;
-    border: none;
-
-    text-transform: uppercase;
-
-    color: white;
-    background-color: #3c4e9f;
-
-    font-size: 1rem;
-    font-weight: 700;
-
-    border-radius: 0.5rem;
-    -webkit-border-radius: 0.5rem;
-    -moz-border-radius: 0.5rem;
-    -ms-border-radius: 0.5rem;
-    -o-border-radius: 0.5rem;
-  }
-
   background-color: white;
 
   border-radius: 0.5rem;
@@ -96,4 +77,51 @@ body,
   -moz-transform: translate(-50%, -50%);
   -ms-transform: translate(-50%, -50%);
   -o-transform: translate(-50%, -50%);
+}
+
+button#modal-close {
+  cursor: pointer;
+  padding: 0.5rem 0.7rem;
+  border: none;
+
+  text-transform: uppercase;
+
+  color: white;
+  background-color: #9f3c48;
+
+  font-size: 1.25rem;
+  font-weight: 700;
+
+  border-radius: 0.5rem;
+  -webkit-border-radius: 0.5rem;
+  -moz-border-radius: 0.5rem;
+  -ms-border-radius: 0.5rem;
+  -o-border-radius: 0.5rem;
+}
+
+button[id*="Game"] {
+  cursor: pointer;
+  padding: 0.5rem 0.7rem;
+  border: none;
+
+  text-transform: uppercase;
+
+  color: white;
+  background-color: #3c4e9f;
+
+  font-size: 1rem;
+  font-weight: 700;
+
+  border-radius: 0.5rem;
+  -webkit-border-radius: 0.5rem;
+  -moz-border-radius: 0.5rem;
+  -ms-border-radius: 0.5rem;
+  -o-border-radius: 0.5rem;
+}
+
+button#restartGame {
+  position: fixed;
+  bottom: 15px;
+  right: 15px;
+  padding: 1rem;
 }

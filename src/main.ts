@@ -12,6 +12,7 @@ gameCore.setOption("dev", MODE);
 gameCore.setOption("runMode", RUN_MODE);
 gameCore.setOption("storeName", STORE_NAME);
 
-gameCore.initialize();
-gameCore.autoQuests();
-gameCore.render();
+gameCore.initialize().then(() => {
+  gameCore.autoQuests();
+  gameCore.render();
+});

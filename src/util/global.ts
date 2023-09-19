@@ -99,6 +99,7 @@ export const OPTIONS = {
     TURN: 75,
   },
 };
+export const TEST_AMOUNT = 0;
 
 export const RESPONSIVE_UNIT_SIZE = () =>
   OPTIONS.SIZE.UNIT + SUB_OPTIONS.SIZE.RATIO;
@@ -238,85 +239,175 @@ export const TestCase2 = [
   ["dog", "lion", "lion", "mouse", "dog", "mouse", "cat", "cat", "cat"],
 ];
 
-export const QUEST_LIST = [
-  new Quest("돼지가 너무 많아!", "돼지를 15마리 잡으세요.", 150, {
-    type: "pig",
+const set3 = (
+  obj: {
+    target: string;
+    type: string;
+  },
+  num: number
+) =>
+  new Array(num).fill(0).map((ar, index) =>
+    Object.assign(
+      { ...obj },
+      {
+        title: obj.target + ` 수집가 - ${index + 1}`,
+        content: `${obj.target}를 ${(2 + index) * 5}마리 잡으세요.`,
+        amount: (2 + index) * 5,
+        score: 100 * (index + 1),
+        turn: 0,
+        type: obj.type,
+      }
+    )
+  );
+const set3Turn = (
+  obj: {
+    target: string;
+    type: string;
+  },
+  num: number
+) =>
+  new Array(num).fill(0).map((ar, index) =>
+    Object.assign(
+      { ...obj },
+      {
+        title: obj.target + ` 수집가 - ${index + 1}`,
+        content: `${obj.target}를 ${(2 + index) * 5}마리 잡으세요.`,
+        amount: (2 + index) * 5,
+        score: 25 * (index + 1),
+        turn: 3 * (index + 1),
+        type: obj.type,
+      }
+    )
+  );
+
+export const QUEST_LIST_OBJ = [
+  {
+    title: "돼지가 너무 많아!",
+    content: "돼지를 15마리 잡으세요.",
     amount: 15,
-  }),
-  new Quest("찍찍찌익!", "쥐를 30마리 잡으세요.", 300, {
+    score: 150,
+    turn: 0,
+    type: "pig",
+  },
+  {
+    title: "찍찍찌익!",
+    content: "쥐를 30마리 잡으세요.",
+    amount: 30,
+    score: 300,
+    turn: 0,
     type: "mouse",
-    amount: 30,
-  }),
-  new Quest("팬더 수집가 - 1", "팬더를 10마리 잡으세요.", 100, {
-    type: "panda",
-    amount: 10,
-  }),
-  new Quest("팬더 수집가 - 2", "팬더를 15마리 잡으세요.", 300, {
-    type: "panda",
-    amount: 15,
-  }),
-  new Quest("팬더 수집가 - 3", "팬더를 20마리 잡으세요.", 600, {
-    type: "panda",
-    amount: 20,
-  }),
-  new Quest("강아지 수집가 - 1", "강아지를 15마리 잡으세요.", 200, {
-    type: "dog",
-    amount: 15,
-  }),
-  new Quest("강아지 수집가 - 2", "강아지를 20마리 잡으세요.", 400, {
-    type: "dog",
-    amount: 20,
-  }),
-  new Quest("강아지 수집가 - 3", "강아지를 30마리 잡으세요.", 800, {
-    type: "dog",
-    amount: 30,
-  }),
-  new Quest("사자 수집가 - 1", "사자를 15마리 잡으세요.", 200, {
-    type: "lion",
-    amount: 15,
-  }),
-  new Quest("사자 수집가 - 2", "사자를 20마리 잡으세요.", 400, {
-    type: "lion",
-    amount: 20,
-  }),
-  new Quest("사자 수집가 - 3", "사자를 30마리 잡으세요.", 800, {
-    type: "lion",
-    amount: 30,
-  }),
-  new Quest("토끼 수집가 - 1", "토끼를 15마리 잡으세요.", 200, {
-    type: "rabbit",
-    amount: 15,
-  }),
-  new Quest("토끼 수집가 - 2", "토끼를 20마리 잡으세요.", 400, {
-    type: "rabbit",
-    amount: 20,
-  }),
-  new Quest("토끼 수집가 - 3", "토끼를 30마리 잡으세요.", 800, {
-    type: "rabbit",
-    amount: 30,
-  }),
-  new Quest("오리 수집가 - 1", "오리를 15마리 잡으세요.", 200, {
-    type: "duck",
-    amount: 15,
-  }),
-  new Quest("오리 수집가 - 2", "오리를 20마리 잡으세요.", 400, {
-    type: "duck",
-    amount: 20,
-  }),
-  new Quest("오리 수집가 - 3", "오리를 30마리 잡으세요.", 800, {
-    type: "duck",
-    amount: 30,
-  }),
-  new Quest("돼지 수집가 - 1", "돼지를 15마리 잡으세요.", 200, {
-    type: "pig",
-    amount: 15,
-  }),
-  new Quest("돼지 수집가 - 2", "돼지를 20마리 잡으세요.", 400, {
-    type: "pig",
-    amount: 20,
-  }),
-  new Quest("돼지 수집가 - 3", "돼지를 30마리 잡으세요.", 800, {
-    type: "pig",
-    amount: 30,
-  }),
+  },
+  ...set3({ target: "팬더", type: "panda" }, 3),
+  ...set3({ target: "돼지", type: "pig" }, 3),
+  ...set3({ target: "사자", type: "lion" }, 3),
+  ...set3({ target: "강아지", type: "dog" }, 3),
+  ...set3({ target: "고양이", type: "cat" }, 3),
+  ...set3({ target: "너구리", type: "racoon" }, 3),
+  ...set3({ target: "오리", type: "duck" }, 3),
+  ...set3({ target: "토끼", type: "rabbit" }, 3),
+  ...set3({ target: "쥐", type: "mouse" }, 3),
+  ...set3Turn({ target: "팬더", type: "panda" }, 3),
+  ...set3Turn({ target: "돼지", type: "pig" }, 3),
+  ...set3Turn({ target: "사자", type: "lion" }, 3),
+  ...set3Turn({ target: "강아지", type: "dog" }, 3),
+  ...set3Turn({ target: "고양이", type: "cat" }, 3),
+  ...set3Turn({ target: "너구리", type: "racoon" }, 3),
+  ...set3Turn({ target: "오리", type: "duck" }, 3),
+  ...set3Turn({ target: "토끼", type: "rabbit" }, 3),
+  ...set3Turn({ target: "쥐", type: "mouse" }, 3),
 ];
+
+// export const QUEST_LIST = [
+//   new Quest("돼지가 너무 많아!", "돼지를 15마리 잡으세요.", 150, {
+//     type: "pig",
+//     amount: TEST_AMOUNT || 15,
+//   }),
+//   new Quest("찍찍찌익!", "쥐를 30마리 잡으세요.", 300, {
+//     type: "mouse",
+//     amount: TEST_AMOUNT || 30,
+//   }),
+//   new Quest("팬더 수집가 - 1", "팬더를 10마리 잡으세요.", 100, {
+//     type: "panda",
+//     amount: TEST_AMOUNT || 10,
+//   }),
+//   new Quest("팬더 수집가 - 2", "팬더를 15마리 잡으세요.", 300, {
+//     type: "panda",
+//     amount: TEST_AMOUNT || 15,
+//   }),
+//   new Quest("팬더 수집가 - 3", "팬더를 20마리 잡으세요.", 600, {
+//     type: "panda",
+//     amount: TEST_AMOUNT || 20,
+//   }),
+//   new Quest("강아지 수집가 - 1", "강아지를 15마리 잡으세요.", 200, {
+//     type: "dog",
+//     amount: TEST_AMOUNT || 15,
+//   }),
+//   new Quest("강아지 수집가 - 2", "강아지를 20마리 잡으세요.", 400, {
+//     type: "dog",
+//     amount: TEST_AMOUNT || 20,
+//   }),
+//   new Quest("강아지 수집가 - 3", "강아지를 30마리 잡으세요.", 800, {
+//     type: "dog",
+//     amount: TEST_AMOUNT || 30,
+//   }),
+//   new Quest("사자 수집가 - 1", "사자를 15마리 잡으세요.", 200, {
+//     type: "lion",
+//     amount: TEST_AMOUNT || 15,
+//   }),
+//   new Quest("사자 수집가 - 2", "사자를 20마리 잡으세요.", 400, {
+//     type: "lion",
+//     amount: TEST_AMOUNT || 20,
+//   }),
+//   new Quest("사자 수집가 - 3", "사자를 30마리 잡으세요.", 800, {
+//     type: "lion",
+//     amount: TEST_AMOUNT || 30,
+//   }),
+//   new Quest("토끼 수집가 - 1", "토끼를 15마리 잡으세요.", 200, {
+//     type: "rabbit",
+//     amount: TEST_AMOUNT || 15,
+//   }),
+//   new Quest("토끼 수집가 - 2", "토끼를 20마리 잡으세요.", 400, {
+//     type: "rabbit",
+//     amount: TEST_AMOUNT || 20,
+//   }),
+//   new Quest("토끼 수집가 - 3", "토끼를 30마리 잡으세요.", 800, {
+//     type: "rabbit",
+//     amount: TEST_AMOUNT || 30,
+//   }),
+//   new Quest("오리 수집가 - 1", "오리를 15마리 잡으세요.", 200, {
+//     type: "duck",
+//     amount: TEST_AMOUNT || 15,
+//   }),
+//   new Quest("오리 수집가 - 2", "오리를 20마리 잡으세요.", 400, {
+//     type: "duck",
+//     amount: TEST_AMOUNT || 20,
+//   }),
+//   new Quest("오리 수집가 - 3", "오리를 30마리 잡으세요.", 800, {
+//     type: "duck",
+//     amount: TEST_AMOUNT || 30,
+//   }),
+//   new Quest("돼지 수집가 - 1", "돼지를 15마리 잡으세요.", 200, {
+//     type: "pig",
+//     amount: TEST_AMOUNT || 15,
+//   }),
+//   new Quest("돼지 수집가 - 2", "돼지를 20마리 잡으세요.", 400, {
+//     type: "pig",
+//     amount: TEST_AMOUNT || 20,
+//   }),
+//   new Quest("돼지 수집가 - 3", "돼지를 30마리 잡으세요.", 800, {
+//     type: "pig",
+//     amount: TEST_AMOUNT || 30,
+//   }),
+//   new Quest("너구리 수집가 - 1", "너구리를 15마리 잡으세요.", 200, {
+//     type: "racoon",
+//     amount: TEST_AMOUNT || 15,
+//   }),
+//   new Quest("너구리 수집가 - 2", "너구리를 20마리 잡으세요.", 400, {
+//     type: "racoon",
+//     amount: TEST_AMOUNT || 20,
+//   }),
+//   new Quest("너구리 수집가 - 3", "너구리를 30마리 잡으세요.", 800, {
+//     type: "racoon",
+//     amount: TEST_AMOUNT || 30,
+//   }),
+// ];

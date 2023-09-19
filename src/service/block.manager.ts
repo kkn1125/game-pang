@@ -2,8 +2,10 @@ import Cell, { Direciton } from "@src/model/cell";
 import {
   BASE_TYPE_SCORE,
   OPTIONS,
+  SUB_OPTIONS,
   TestCase1,
   TestCase2,
+  wait,
 } from "@src/util/global";
 import Logger from "@src/util/logger";
 import BaseModule from "./base.moudle";
@@ -17,6 +19,8 @@ export default class BlockManager extends BaseModule {
   map: Cell[][] = [];
   scoreCalculator: ScoreCalculator;
   questManager: QuestManager;
+
+  dupRemove: boolean = false;
 
   animalsPang: {
     [k in Animals]: number;
@@ -53,11 +57,15 @@ export default class BlockManager extends BaseModule {
     this.scoreCalculator.scoreUp(score);
   }
 
-  initialize() {
+  async initialize() {
+    wait.push(0);
+
+    this.dupRemove = false;
     if (this.mode !== "test") {
       const map = this.createMap([OPTIONS.WIDTH.GAME.X, OPTIONS.WIDTH.GAME.Y]);
       this.logger.dir("initialize").log("created map", map);
       this.map = map;
+      await this.removeDuplicate();
       return map;
     } else {
       if (
@@ -67,10 +75,42 @@ export default class BlockManager extends BaseModule {
         throw new Error("Invalid map size");
       }
       const map = this.createCustomMap(TestCase2);
+      await this.removeDuplicate();
       this.logger.dir("initialize").log("created custom map", map);
       this.map = map;
       return map;
     }
+  }
+
+  async removeDuplicate() {
+    let resolver: (value: unknown) => void;
+    const promise = new Promise((resolve) => {
+      resolver = resolve;
+    });
+    const BASE_VALUE = {
+      FRAME: OPTIONS.ANIMATION.FRAME,
+      SPEED: OPTIONS.ANIMATION.SPEED,
+    };
+    OPTIONS.ANIMATION.FRAME = 0;
+    OPTIONS.ANIMATION.SPEED = 100;
+
+    this.logger.dir("removeDuplicate").log("start remove");
+    await this.autoPangAndFill();
+    this.logger.dir("removeDuplicate").log("done remove");
+
+    this.scoreCalculator.resetCombos();
+    this.scoreCalculator.resetScores();
+    this.scoreCalculator.resetTurns();
+    this.questManager.resetQuest();
+
+    OPTIONS.ANIMATION.FRAME = BASE_VALUE.FRAME;
+    OPTIONS.ANIMATION.SPEED = BASE_VALUE.SPEED;
+
+    this.dupRemove = true;
+    setTimeout(() => {
+      resolver(true);
+    }, 16);
+    return promise;
   }
 
   getCellScoreByType(type: string) {
@@ -517,13 +557,19 @@ export default class BlockManager extends BaseModule {
   }
 
   async autoPangAndFill(loop: boolean = true) {
+    const rows = this.searchRowsAndFilterPangable();
+    const columns = this.searchColumnsAndFilterPangable();
+    this.logger.dir("getPangableList").debug(rows.length, columns.length);
+    for (let i = 0; i < rows.length + columns.length; i++) {
+      this.scoreCalculator.countUpCombo();
+    }
+
     const pangableList = this.getPangableList();
     // const tempType: string[] = [];
     pangableList.forEach((cell) => {
       this.animalsPang[cell.type] += 1;
       this.questManager.questAmountUp(cell.type);
       cell.pang();
-
       // if (tempType.length === 0 || tempType.includes(cell.type)) {
       //   tempType.push(cell.type);
       // } else {
@@ -599,7 +645,7 @@ export default class BlockManager extends BaseModule {
   }
 
   // all cell filter pangable by rows
-  searchRowsAndFilterPangable() {
+  searchRowsAndFilterPangable(round: number = 2) {
     // this.logger
     //   .dir("searchRowsAndFilterPangable")
     //   .debug("check row cells is pangable");
@@ -623,13 +669,13 @@ export default class BlockManager extends BaseModule {
       }
       rowTemp.push([]);
     }
-    const getPangRows = rowTemp.filter((row) => row.length > 2);
+    const getPangRows = rowTemp.filter((row) => row.length > round);
     // this.logger.dir("searchRowsAndFilterPangable").debug(getPangRows);
     return getPangRows;
   }
 
   // all cell filter pangable by columns
-  searchColumnsAndFilterPangable() {
+  searchColumnsAndFilterPangable(round: number = 2) {
     // this.logger
     //   .dir("searchColumnsAndFilterPangable")
     //   .debug("check column cells is pangable");
@@ -656,7 +702,7 @@ export default class BlockManager extends BaseModule {
       columnTemp.push([]);
     }
 
-    const getPangColumns = columnTemp.filter((column) => column.length > 2);
+    const getPangColumns = columnTemp.filter((column) => column.length > round);
     // this.logger.dir("searchColumnsAndFilterPangable").debug(getPangColumns);
     return getPangColumns;
   }
@@ -796,6 +842,7 @@ export default class BlockManager extends BaseModule {
   }
 
   render() {
+    if (!this.dupRemove) return;
     for (const row of this.map) {
       for (const cell of row) {
         cell.render();
