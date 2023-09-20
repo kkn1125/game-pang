@@ -91,7 +91,7 @@ export const OPTIONS = {
     },
   },
   ANIMATION: {
-    SPEED: isMobile() ? 0.5 : 0.1,
+    SPEED: isMobile() ? 0.13 : 0.1,
     FRAME: 16,
   },
   GAME: {
