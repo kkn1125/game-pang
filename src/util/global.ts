@@ -97,6 +97,7 @@ export const OPTIONS = {
   },
   GAME: {
     TURN: 75,
+    HINT: 5,
   },
 };
 export const TEST_AMOUNT = 0;

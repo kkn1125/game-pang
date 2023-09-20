@@ -1,4 +1,5 @@
 import {
+  effectCtx,
   gameCtx,
   images,
   OPTIONS,
@@ -21,6 +22,8 @@ export default class Cell {
   score: number;
   isSelected: boolean;
   isHover: boolean;
+  isInfo: boolean;
+  isHint: boolean;
 
   logger: Logger;
 
@@ -34,6 +37,8 @@ export default class Cell {
     this.score = score;
     this.isSelected = false;
     this.isHover = false;
+    this.isInfo = false;
+    this.isHint = false;
 
     Cell.autoIncrement++;
 
@@ -45,31 +50,31 @@ export default class Cell {
     const srcY = this.y;
     const dstX = dstCell.x;
     const dstY = dstCell.y;
-    this.logger.dir("getDirectionWith").log(srcX, srcY, dstX, dstY);
+    // this.logger.dir("getDirectionWith").log(srcX, srcY, dstX, dstY);
     if (dstX > srcX) {
       // 오른쪽으로 스왑
-      this.logger.dir("getDirectionWith").log("오른쪽으로 스왑");
+      // this.logger.dir("getDirectionWith").log("오른쪽으로 스왑");
       return "right";
     }
     if (dstX < srcX) {
       // 왼쪽으로 스왑
-      this.logger.dir("getDirectionWith").log("왼쪽으로 스왑");
+      // this.logger.dir("getDirectionWith").log("왼쪽으로 스왑");
       return "left";
     }
     if (dstY > srcY) {
       // 아래쪽으로 스왑
-      this.logger.dir("getDirectionWith").log("아래쪽으로 스왑");
+      // this.logger.dir("getDirectionWith").log("아래쪽으로 스왑");
       return "down";
     }
     if (dstY < srcY) {
       // 위쪽으로 스왑
-      this.logger.dir("getDirectionWith").log("위쪽으로 스왑");
+      // this.logger.dir("getDirectionWith").log("위쪽으로 스왑");
       return "up";
     }
 
-    this.logger
-      .dir("getDirectionWith")
-      .log(new Error("invalid both cell direction."));
+    // this.logger
+    //   .dir("getDirectionWith")
+    //   .log(new Error("invalid both cell direction."));
 
     return null;
   }
@@ -196,6 +201,45 @@ export default class Cell {
         RESPONSIVE_UNIT_SIZE(),
         RESPONSIVE_UNIT_SIZE()
       );
+      if (this.isInfo) {
+        selectCtx.fillStyle = "green";
+        selectCtx.font = "bold 10px Arial";
+        selectCtx.fillText(
+          `[${this.type}] ${Math.floor(this.x)}, ${Math.floor(this.y)}`,
+          Math.floor(this.x * RESPONSIVE_UNIT_SIZE() + Math.floor(x - this.x)) +
+            1,
+          Math.floor(this.y * RESPONSIVE_UNIT_SIZE() + Math.floor(y - this.y)) +
+            8
+        );
+        selectCtx.font = "";
+        selectCtx.fillStyle = "#000000";
+        selectCtx.strokeStyle = "#00000056";
+        selectCtx.strokeRect(
+          Math.floor(this.x * RESPONSIVE_UNIT_SIZE() + Math.floor(x - this.x)),
+          Math.floor(this.y * RESPONSIVE_UNIT_SIZE() + Math.floor(y - this.y)),
+          RESPONSIVE_UNIT_SIZE(),
+          RESPONSIVE_UNIT_SIZE()
+        );
+        selectCtx.strokeStyle = "#000000";
+      }
+      if (this.isHint) {
+        selectCtx.strokeStyle = "green";
+        selectCtx.strokeRect(
+          Math.floor(this.x * RESPONSIVE_UNIT_SIZE() + Math.floor(x - this.x)),
+          Math.floor(this.y * RESPONSIVE_UNIT_SIZE() + Math.floor(y - this.y)),
+          RESPONSIVE_UNIT_SIZE(),
+          RESPONSIVE_UNIT_SIZE()
+        );
+        selectCtx.fillStyle = "#00ff0056";
+        selectCtx.fillRect(
+          Math.floor(this.x * RESPONSIVE_UNIT_SIZE() + Math.floor(x - this.x)),
+          Math.floor(this.y * RESPONSIVE_UNIT_SIZE() + Math.floor(y - this.y)),
+          RESPONSIVE_UNIT_SIZE(),
+          RESPONSIVE_UNIT_SIZE()
+        );
+        selectCtx.strokeStyle = "#000000";
+        selectCtx.fillStyle = "#000000";
+      }
     } else {
       gameCtx.fillStyle = "#00000000";
       gameCtx.fillRect(
@@ -244,6 +288,12 @@ export default class Cell {
 
   static copy(cell: Cell, toCell: Cell) {
     return new Cell(cell.type, toCell.x, toCell.y, cell.score);
+  }
+
+  static is(srcCell: Cell, dstCell: Cell) {
+    const { x: x1, y: y1 } = srcCell;
+    const { x: x2, y: y2 } = dstCell;
+    return x1 === x2 && y1 === y2;
   }
 
   deepCopySelf() {

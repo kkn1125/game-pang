@@ -74,6 +74,21 @@ export default class GameCore extends BaseModule {
     }
   }
 
+  showHint() {
+    if (this.scoreCalculator.hint > 0) {
+      this.scoreCalculator.showHint();
+      this.blockManager.getHint();
+      setTimeout(() => {
+        this.blockManager.map.flat(1).forEach((cell) => (cell.isHint = false));
+      }, 3000);
+    }
+    if (this.scoreCalculator.hint === 0) {
+      document
+        .querySelectorAll("#hintingGame")
+        .forEach((el) => ((el as HTMLButtonElement).disabled = true));
+    }
+  }
+
   async refreshGame() {
     this.gameEnd = false;
     this.pointer.gameEnd = false;
@@ -114,6 +129,7 @@ export default class GameCore extends BaseModule {
     this.scoreCalculator.resetCombos();
     this.scoreCalculator.resetScores();
     this.scoreCalculator.resetTurns();
+    this.scoreCalculator.resetHints();
   }
 
   resetQuest() {
@@ -142,7 +158,9 @@ export default class GameCore extends BaseModule {
       pig: 0,
       racoon: 0,
     };
-
+    document
+      .querySelectorAll("#hintingGame")
+      .forEach((el) => ((el as HTMLButtonElement).disabled = false));
     setTimeout(() => {
       this.execInitialPang();
     }, 16);
@@ -158,12 +176,15 @@ export default class GameCore extends BaseModule {
 
     const button = document.createElement("button");
     button.id = "restartGame";
-    button.innerText = "Restart Game";
-    const button2 = document.createElement("button");
-    button2.id = "refreshGame";
-    button2.innerText = "재배치";
+    button.innerText = "✨ 새로운 게임";
+    // const button2 = document.createElement("button");
+    // button2.id = "refreshGame";
+    // button2.innerText = "♻️ 재배치";
+    const button3 = document.createElement("button");
+    button3.id = "hintingGame";
+    button3.innerText = "🔎 힌트";
 
-    wrap.append(button2, button);
+    wrap.append(button3, /* button2, */ button);
     document.body.append(wrap);
   }
 
@@ -185,6 +206,8 @@ export default class GameCore extends BaseModule {
       }, 10);
     } else if (target && target.id === "refreshGame") {
       await this.refreshGame();
+    } else if (target && target.id === "hintingGame") {
+      this.showHint();
     } else if (target && target.id === "modal-close") {
       // this.newGame();
       // window.removeEventListener("click", this.handleNewGame.bind(this));

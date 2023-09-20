@@ -12,20 +12,18 @@ export default class Logger {
   }
 
   convert(color: string, ...data: any[]) {
-    if (MODE !== "development") return;
+    if (MODE !== "development") return [];
     if (LOG_BLOCK.length > 0 && !this.name.includes("only")) {
-      return;
+      return [];
     }
 
     const time = new Date().toLocaleTimeString("ko");
-    this._logger.log(
+    return [
       chalk[color](
         `[${this.name}]` /* .padEnd(17, " ") */ + " >",
         chalk.greenBright(...this.directories.map(this.reform))
       ),
-      ...data,
-      `(${time})`
-    );
+    ];
   }
 
   only = () => {
@@ -42,18 +40,54 @@ export default class Logger {
     return this;
   }
 
-  log(...data: any[]) {
-    this.convert("yellowBright", ...data);
+  get log() {
+    const time = new Date().toLocaleTimeString("ko");
+    const values = this._logger.log.bind(
+      window.console,
+      ...this.convert("yellowBright"),
+      `(${time})`
+    );
     this.clearDir();
+    return values;
   }
-  debug(...data: any[]) {
-    this.convert("blueBright", ...data);
+
+  get debug() {
+    const time = new Date().toLocaleTimeString("ko");
+    const values = this._logger.log.bind(
+      window.console,
+      ...this.convert("blueBright"),
+      `(${time})`
+    );
     this.clearDir();
+    return values;
   }
-  error(...data: any[]) {
-    this.convert("redBright", ...data);
+
+  get error() {
+    const time = new Date().toLocaleTimeString("ko");
+    const values = this._logger.log.bind(
+      window.console,
+      ...this.convert("redBright"),
+      `(${time})`
+    );
     this.clearDir();
+    return values;
   }
+
+  // log(...data: any[]) {
+  //   this._logger.log.bind(
+  //     window.console,
+  //     ...this.convert("yellowBright", ...data)
+  //   )();
+  //   this.clearDir();
+  // }
+  // debug(...data: any[]) {
+  //   this.convert("blueBright", ...data);
+  //   this.clearDir();
+  // }
+  // error(...data: any[]) {
+  //   this.convert("redBright", ...data);
+  //   this.clearDir();
+  // }
 
   clearDir() {
     this.directories = [];

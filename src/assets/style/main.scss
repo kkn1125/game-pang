@@ -121,15 +121,27 @@ button[id*="Game"] {
   max-height: 3.5rem;
 }
 
-button#restartGame {
+#btnWrap {
   position: fixed;
-  bottom: 15px;
+  bottom: 0px;
   right: 15px;
   padding: 1rem;
+  display: flex;
+  gap: 1rem;
+}
+
+button#restartGame {
+  background-color: #3c9f74;
 }
 button#refreshGame {
-  position: fixed;
-  bottom: 15px;
-  right: 190px;
-  padding: 0.9rem;
+  background-color: #2d6398;
+}
+button#hintingGame {
+  background-color: #cf964a;
+}
+
+button[disabled] {
+  opacity: 0.5;
+  filter: grayscale(0.8);
+  -webkit-filter: grayscale(0.8);
 }

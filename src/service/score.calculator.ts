@@ -4,6 +4,7 @@ import BaseModule from "./base.moudle";
 
 export default class ScoreCalculator extends BaseModule {
   logger: Logger;
+  hint: number = 5;
   scores: number = 0;
   turn: number = 0;
   combo: number = 0;
@@ -39,6 +40,10 @@ export default class ScoreCalculator extends BaseModule {
     this.logger.dir("countUpCombo").debug("count up combo", this.combo);
   }
 
+  showHint() {
+    this.hint -= 1;
+  }
+
   calculateScoreIncrementRatioByCombo() {
     if (this.combo < 10) {
       this.scoreIncrementRatioByCombo = 1;
@@ -55,6 +60,9 @@ export default class ScoreCalculator extends BaseModule {
     }
   }
 
+  resetHints() {
+    this.hint = OPTIONS.GAME.HINT;
+  }
   resetTurns() {
     this.turn = OPTIONS.GAME.TURN;
   }
@@ -92,7 +100,29 @@ export default class ScoreCalculator extends BaseModule {
         새 게임을 시작하시겠습니까?
         <br />
         <br />
-        <button id="newGame">✨ New Game</button>
+        <button id="newGame">✨ 새로운 게임</button>
+      </div>
+    `;
+
+    document.body.append(wrap);
+  }
+
+  popupShuffleModal() {
+    const wrap = document.createElement("div");
+    wrap.id = "modal";
+
+    wrap.innerHTML = `
+      <div class="modal-head">
+        <span>
+        알림
+        </span>
+        <button id="modal-close">&times;</button>
+      </div>
+      <div class="modal-body">
+        일치 가능한 동물이 없습니다. 동물을 재배치 합니다.
+        <br />
+        <br />
+        <button id="refreshGame">✨ 재배치</button>
       </div>
     `;
 
@@ -107,7 +137,7 @@ export default class ScoreCalculator extends BaseModule {
     scoreCtx.fillStyle = "#000000";
     const scoreText = `score: ${this.scores} Point${
       this.scores > 1 ? "s" : ""
-    }`;
+    }  Hint: ${this.hint}`;
     scoreCtx.fillText(scoreText, 50, 50 - (isMobile() ? 20 : 0));
     if (this.turn > 5 && this.turn < 10) {
       scoreCtx.fillStyle = "#ffff00";

@@ -116,6 +116,7 @@ export default class Pointer extends BaseModule {
                   this.swapTemp?.[1]?.x
                 ];
               await this.dependency.blockManager.revertSwap(first, second);
+              await this.dependency.blockManager.autoPangAndFill();
 
               // release
               wait.pop();

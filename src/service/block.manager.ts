@@ -150,6 +150,35 @@ export default class BlockManager extends BaseModule {
     );
   }
 
+  mockisInBoundary(mockMap: Cell[][], srcCell: Cell, dstCell: Cell) {
+    // this.logger
+    //   .dir("mockisInBoundary")
+    //   .debug("srcCell", "dstCell", srcCell, dstCell);
+    const srcX = srcCell?.x;
+    const srcY = srcCell?.y;
+
+    if (srcX === undefined || srcY === undefined) {
+      return false;
+    }
+
+    // 상
+    const topCell = mockMap[srcY - 1]?.[srcX];
+    // 하
+    const bottomCell = mockMap[srcY + 1]?.[srcX];
+    // 좌
+    const leftCell = mockMap[srcY]?.[srcX - 1];
+    // 우
+    const rightCell = mockMap[srcY]?.[srcX + 1];
+
+    const isIn =
+      topCell === dstCell ||
+      bottomCell === dstCell ||
+      leftCell === dstCell ||
+      rightCell === dstCell;
+
+    return isIn;
+  }
+
   isInBoundary(srcCell: Cell, dstCell: Cell) {
     this.logger
       .dir("isInBoundary")
@@ -525,6 +554,17 @@ export default class BlockManager extends BaseModule {
     return temp;
   }
 
+  getMockColumnLine(mockMap: Cell[][], x: number) {
+    const yValue = OPTIONS.WIDTH.GAME.Y;
+    const temp: Cell[] = [];
+    for (let level = 0; level < yValue; level++) {
+      const cell = mockMap[level][x];
+      if (cell) {
+        temp.push(cell);
+      }
+    }
+    return temp;
+  }
   getColumnLine(x: number) {
     const yValue = OPTIONS.WIDTH.GAME.Y;
     const temp: Cell[] = [];
@@ -535,6 +575,32 @@ export default class BlockManager extends BaseModule {
       }
     }
     return temp;
+  }
+
+  getMockPangableList(mockMap: Cell[][]) {
+    const rows = this.searchMockRowsAndFilterPangable(mockMap);
+    const columns = this.searchMockColumnsAndFilterPangable(mockMap);
+    this.logger.dir("getPangableList").debug("pagable", rows, columns);
+    const rowScores = rows.reduce((acc, row) => {
+      // acc += (row?.[0].score || 0) * (row.slice(3)?.length || 0);
+      if (row.length > 3) {
+        acc += row[0].score * row.slice(3).length;
+      }
+      return acc;
+    }, 0);
+    const columnScores = columns.reduce((acc, column) => {
+      // acc += (column?.[0].score || 0) * (column.slice(3)?.length || 0);
+      if (column.length > 3) {
+        acc += column[0].score * column.slice(3).length;
+      }
+      return acc;
+    }, 0);
+
+    this.logger
+      .dir("getPangableList")
+      .debug("추가 점수:", rowScores + columnScores);
+
+    return [...new Set([...rows, ...columns].flat(1))];
   }
 
   getPangableList() {
@@ -561,6 +627,206 @@ export default class BlockManager extends BaseModule {
       .debug("추가 점수:", rowScores + columnScores);
 
     return [...new Set([...rows, ...columns].flat(1))];
+  }
+
+  mockingPangableColumnLines() {
+    // this.logger.dir("mockingPangableLines").debug("here");
+    const mockMap = this.mockingMap();
+    const isSuccess: Cell[][] = [];
+
+    for (const row of mockMap) {
+      for (const column in row) {
+        const [src, dst] = this.mockSwapBothCell(
+          mockMap,
+          row[Number(column)],
+          row[Number(column) + 1]
+        );
+        // console.log(src.type, src.x, src.y, "/", dst.type, dst.x, dst.y);
+        const pangableColumns = this.searchMockColumnsAndFilterPangable(
+          mockMap
+        ).map((group) =>
+          group.map((cell) => {
+            const isSameSrc = Cell.is(src, cell);
+            const isSameDst = Cell.is(dst, cell);
+            // this.logger
+            //   .dir("mockingPangableLines")
+            //   .dir("columns")
+            //   .debug("isSameSrc", isSameSrc);
+            // this.logger
+            //   .dir("mockingPangableLines")
+            //   .dir("columns")
+            //   .debug("isSameSrc", isSameDst);
+            if (isSameSrc) {
+              // this.logger.dir("mockingPangableLines").dir("columns").debug(src);
+              return dst;
+            }
+            if (isSameDst) {
+              // this.logger.dir("mockingPangableLines").dir("columns").debug(dst);
+              return src;
+            }
+            return cell.deepCopySelf();
+          })
+        );
+        const pangableRows = this.searchMockRowsAndFilterPangable(mockMap).map(
+          (group) =>
+            group.map((cell) => {
+              const isSameSrc = Cell.is(src, cell);
+              const isSameDst = Cell.is(dst, cell);
+              // this.logger
+              //   .dir("mockingPangableLines")
+              //   .dir("rows")
+              //   .debug("isSameSrc", isSameSrc);
+              // this.logger
+              //   .dir("mockingPangableLines")
+              //   .dir("rows")
+              //   .debug("isSameSrc", isSameDst);
+              if (isSameSrc) {
+                // this.logger.dir("mockingPangableLines").dir("rows").debug(src);
+                return dst;
+              }
+              if (isSameDst) {
+                // this.logger.dir("mockingPangableLines").dir("rows").debug(dst);
+                return src;
+              }
+              return cell.deepCopySelf();
+            })
+        );
+        this.mockRevertSwap(mockMap, src, dst);
+
+        const removeDup = [...pangableColumns, ...pangableRows];
+        if (removeDup.length > 0) {
+          // removeDup.forEach((group) =>
+          //   group.forEach((cell) => {
+          //     this.map[cell.y][cell.x].isInfo = true;
+          //   })
+          // );
+          isSuccess.push(...removeDup);
+        }
+      }
+    }
+
+    return isSuccess;
+  }
+  mockingPangableRowLines() {
+    // this.logger.dir("mockingPangableLines").debug("here");
+    const mockMap = this.mockingMap();
+    const isSuccess: Cell[][] = [];
+
+    for (let column = 0; column < OPTIONS.WIDTH.GAME.X; column++) {
+      const columns = this.getMockColumnLine(mockMap, column);
+      for (const row in columns) {
+        const [src, dst] = this.mockSwapBothCell(
+          mockMap,
+          columns[Number(row)],
+          columns[Number(row) + 1]
+        );
+        if (!(src && dst)) continue;
+
+        const pangableColumns = this.searchMockColumnsAndFilterPangable(
+          mockMap
+        ).map((group) =>
+          group.map((cell) => {
+            const isSameSrc = Cell.is(src, cell);
+            const isSameDst = Cell.is(dst, cell);
+            // this.logger
+            //   .dir("mockingPangableLines")
+            //   .dir("columns")
+            //   .debug("isSameSrc", isSameSrc);
+            // this.logger
+            //   .dir("mockingPangableLines")
+            //   .dir("columns")
+            //   .debug("isSameSrc", isSameDst);
+            if (isSameSrc) {
+              // this.logger.dir("mockingPangableLines").dir("columns").debug(src);
+              return dst;
+            }
+            if (isSameDst) {
+              // this.logger.dir("mockingPangableLines").dir("columns").debug(dst);
+              return src;
+            }
+            return cell.deepCopySelf();
+          })
+        );
+        const pangableRows = this.searchMockRowsAndFilterPangable(mockMap).map(
+          (group) =>
+            group.map((cell) => {
+              const isSameSrc = Cell.is(src, cell);
+              const isSameDst = Cell.is(dst, cell);
+              // this.logger
+              //   .dir("mockingPangableLines")
+              //   .dir("rows")
+              //   .debug("isSameSrc", isSameSrc);
+              // this.logger
+              //   .dir("mockingPangableLines")
+              //   .dir("rows")
+              //   .debug("isSameSrc", isSameDst);
+              if (isSameSrc) {
+                // this.logger.dir("mockingPangableLines").dir("rows").debug(src);
+                return dst;
+              }
+              if (isSameDst) {
+                // this.logger.dir("mockingPangableLines").dir("rows").debug(dst);
+                return src;
+              }
+              return cell.deepCopySelf();
+            })
+        );
+        this.mockRevertSwap(mockMap, src, dst);
+
+        // console.log(pangableColumns, pangableRows);
+
+        const removeDup = [...new Set([...pangableColumns, ...pangableRows])];
+        if (removeDup.length > 0) {
+          // removeDup.forEach((group) =>
+          //   group.forEach((cell) => {
+          //     this.map[cell.y][cell.x].isInfo = true;
+          //   })
+          // );
+          isSuccess.push(...removeDup);
+        }
+      }
+    }
+
+    return isSuccess;
+  }
+
+  mockingMap() {
+    return [...this.map].map((row) => row.map((cell) => cell.deepCopySelf()));
+  }
+
+  mockRevertSwap(mockMap: Cell[][], srcCell: Cell, dstCell: Cell) {
+    return this.mockSwapBothCell(mockMap, srcCell, dstCell);
+  }
+
+  mockSwapBothCell(mockMap: Cell[][], srcCell: Cell, dstCell: Cell) {
+    if (
+      !mockMap[srcCell?.y]?.[srcCell?.x] ||
+      !mockMap[dstCell?.y]?.[dstCell?.x]
+    ) {
+      return [];
+    }
+
+    try {
+      const isBoundary = this.mockisInBoundary(mockMap, srcCell, dstCell);
+
+      if (!isBoundary) return [];
+    } catch (error) {
+      console.error(error);
+      return [];
+    }
+    const swapDirection = srcCell.getDirectionWith(dstCell);
+    if (swapDirection === null) return [];
+
+    const destCopyCell = Cell.copy(dstCell, srcCell);
+    const srcCopyCell = Cell.copy(srcCell, dstCell);
+    mockMap[srcCell.y][srcCell.x] = destCopyCell;
+    mockMap[dstCell.y][dstCell.x] = srcCopyCell;
+
+    // swap 후
+    const swapedSrcCell = mockMap[srcCell.y][srcCell.x];
+    const swapedDstCell = mockMap[dstCell.y][dstCell.x];
+
+    return [swapedSrcCell, swapedDstCell];
   }
 
   async autoPangAndFill(loop: boolean = true) {
@@ -598,7 +864,36 @@ export default class BlockManager extends BaseModule {
       return await this.autoPangAndFill();
     }
 
+    // mocking pangable lines
+    const resultColumns = this.mockingPangableColumnLines();
+    const resultRows = this.mockingPangableRowLines();
+
+    this.logger
+      .dir("autoPangAndFill")
+      .dir("check mocking pangable")
+      .debug(resultColumns || resultRows);
+    if (resultColumns.length > 0 || resultRows.length > 0) {
+      //
+    } else {
+      this.logger
+        .dir("autoPangAndFill")
+        .dir("check mocking pangable")
+        .error("required reset game");
+    }
+
     return isDone;
+  }
+
+  getHint() {
+    // mocking pangable lines
+    const resultColumns = this.mockingPangableColumnLines();
+    const resultRows = this.mockingPangableRowLines();
+
+    const group = [...resultColumns, ...resultRows][0];
+    // first group info
+    group.forEach((cell) => {
+      this.map[cell.y][cell.x].isHint = true;
+    });
   }
 
   // new logic 2023-09-16 17:49:40
@@ -649,6 +944,69 @@ export default class BlockManager extends BaseModule {
       );
     }
     return Promise.all(promises);
+  }
+
+  // all cell filter pangable by rows
+  searchMockRowsAndFilterPangable(mockMap: Cell[][], round: number = 2) {
+    // this.logger
+    //   .dir("searchRowsAndFilterPangable")
+    //   .debug("check row cells is pangable");
+
+    const rowTemp: Cell[][] = [];
+    for (const row of mockMap) {
+      for (const cell of row) {
+        // 빈 배열 -> 새 배열 추가
+        // 마지막 배열 값의 셀과 현재 셀 값이 다를때 -> 새 배열 추가
+        // 마지막 배열 값이 없을 때 -> 새 배열 추가
+
+        const isEmpty = rowTemp.length === 0;
+        const isEmptyLastArray = rowTemp[rowTemp.length - 1]?.length === 0;
+        const isDifferenceType =
+          rowTemp[rowTemp.length - 1]?.[0]?.type !== cell.type;
+        if (isEmpty || isEmptyLastArray || isDifferenceType) {
+          rowTemp.push([]);
+        }
+
+        rowTemp[rowTemp.length - 1].push(cell);
+      }
+      rowTemp.push([]);
+    }
+    const getPangRows = rowTemp.filter((row) => row.length > round);
+    // this.logger.dir("searchRowsAndFilterPangable").debug(getPangRows);
+    return getPangRows;
+  }
+
+  // all cell filter pangable by columns
+  searchMockColumnsAndFilterPangable(mockMap: Cell[][], round: number = 2) {
+    // this.logger
+    //   .dir("searchColumnsAndFilterPangable")
+    //   .debug("check column cells is pangable");
+
+    const columnTemp: Cell[][] = [];
+    for (let index = 0; index < OPTIONS.WIDTH.GAME.X; index++) {
+      const columns = this.getMockColumnLine(mockMap, index);
+      for (const cell of columns) {
+        // 빈 배열 -> 새 배열 추가
+        // 마지막 배열 값의 셀과 현재 셀 값이 다를때 -> 새 배열 추가
+        // 마지막 배열 값이 없을 때 -> 새 배열 추가
+
+        const isEmpty = columnTemp.length === 0;
+        const isEmptyLastArray =
+          columnTemp[columnTemp.length - 1]?.length === 0;
+        const isDifferenceType =
+          columnTemp[columnTemp.length - 1]?.[0]?.type !== cell.type;
+        if (isEmpty || isEmptyLastArray || isDifferenceType) {
+          columnTemp.push([]);
+        }
+
+        columnTemp[columnTemp.length - 1].push(cell);
+      }
+      columnTemp.push([]);
+    }
+
+    const getPangColumns = columnTemp.filter((column) => column.length > round);
+    // this.logger.dir("searchColumnsAndFilterPangable").debug(getPangColumns);
+    return getPangColumns;
   }
 
   // all cell filter pangable by rows
