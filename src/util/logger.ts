@@ -1,5 +1,4 @@
 import chalk from "chalk";
-import BaseLogger from "./base.logger";
 import { LOG_BLOCK, MODE } from "./global";
 
 export default class Logger {
@@ -23,6 +22,7 @@ export default class Logger {
         `[${this.name}]` /* .padEnd(17, " ") */ + " >",
         chalk.greenBright(...this.directories.map(this.reform))
       ),
+      `(${time})`,
     ];
   }
 
@@ -41,33 +41,33 @@ export default class Logger {
   }
 
   get log() {
-    const time = new Date().toLocaleTimeString("ko");
+    if (MODE !== "development") return () => {};
+
     const values = this._logger.log.bind(
       window.console,
-      ...this.convert("yellowBright"),
-      `(${time})`
+      ...this.convert("yellowBright")
     );
     this.clearDir();
     return values;
   }
 
   get debug() {
-    const time = new Date().toLocaleTimeString("ko");
+    if (MODE !== "development") return () => {};
+
     const values = this._logger.log.bind(
       window.console,
-      ...this.convert("blueBright"),
-      `(${time})`
+      ...this.convert("blueBright")
     );
     this.clearDir();
     return values;
   }
 
   get error() {
-    const time = new Date().toLocaleTimeString("ko");
+    if (MODE !== "development") return () => {};
+
     const values = this._logger.log.bind(
       window.console,
-      ...this.convert("redBright"),
-      `(${time})`
+      ...this.convert("redBright")
     );
     this.clearDir();
     return values;

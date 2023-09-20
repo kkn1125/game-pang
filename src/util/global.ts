@@ -8,7 +8,6 @@ import rabbit from "@src/assets/animals/rabbit-pad.png";
 import panda from "@src/assets/animals/panda2-pad.png";
 import pig from "@src/assets/animals/pig2-pad.png";
 import racoon from "@src/assets/animals/racoon2-pad.png";
-import Quest from "@src/model/quest";
 
 // global canvas
 export const MODE = import.meta.env.MODE as string;
