@@ -1,10 +1,10 @@
-import { isMobile, OPTIONS, scoreCtx } from "@src/util/global";
+import { isMobile, OPTIONS, scoreCtx, wait } from "@src/util/global";
 import Logger from "@src/util/logger";
 import BaseModule from "./base.moudle";
 
 export default class ScoreCalculator extends BaseModule {
   logger: Logger;
-  hint: number = 5;
+  hint: number = OPTIONS.GAME.HINT;
   scores: number = 0;
   turn: number = 0;
   combo: number = 0;

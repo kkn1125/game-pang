@@ -36,6 +36,8 @@ export default class BlockManager extends BaseModule {
     racoon: 0,
   };
 
+  gameEnd: boolean = false;
+
   constructor(
     mode: string,
     scoreCalculator: ScoreCalculator,
@@ -57,11 +59,11 @@ export default class BlockManager extends BaseModule {
     this.scoreCalculator.scoreUp(score);
   }
 
-  async initialize() {
+  async initialize(force: boolean = false) {
     wait.push(0);
 
     this.dupRemove = false;
-    if (this.mode !== "test") {
+    if (force || this.mode !== "test") {
       const map = this.createMap([OPTIONS.WIDTH.GAME.X, OPTIONS.WIDTH.GAME.Y]);
       this.logger.dir("initialize").log("created map", map);
       this.map = map;
@@ -75,9 +77,9 @@ export default class BlockManager extends BaseModule {
         throw new Error("Invalid map size");
       }
       const map = this.createCustomMap(TestCase2);
-      await this.removeDuplicate();
       this.logger.dir("initialize").log("created custom map", map);
       this.map = map;
+      await this.removeDuplicate();
       return map;
     }
   }
@@ -122,7 +124,10 @@ export default class BlockManager extends BaseModule {
 
   getCellScoreByType(type: string) {
     // const randomTypeIndex = Math.floor(Math.random() * this.types.length);
+    // console.log(type);
     const index = this.types.findIndex((typeScore) => typeScore[0] === type);
+    // console.log(this.types, index);
+    // console.log(this.types[index]);
     return this.types[index][1];
   }
 
@@ -879,6 +884,14 @@ export default class BlockManager extends BaseModule {
         .dir("autoPangAndFill")
         .dir("check mocking pangable")
         .error("required reset game");
+      if (
+        !document.querySelector("#modal") &&
+        !this.gameEnd &&
+        resultColumns.length === 0 &&
+        resultRows.length === 0
+      ) {
+        this.scoreCalculator.popupShuffleModal();
+      }
     }
 
     return isDone;
@@ -891,9 +904,21 @@ export default class BlockManager extends BaseModule {
 
     const group = [...resultColumns, ...resultRows][0];
     // first group info
-    group.forEach((cell) => {
-      this.map[cell.y][cell.x].isHint = true;
-    });
+    if (resultColumns.length > 0 || resultRows.length > 0) {
+      //
+      group.forEach((cell) => {
+        try {
+          this.map[cell.y][cell.x].isHint = true;
+        } catch (error) {
+          //
+        }
+      });
+    } else {
+      this.logger
+        .dir("autoPangAndFill")
+        .dir("check mocking pangable")
+        .error("required reset game");
+    }
   }
 
   // new logic 2023-09-16 17:49:40

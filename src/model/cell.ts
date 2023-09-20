@@ -291,9 +291,13 @@ export default class Cell {
   }
 
   static is(srcCell: Cell, dstCell: Cell) {
-    const { x: x1, y: y1 } = srcCell;
-    const { x: x2, y: y2 } = dstCell;
-    return x1 === x2 && y1 === y2;
+    try {
+      const { x: x1, y: y1 } = srcCell;
+      const { x: x2, y: y2 } = dstCell;
+      return x1 === x2 && y1 === y2;
+    } catch (error) {
+      return false;
+    }
   }
 
   deepCopySelf() {

@@ -34,24 +34,24 @@ export default class Pointer extends BaseModule {
   }
 
   async clickCell() {
-    if (this.mode === "test") {
-      if (wait.length === 0) {
-        this.logger.only().dir("test").dir("clickCell").log("auto pang");
-        wait.push(0);
+    // if (this.mode === "test") {
+    //   if (wait.length === 0) {
+    //     this.logger.only().dir("test").dir("clickCell").log("auto pang");
+    //     wait.push(0);
 
-        await this.dependency.blockManager?.autoPangAndFill(false);
-        this.logger.debug(this.grab);
+    //     await this.dependency.blockManager?.autoPangAndFill(false);
+    //     this.logger.debug(this.grab);
 
-        wait.pop();
-      } else {
-        this.logger
-          .only()
-          .dir("test")
-          .dir("clickCell")
-          .error("blocked click event");
-      }
-      return;
-    }
+    //     wait.pop();
+    //   } else {
+    //     this.logger
+    //       .only()
+    //       .dir("test")
+    //       .dir("clickCell")
+    //       .error("blocked click event");
+    //   }
+    //   return;
+    // }
     this.logger.dir("clickCell").dir("debug wait").debug("!!!!!!!!wait", wait);
     if (wait.length > 0) {
       this.logger.dir("clickCell").error("current working click event", wait);

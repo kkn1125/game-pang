@@ -89,7 +89,7 @@ export default class GameCore extends BaseModule {
     }
   }
 
-  async refreshGame() {
+  async refreshGame(force: boolean = false) {
     this.gameEnd = false;
     this.pointer.gameEnd = false;
 
@@ -109,7 +109,7 @@ export default class GameCore extends BaseModule {
       return qst;
     });
 
-    const map = await this.blockManager.initialize();
+    const map = await this.blockManager.initialize(force);
     this.mapGenerator.initialize(map);
 
     this.blockManager.resetScore();
@@ -136,13 +136,14 @@ export default class GameCore extends BaseModule {
     this.questManager.resetQuest();
   }
 
-  async newGame() {
+  async newGame(force: boolean = false) {
     this.gameEnd = false;
     this.pointer.gameEnd = false;
+    this.blockManager.gameEnd = false;
     // this.stopRender();
     // this.initialize();
     // this.render();
-    const map = await this.blockManager.initialize();
+    const map = await this.blockManager.initialize(force);
     this.mapGenerator.initialize(map);
     this.resetScore();
     this.resetQuest();
@@ -196,7 +197,8 @@ export default class GameCore extends BaseModule {
       target &&
       target.id.match(/^(newGame|restartGame)/)
     ) {
-      await this.newGame();
+      await this.newGame(true);
+      this.gameEnd = false;
       window.removeEventListener("click", this.handleNewGame.bind(this));
       // target.parentElement?.parentElement?.remove();
       // console.log(target);
@@ -205,7 +207,9 @@ export default class GameCore extends BaseModule {
         document.querySelectorAll("#modal").forEach((modal) => modal.remove());
       }, 10);
     } else if (target && target.id === "refreshGame") {
-      await this.refreshGame();
+      document.querySelectorAll("#modal").forEach((modal) => modal.remove());
+      await this.refreshGame(true);
+      // wait.splice(0);
     } else if (target && target.id === "hintingGame") {
       this.showHint();
     } else if (target && target.id === "modal-close") {
@@ -245,6 +249,7 @@ export default class GameCore extends BaseModule {
 
     const map = await this.blockManager.initialize();
     this.mapGenerator.initialize(map);
+    this.blockManager.gameEnd = this.gameEnd;
     return true;
   }
 
@@ -336,11 +341,15 @@ export default class GameCore extends BaseModule {
     // this.renderPerSecond.call(this);
     // console.log("map check", this.blockManager.map);
     // }
+    // console.log(wait, this.gameEnd, this.scoreCalculator.turn);
     if (wait.length === 0 && !this.gameEnd && this.scoreCalculator.turn === 0) {
       wait.push(0);
       this.gameEnd = true;
+      this.blockManager.gameEnd = true;
       this.pointer.gameEnd = true;
-      this.scoreCalculator.popupEndModal();
+      setTimeout(() => {
+        this.scoreCalculator.popupEndModal();
+      }, 16);
     }
 
     if (Math.floor(time) !== this.seek) {
@@ -404,14 +413,14 @@ export default class GameCore extends BaseModule {
   execInitialPang() {
     // start detect pang lines
     wait.splice(0);
-    if (this.mode !== "test") {
-      if (wait.length === 0) {
-        wait.push(0);
-        this.blockManager.autoPangAndFill().then(() => {
-          wait.pop();
-        });
-      }
+    // if (this.mode !== "test") {
+    if (wait.length === 0) {
+      wait.push(0);
+      this.blockManager.autoPangAndFill().then(() => {
+        wait.pop();
+      });
     }
+    // }
   }
 
   renderPerSecond() {

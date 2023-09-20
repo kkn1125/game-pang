@@ -74,6 +74,7 @@ selectCtx.translate(0.5, 0.5);
 
 export const isMobile = () =>
   !!window.navigator.userAgent.match(/android|mobile/gi);
+export const RUN_MODE = import.meta.env.VITE_RUN_MODE || "none";
 
 export const SUB_OPTIONS = {
   SIZE: {
@@ -96,7 +97,7 @@ export const OPTIONS = {
   },
   GAME: {
     TURN: 75,
-    HINT: 5,
+    HINT: RUN_MODE === "test" ? Infinity : 5,
   },
 };
 export const TEST_AMOUNT = 0;
@@ -110,17 +111,16 @@ export const wait: number[] = [];
 
 export const LOG_BLOCK: number[] = [];
 
-export const RUN_MODE = import.meta.env.VITE_RUN_MODE || "none";
 export const STORE_NAME = "pang_store";
 
 type BlockTypeNScore = [string, number];
 
 export const BASE_TYPE_SCORE: BlockTypeNScore[] = [
   ["dog", 1],
-  // ["cat", 2],
+  // ["cat", 2], //
   ["duck", 3],
   ["mouse", 4],
-  // ["rabbit", 5],
+  // ["rabbit", 5], //
   ["lion", 6],
   ["pig", 7],
   ["panda", 8],
@@ -228,15 +228,25 @@ export const TestCase1 = [
   ],
 ];
 export const TestCase2 = [
-  ["dog", "dog", "dog", "lion", "lion", "mouse", "dog", "mouse", "cat"],
-  ["dog", "dog", "dog", "mouse", "dog", "lion", "lion", "lion", "mouse"],
-  ["dog", "lion", "lion", "lion", "dog", "dog", "mouse", "dog", "mouse"],
-  ["dog", "dog", "dog", "lion", "lion", "mouse", "dog", "mouse", "cat"],
-  ["dog", "dog", "lion", "dog", "mouse", "dog", "mouse", "cat", "lion"],
-  ["dog", "mouse", "mouse", "mouse", "dog", "dog", "lion", "mouse", "cat"],
-  ["mouse", "lion", "dog", "dog", "lion", "dog", "dog", "mouse", "mouse"],
-  ["mouse", "lion", "dog", "dog", "lion", "dog", "mouse", "mouse", "mouse"],
-  ["dog", "lion", "lion", "mouse", "dog", "mouse", "cat", "cat", "cat"],
+  ["cat", "mouse", "cat", "mouse", "dog", "lion", "rabbit", "lion", "mouse"],
+  ["dog", "lion", "dog", "lion", "mouse", "cat", "dog", "mouse", "cat"],
+  [
+    "lion",
+    "rabbit",
+    "dog",
+    "cat",
+    "racoon",
+    "mouse",
+    "racoon",
+    "rabbit",
+    "cat",
+  ],
+  ["dog", "cat", "rabbit", "lion", "dog", "rabbit", "cat", "dog", "mouse"],
+  ["lion", "racoon", "lion", "pig", "rabbit", "pig", "mouse", "cat", "lion"],
+  ["dog", "cat", "mouse", "mouse", "racoon", "dog", "lion", "mouse", "pig"],
+  ["lion", "rabbit", "dog", "cat", "lion", "pig", "rabbit", "cat", "pig"],
+  ["cat", "lion", "dog", "racoon", "cat", "dog", "lion", "rabbit", "mouse"],
+  ["dog", "cat", "lion", "mouse", "dog", "lion", "cat", "racoon", "cat"],
 ];
 
 const set3 = (
