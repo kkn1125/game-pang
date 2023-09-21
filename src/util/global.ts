@@ -136,7 +136,7 @@ export const BASE_TYPE_SCORE: BlockTypeNScore[] = [
   ["dog", 1],
   // ["cat", 2], //
   ["duck", 3],
-  // ["mouse", 4],
+  ["mouse", 4],
   // ["rabbit", 5], //
   ["lion", 6],
   ["pig", 7],

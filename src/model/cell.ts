@@ -345,7 +345,10 @@ export default class Cell {
   }
 
   deepCopySelf() {
-    return new Cell(this.type, this.x, this.y, this.score);
+    const type = this.originType;
+    const newCell = new Cell(this.type, this.x, this.y, this.score);
+    newCell.originType = type;
+    return newCell;
   }
 
   deepCopy(cell: Cell) {

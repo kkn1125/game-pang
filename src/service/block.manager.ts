@@ -148,10 +148,12 @@ export default class BlockManager extends BaseModule {
     return itemKeys[randomIndex];
   }
 
-  randomItemPickBasedOnPercentage() {
+  randomItemPickBasedOnPercentage(defaultType: string) {
     const randomValue = Math.random() * 100;
     let runningSum = 0;
-    let choice = "none";
+    let choice = Object.keys(RANDOM_ITEM).filter((q) => q !== "all")[
+      Math.floor(Math.random() * 2)
+    ];
     for (let i = 0; i < Object.keys(RANDOM_ITEM).length; i++) {
       runningSum += Object.values(RANDOM_ITEM)[i];
 
@@ -285,19 +287,6 @@ export default class BlockManager extends BaseModule {
     return isIn;
   }
 
-  changeItemByDirection(origin: Cell[], dstCell: Cell) {
-    if (origin.length > 3) {
-      return origin.map((og) => {
-        if (og === dstCell) {
-          og.type = this.randomItem();
-          og.score = 0;
-        }
-        return og;
-      });
-    }
-    return origin;
-  }
-
   inLinePang(srcCell: Cell, dstCell: Cell, direction: Direciton) {
     this.logger
       .dir("inLinePang")
@@ -341,7 +330,10 @@ export default class BlockManager extends BaseModule {
       if (concatSrcUpDown.length > OPTIONS.ITEM.MATCH_LIMIT) {
         concatSrcUpDown.forEach((cell) => {
           if (cell.id === srcCell.id) {
-            this.map[cell.y][cell.x].type = this.randomItem();
+            this.map[cell.y][cell.x].type =
+              this.randomItemPickBasedOnPercentage(
+                this.map[cell.y][cell.x].type
+              );
             // console.log("inLine here!!!! cell", cell, cell.type);
           }
         });
@@ -349,7 +341,10 @@ export default class BlockManager extends BaseModule {
       if (concatDstUpDown.length > OPTIONS.ITEM.MATCH_LIMIT) {
         concatDstUpDown.forEach((cell) => {
           if (cell.id === dstCell.id) {
-            this.map[cell.y][cell.x].type = this.randomItem();
+            this.map[cell.y][cell.x].type =
+              this.randomItemPickBasedOnPercentage(
+                this.map[cell.y][cell.x].type
+              );
             // console.log("inLine here!!!! cell", cell, cell.type);
           }
         });
@@ -357,7 +352,10 @@ export default class BlockManager extends BaseModule {
       if (concatSrcLeft.length > OPTIONS.ITEM.MATCH_LIMIT) {
         concatSrcLeft.forEach((cell) => {
           if (cell.id === srcCell.id) {
-            this.map[cell.y][cell.x].type = this.randomItem();
+            this.map[cell.y][cell.x].type =
+              this.randomItemPickBasedOnPercentage(
+                this.map[cell.y][cell.x].type
+              );
             // console.log("inLine here!!!! cell", cell, cell.type);
           }
         });
@@ -365,7 +363,10 @@ export default class BlockManager extends BaseModule {
       if (concatDstRight.length > OPTIONS.ITEM.MATCH_LIMIT) {
         concatDstRight.forEach((cell) => {
           if (cell.id === dstCell.id) {
-            this.map[cell.y][cell.x].type = this.randomItem();
+            this.map[cell.y][cell.x].type =
+              this.randomItemPickBasedOnPercentage(
+                this.map[cell.y][cell.x].type
+              );
             // console.log("inLine here!!!! cell", cell, cell.type);
           }
         });
@@ -415,7 +416,10 @@ export default class BlockManager extends BaseModule {
       if (concatSrcUpDown.length > OPTIONS.ITEM.MATCH_LIMIT) {
         concatSrcUpDown.forEach((cell) => {
           if (cell.id === srcCell.id) {
-            this.map[cell.y][cell.x].type = this.randomItem();
+            this.map[cell.y][cell.x].type =
+              this.randomItemPickBasedOnPercentage(
+                this.map[cell.y][cell.x].type
+              );
             // console.log("inLine here!!!! cell", cell, cell.type);
           }
         });
@@ -423,7 +427,10 @@ export default class BlockManager extends BaseModule {
       if (concatDstUpDown.length > OPTIONS.ITEM.MATCH_LIMIT) {
         concatDstUpDown.forEach((cell) => {
           if (cell.id === dstCell.id) {
-            this.map[cell.y][cell.x].type = this.randomItem();
+            this.map[cell.y][cell.x].type =
+              this.randomItemPickBasedOnPercentage(
+                this.map[cell.y][cell.x].type
+              );
             // console.log("inLine here!!!! cell", cell, cell.type);
           }
         });
@@ -431,7 +438,10 @@ export default class BlockManager extends BaseModule {
       if (concatDstLeft.length > OPTIONS.ITEM.MATCH_LIMIT) {
         concatDstLeft.forEach((cell) => {
           if (cell.id === dstCell.id) {
-            this.map[cell.y][cell.x].type = this.randomItem();
+            this.map[cell.y][cell.x].type =
+              this.randomItemPickBasedOnPercentage(
+                this.map[cell.y][cell.x].type
+              );
             // console.log("inLine here!!!! cell", cell, cell.type);
           }
         });
@@ -439,7 +449,10 @@ export default class BlockManager extends BaseModule {
       if (concatSrcRight.length > OPTIONS.ITEM.MATCH_LIMIT) {
         concatSrcRight.forEach((cell) => {
           if (cell.id === srcCell.id) {
-            this.map[cell.y][cell.x].type = this.randomItem();
+            this.map[cell.y][cell.x].type =
+              this.randomItemPickBasedOnPercentage(
+                this.map[cell.y][cell.x].type
+              );
             // console.log("inLine here!!!! cell", cell, cell.type);
           }
         });
@@ -489,7 +502,10 @@ export default class BlockManager extends BaseModule {
       if (concatSrcLeftRight.length > OPTIONS.ITEM.MATCH_LIMIT) {
         concatSrcLeftRight.forEach((cell) => {
           if (cell.id === srcCell.id) {
-            this.map[cell.y][cell.x].type = this.randomItem();
+            this.map[cell.y][cell.x].type =
+              this.randomItemPickBasedOnPercentage(
+                this.map[cell.y][cell.x].type
+              );
             // console.log("inLine here!!!! cell", cell, cell.type);
           }
         });
@@ -497,7 +513,10 @@ export default class BlockManager extends BaseModule {
       if (concatDstLeftRight.length > OPTIONS.ITEM.MATCH_LIMIT) {
         concatDstLeftRight.forEach((cell) => {
           if (cell.id === dstCell.id) {
-            this.map[cell.y][cell.x].type = this.randomItem();
+            this.map[cell.y][cell.x].type =
+              this.randomItemPickBasedOnPercentage(
+                this.map[cell.y][cell.x].type
+              );
             // console.log("inLine here!!!! cell", cell, cell.type);
           }
         });
@@ -505,7 +524,10 @@ export default class BlockManager extends BaseModule {
       if (concatSrcUp.length > OPTIONS.ITEM.MATCH_LIMIT) {
         concatSrcUp.forEach((cell) => {
           if (cell.id === srcCell.id) {
-            this.map[cell.y][cell.x].type = this.randomItem();
+            this.map[cell.y][cell.x].type =
+              this.randomItemPickBasedOnPercentage(
+                this.map[cell.y][cell.x].type
+              );
             // console.log("inLine here!!!! cell", cell, cell.type);
           }
         });
@@ -513,7 +535,10 @@ export default class BlockManager extends BaseModule {
       if (concatDstDown.length > OPTIONS.ITEM.MATCH_LIMIT) {
         concatDstDown.forEach((cell) => {
           if (cell.id === dstCell.id) {
-            this.map[cell.y][cell.x].type = this.randomItem();
+            this.map[cell.y][cell.x].type =
+              this.randomItemPickBasedOnPercentage(
+                this.map[cell.y][cell.x].type
+              );
             // console.log("inLine here!!!! cell", cell, cell.type);
           }
         });
@@ -563,7 +588,10 @@ export default class BlockManager extends BaseModule {
       if (concatSrcLeftRight.length > OPTIONS.ITEM.MATCH_LIMIT) {
         concatSrcLeftRight.forEach((cell) => {
           if (cell.id === srcCell.id) {
-            this.map[cell.y][cell.x].type = this.randomItem();
+            this.map[cell.y][cell.x].type =
+              this.randomItemPickBasedOnPercentage(
+                this.map[cell.y][cell.x].type
+              );
             // console.log("inLine here!!!! cell", cell, cell.type);
           }
         });
@@ -571,7 +599,10 @@ export default class BlockManager extends BaseModule {
       if (concatDstLeftRight.length > OPTIONS.ITEM.MATCH_LIMIT) {
         concatDstLeftRight.forEach((cell) => {
           if (cell.id === dstCell.id) {
-            this.map[cell.y][cell.x].type = this.randomItem();
+            this.map[cell.y][cell.x].type =
+              this.randomItemPickBasedOnPercentage(
+                this.map[cell.y][cell.x].type
+              );
             // console.log("inLine here!!!! cell", cell, cell.type);
           }
         });
@@ -579,7 +610,10 @@ export default class BlockManager extends BaseModule {
       if (concatDstUp.length > OPTIONS.ITEM.MATCH_LIMIT) {
         concatDstUp.forEach((cell) => {
           if (cell.id === dstCell.id) {
-            this.map[cell.y][cell.x].type = this.randomItem();
+            this.map[cell.y][cell.x].type =
+              this.randomItemPickBasedOnPercentage(
+                this.map[cell.y][cell.x].type
+              );
             // console.log("inLine here!!!! cell", cell, cell.type);
           }
         });
@@ -587,7 +621,10 @@ export default class BlockManager extends BaseModule {
       if (concatSrcDown.length > OPTIONS.ITEM.MATCH_LIMIT) {
         concatSrcDown.forEach((cell) => {
           if (cell.id === srcCell.id) {
-            this.map[cell.y][cell.x].type = this.randomItem();
+            this.map[cell.y][cell.x].type =
+              this.randomItemPickBasedOnPercentage(
+                this.map[cell.y][cell.x].type
+              );
             // console.log("inLine here!!!! cell", cell, cell.type);
           }
         });
@@ -700,6 +737,62 @@ export default class BlockManager extends BaseModule {
   }
 
   async swapBothCell(srcCell: Cell, dstCell: Cell) {
+    if (dstCell.checkTypeItem()) {
+      if (dstCell.type === "horizon") {
+        const temp: Cell[] = [];
+        for (const cell of this.map.flat(1)) {
+          if (srcCell.type === cell.type) {
+            // this.horizonPangAndAutoFill(cell.x, cell.y);
+            temp.push(...this.horizonPang(cell.x, cell.y));
+          }
+        }
+        temp.forEach((cell) => {
+          this.animalsPang[cell.originType] += 1;
+          this.questManager.questAmountUp(cell.originType);
+          cell.pang();
+          this.scoreCalculator.scoreUp(
+            cell.score /*  + (plusScore > 0 ? plusScore : 0) */
+          );
+        });
+      }
+      if (dstCell.type === "vertical") {
+        const temp: Cell[] = [];
+        for (const cell of this.map.flat(1)) {
+          if (srcCell.type === cell.type) {
+            // this.verticalPangAndAutoFill(cell.x, cell.y);
+            temp.push(...this.verticalPang(cell.x, cell.y));
+          }
+        }
+        temp.forEach((cell) => {
+          this.animalsPang[cell.originType] += 1;
+          this.questManager.questAmountUp(cell.originType);
+          cell.pang();
+          this.scoreCalculator.scoreUp(
+            cell.score /*  + (plusScore > 0 ? plusScore : 0) */
+          );
+        });
+      }
+      if (dstCell.type === "all") {
+        const temp: Cell[] = [];
+        for (const cell of this.map.flat(1)) {
+          if (srcCell.type === cell.type) {
+            // this.allPangAndAutoFill(cell.x, cell.y);
+            temp.push(...this.allPang(cell.x, cell.y));
+          }
+        }
+        temp.forEach((cell) => {
+          this.animalsPang[cell.originType] += 1;
+          this.questManager.questAmountUp(cell.originType);
+          cell.pang();
+          this.scoreCalculator.scoreUp(
+            cell.score /*  + (plusScore > 0 ? plusScore : 0) */
+          );
+        });
+      }
+      await this.autoPangAndFill();
+      return true;
+    }
+
     this.logger.dir("swapBothCell").debug("before swap both cell:", this.map);
     this.logger
       .dir("swapBothCell")
@@ -1048,6 +1141,14 @@ export default class BlockManager extends BaseModule {
     return isSuccess;
   }
 
+  mockPangableItem() {
+    const mockMap = this.mockingMap();
+    return mockMap
+      .flat(1)
+      .filter((cell) => cell.checkTypeItem())
+      .map((cell) => [cell]);
+  }
+
   mockingMap() {
     return [...this.map].map((row) => row.map((cell) => cell.deepCopySelf()));
   }
@@ -1098,6 +1199,7 @@ export default class BlockManager extends BaseModule {
 
   verticalPang(x: number, y: number) {
     const temp: Cell[] = [];
+    this.map[y][x].type = "";
     const vertical = this.getColumnLine(x);
     vertical.forEach((cell) => {
       if (cell.type === "horizon") {
@@ -1115,6 +1217,7 @@ export default class BlockManager extends BaseModule {
 
   horizonPang(x: number, y: number) {
     const temp: Cell[] = [];
+    this.map[y][x].type = "";
     this.map[y].forEach((cell) => {
       if (cell.type === "vertical") {
         temp.push(...this.verticalPang(cell.x, cell.y));
@@ -1182,26 +1285,15 @@ export default class BlockManager extends BaseModule {
       this.scoreCalculator.countUpCombo();
     }
 
-    // rows.forEach((group) => {
-    //   const cell = group[Math.floor(group.length / 2)];
-    //   cell.type = this.randomItem();
-    //   cell.score = 0;
-    // });
-    // columns.forEach((group) => {
-    //   const cell = group[Math.floor(group.length / 2)];
-    //   cell.type = this.randomItem();
-    //   cell.score = 0;
-    // });
-
     const pangableList = this.getPangableList();
     // const tempType: string[] = [];
     pangableList.forEach((cell) => {
-      // if (!cell.checkTypeItem()) {
-      this.animalsPang[cell.type] += 1;
-      this.questManager.questAmountUp(cell.type);
-      cell.pang();
-      this.scoreCalculator.scoreUp(cell.score);
-      // }
+      if (!cell.checkTypeItem()) {
+        this.animalsPang[cell.type] += 1;
+        this.questManager.questAmountUp(cell.type);
+        cell.pang();
+        this.scoreCalculator.scoreUp(cell.score);
+      }
     });
     await this.searchEmptyColumnsAndFill();
     // await this.searchColumnsAndFillEmptyCell();
@@ -1249,8 +1341,8 @@ export default class BlockManager extends BaseModule {
     }
 
     const pangableList = this.getPangableList();
-    // const tempType: string[] = [];
 
+    // 채울 때 4개이상 동물 중간 아이템 셀로 교체
     [...rows, ...columns].forEach((group) => {
       if (group.length > OPTIONS.ITEM.MATCH_LIMIT) {
         //
@@ -1258,7 +1350,10 @@ export default class BlockManager extends BaseModule {
           (gp) => gp.originType === group[0].originType
         );
         if (groupMatched) {
-          group[Math.floor(group.length / 2)].type = this.randomItem();
+          group[Math.floor(group.length / 2)].type =
+            this.randomItemPickBasedOnPercentage(
+              group[Math.floor(group.length / 2)].type
+            );
         }
       }
     });
@@ -1322,8 +1417,10 @@ export default class BlockManager extends BaseModule {
     // mocking pangable lines
     const resultColumns = this.mockingPangableColumnLines();
     const resultRows = this.mockingPangableRowLines();
-
-    const group = [...resultColumns, ...resultRows][0];
+    const resultItems = this.mockPangableItem();
+    const groups = [...resultColumns, ...resultRows, ...resultItems];
+    this.logger.dir("getHint").debug("groups", groups);
+    const group = groups[Math.floor(Math.random() * groups.length)];
     // first group info
     if (resultColumns.length > 0 || resultRows.length > 0) {
       //

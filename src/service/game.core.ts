@@ -1,3 +1,4 @@
+import Cell from "@src/model/cell";
 import Quest from "@src/model/quest";
 import {
   bgCanvas,
@@ -53,6 +54,9 @@ export default class GameCore extends BaseModule {
 
   questQueue: Quest[] = [];
 
+  // hintQueue: Promise<Cell>[][] = [];
+  // hintQueue: Cell[][] = [];
+
   constructor() {
     super(RUN_MODE);
     // RUN_MODE === "test" && LOG_BLOCK.push(0);
@@ -75,18 +79,41 @@ export default class GameCore extends BaseModule {
   }
 
   showHint() {
+    const hintTemp: Cell[] = [];
     if (this.scoreCalculator.hint > 0) {
       this.scoreCalculator.showHint();
       this.blockManager.getHint();
-      setTimeout(() => {
-        this.blockManager.map.flat(1).forEach((cell) => (cell.isHint = false));
-      }, 3000);
+      this.blockManager.map.flat(1).forEach((cell) => {
+        if (cell.isHint) {
+          hintTemp.push(cell);
+        }
+      });
+      document
+        .querySelectorAll("#hintingGame")
+        .forEach((el) => ((el as HTMLButtonElement).disabled = true));
     }
     if (this.scoreCalculator.hint === 0) {
       document
         .querySelectorAll("#hintingGame")
         .forEach((el) => ((el as HTMLButtonElement).disabled = true));
     }
+
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        hintTemp.forEach((cell) => (cell.isHint = false));
+        resolve(true);
+
+        if (this.scoreCalculator.hint === 0) {
+          document
+            .querySelectorAll("#hintingGame")
+            .forEach((el) => ((el as HTMLButtonElement).disabled = true));
+        } else {
+          document
+            .querySelectorAll("#hintingGame")
+            .forEach((el) => ((el as HTMLButtonElement).disabled = false));
+        }
+      }, 3000);
+    });
   }
 
   async refreshGame(force: boolean = false) {
@@ -211,7 +238,7 @@ export default class GameCore extends BaseModule {
       await this.refreshGame(true);
       // wait.splice(0);
     } else if (target && target.id === "hintingGame") {
-      this.showHint();
+      await this.showHint();
     } else if (target && target.id === "modal-close") {
       // this.newGame();
       // window.removeEventListener("click", this.handleNewGame.bind(this));
