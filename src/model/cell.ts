@@ -168,8 +168,10 @@ export default class Cell {
   }
 
   pang() {
-    this.type = "";
-    this.isPang = true;
+    // if (!this.checkTypeItem()) {
+      this.type = "";
+      this.isPang = true;
+    // }
   }
 
   highlight(type: string) {
@@ -186,6 +188,10 @@ export default class Cell {
         break;
     }
     selectCtx.fillRect(x, y, RESPONSIVE_UNIT_SIZE(), RESPONSIVE_UNIT_SIZE());
+  }
+
+  checkTypeItem() {
+    return !!this.type.match(/^(all|horizon|vertical)$/g);
   }
 
   render() {
@@ -241,13 +247,45 @@ export default class Cell {
         selectCtx.fillStyle = "#000000";
       }
     } else {
-      gameCtx.fillStyle = "#00000000";
-      gameCtx.fillRect(
-        this.x * RESPONSIVE_UNIT_SIZE() + Math.floor(x - this.x),
-        this.y * RESPONSIVE_UNIT_SIZE() + Math.floor(y - this.y),
-        RESPONSIVE_UNIT_SIZE(),
-        RESPONSIVE_UNIT_SIZE()
-      );
+      gameCtx.fillStyle = "#000000";
+
+      // gameCtx.fillRect(
+      //   this.x * RESPONSIVE_UNIT_SIZE() + Math.floor(x - this.x),
+      //   this.y * RESPONSIVE_UNIT_SIZE() + Math.floor(y - this.y),
+      //   RESPONSIVE_UNIT_SIZE(),
+      //   RESPONSIVE_UNIT_SIZE()
+      // );
+
+      if (this.type === "horizon") {
+        gameCtx.font = "bold 16px arial";
+        gameCtx.fillText(
+          "↔",
+          this.x * RESPONSIVE_UNIT_SIZE() +
+            Math.floor(x - this.x) +
+            RESPONSIVE_UNIT_SIZE() / 2 -
+            gameCtx.measureText("↔").width / 2,
+          this.y * RESPONSIVE_UNIT_SIZE() +
+            Math.floor(y - this.y) +
+            8 +
+            RESPONSIVE_UNIT_SIZE() / 2
+        );
+        gameCtx.font = "";
+      }
+      if (this.type === "vertical") {
+        gameCtx.font = "bold 16px arial";
+        gameCtx.fillText(
+          "↕",
+          this.x * RESPONSIVE_UNIT_SIZE() +
+            Math.floor(x - this.x) +
+            RESPONSIVE_UNIT_SIZE() / 2 -
+            gameCtx.measureText("↕").width / 2,
+          this.y * RESPONSIVE_UNIT_SIZE() +
+            Math.floor(y - this.y) +
+            8 +
+            RESPONSIVE_UNIT_SIZE() / 2
+        );
+        gameCtx.font = "";
+      }
     }
 
     if (this.isSelected) {
@@ -257,6 +295,7 @@ export default class Cell {
     //   this.highlight("hover");
     // }
   }
+
   renderOtherCanvas(ctx: CanvasRenderingContext2D) {
     const [x, y] = responseBlockAxis(this.x, this.y);
     const image = images[this.type];

@@ -2,6 +2,7 @@ import Cell, { Direciton } from "@src/model/cell";
 import {
   BASE_TYPE_SCORE,
   OPTIONS,
+  RANDOM_ITEM,
   SUB_OPTIONS,
   TestCase1,
   TestCase2,
@@ -13,7 +14,9 @@ import QuestManager from "./quest.manager";
 import ScoreCalculator from "./score.calculator";
 
 export default class BlockManager extends BaseModule {
-  types = BASE_TYPE_SCORE;
+  types = BASE_TYPE_SCORE /* .filter(
+    (type) => !type[0].match(/^(all|vertical|horizon)$/g)
+  ) */;
   logger: Logger;
   blockSize: BlockSize = { x: 50, y: 50 };
   map: Cell[][] = [];
@@ -132,7 +135,70 @@ export default class BlockManager extends BaseModule {
   }
 
   getRandomCellType() {
-    const randomTypeIndex = Math.floor(Math.random() * this.types.length);
+    const onlyAnimals = this.types.filter(
+      (type) => !type[0].match(/^(all|horizon|vertical)$/g)
+    );
+    const randomTypeIndex = Math.floor(Math.random() * onlyAnimals.length);
+    return onlyAnimals[randomTypeIndex];
+  }
+
+  randomItem() {
+    const itemKeys = Object.keys(RANDOM_ITEM).filter((item) => item !== "none");
+    const randomIndex = Math.floor(Math.random() * itemKeys.length);
+    return itemKeys[randomIndex];
+  }
+
+  randomItemPickBasedOnPercentage() {
+    const randomValue = Math.random() * 100;
+    let runningSum = 0;
+    let choice = "none";
+    for (let i = 0; i < Object.keys(RANDOM_ITEM).length; i++) {
+      runningSum += Object.values(RANDOM_ITEM)[i];
+
+      if (randomValue <= runningSum) {
+        choice = Object.keys(RANDOM_ITEM)[i];
+        break;
+      }
+    }
+    return choice;
+  }
+
+  getRandomCellTypeMoreThanLessAnimalInMap() {
+    this.logger
+      .dir("getRandomCellTypeMoreThanLessAnimalInMap")
+      .log("getRandomNewCell");
+    const counter = this.map
+      .flat(1)
+      .reduce((acc, cur) => {
+        if (cur.type === "" || cur.checkTypeItem()) return acc;
+
+        const index = acc.findIndex((ac) => ac[0] === cur.type);
+        if (index === -1) {
+          acc.push([cur.type, 0]);
+        } else {
+          acc[index][1] += 1;
+        }
+        return acc;
+      }, [] as [string, number][])
+      .concat(this.questManager.quests.map((q) => [q.condition.type, 0]));
+
+    const desc = counter.sort((a, b) => a[1] - b[1]).slice(0, -1);
+    // console.log("desc", desc);
+
+    // let min: [string, number] = ["", Infinity];
+    // for (const group of counter) {
+    //   if (min[1] > group[1]) {
+    //     min = group;
+    //   }
+    // }
+
+    const randomMinIndex = Math.floor(Math.random() * desc.length);
+    const randomMin = desc[randomMinIndex];
+    const minIndex = this.types.findIndex((type) => type[0] === randomMin[0]);
+    // console.log("min", randomMin);
+    // console.log("index", minIndex);
+    // const randomTypeIndex = Math.floor(Math.random() * this.types.length);
+    const randomTypeIndex = minIndex;
     return this.types[randomTypeIndex];
   }
 
@@ -184,6 +250,10 @@ export default class BlockManager extends BaseModule {
     return isIn;
   }
 
+  checkTypeItem(cell: Cell) {
+    return cell.checkTypeItem();
+  }
+
   isInBoundary(srcCell: Cell, dstCell: Cell) {
     this.logger
       .dir("isInBoundary")
@@ -215,10 +285,29 @@ export default class BlockManager extends BaseModule {
     return isIn;
   }
 
+  changeItemByDirection(origin: Cell[], dstCell: Cell) {
+    if (origin.length > 3) {
+      return origin.map((og) => {
+        if (og === dstCell) {
+          og.type = this.randomItem();
+          og.score = 0;
+        }
+        return og;
+      });
+    }
+    return origin;
+  }
+
   inLinePang(srcCell: Cell, dstCell: Cell, direction: Direciton) {
+    const itemLimitAmount = 3;
     this.logger
       .dir("inLinePang")
       .debug("validating pangable line by dst cell.");
+
+    // item pang 방지
+    // if (srcCell.checkTypeItem() || dstCell.checkTypeItem()) {
+    //   return [];
+    // }
 
     const horizonPangList: Cell[] = [];
     const verticalPangList: Cell[] = [];
@@ -230,9 +319,15 @@ export default class BlockManager extends BaseModule {
       const leftSrcLinePang = this.leftLinePang(srcCell);
 
       // dst
-      const upDstLinePang = this.upLinePang(dstCell);
-      const downDstLinePang = this.downLinePang(dstCell);
-      const rightDstLinePang = this.rightLinePang(dstCell);
+      const upDstLinePang = dstCell.checkTypeItem()
+        ? []
+        : this.upLinePang(dstCell);
+      const downDstLinePang = dstCell.checkTypeItem()
+        ? []
+        : this.downLinePang(dstCell);
+      const rightDstLinePang = dstCell.checkTypeItem()
+        ? []
+        : this.rightLinePang(dstCell);
 
       // collect
       const concatSrcUpDown = [
@@ -243,6 +338,39 @@ export default class BlockManager extends BaseModule {
       ];
       const concatSrcLeft = [...new Set(leftSrcLinePang)];
       const concatDstRight = [...new Set(rightDstLinePang)];
+
+      if (concatSrcUpDown.length > itemLimitAmount) {
+        concatSrcUpDown.forEach((cell) => {
+          if (cell.id === srcCell.id) {
+            this.map[cell.y][cell.x].type = this.randomItem();
+            // console.log("inLine here!!!! cell", cell, cell.type);
+          }
+        });
+      }
+      if (concatDstUpDown.length > itemLimitAmount) {
+        concatDstUpDown.forEach((cell) => {
+          if (cell.id === dstCell.id) {
+            this.map[cell.y][cell.x].type = this.randomItem();
+            // console.log("inLine here!!!! cell", cell, cell.type);
+          }
+        });
+      }
+      if (concatSrcLeft.length > itemLimitAmount) {
+        concatSrcLeft.forEach((cell) => {
+          if (cell.id === srcCell.id) {
+            this.map[cell.y][cell.x].type = this.randomItem();
+            // console.log("inLine here!!!! cell", cell, cell.type);
+          }
+        });
+      }
+      if (concatDstRight.length > itemLimitAmount) {
+        concatDstRight.forEach((cell) => {
+          if (cell.id === dstCell.id) {
+            this.map[cell.y][cell.x].type = this.randomItem();
+            // console.log("inLine here!!!! cell", cell, cell.type);
+          }
+        });
+      }
 
       // collect more than 2 animal
       if (concatSrcUpDown.length > 2) {
@@ -260,9 +388,15 @@ export default class BlockManager extends BaseModule {
       }
     } else if (direction === "right") {
       // dst
-      const upDstLinePang = this.upLinePang(dstCell);
-      const downDstLinePang = this.downLinePang(dstCell);
-      const leftDstLinePang = this.leftLinePang(dstCell);
+      const upDstLinePang = dstCell.checkTypeItem()
+        ? []
+        : this.upLinePang(dstCell);
+      const downDstLinePang = dstCell.checkTypeItem()
+        ? []
+        : this.downLinePang(dstCell);
+      const leftDstLinePang = dstCell.checkTypeItem()
+        ? []
+        : this.leftLinePang(dstCell);
 
       // src
       const upSrcLinePang = this.upLinePang(srcCell);
@@ -278,6 +412,39 @@ export default class BlockManager extends BaseModule {
       ];
       const concatDstLeft = [...new Set(leftDstLinePang)];
       const concatSrcRight = [...new Set(rightSrcLinePang)];
+
+      if (concatSrcUpDown.length > itemLimitAmount) {
+        concatSrcUpDown.forEach((cell) => {
+          if (cell.id === srcCell.id) {
+            this.map[cell.y][cell.x].type = this.randomItem();
+            // console.log("inLine here!!!! cell", cell, cell.type);
+          }
+        });
+      }
+      if (concatDstUpDown.length > itemLimitAmount) {
+        concatDstUpDown.forEach((cell) => {
+          if (cell.id === dstCell.id) {
+            this.map[cell.y][cell.x].type = this.randomItem();
+            // console.log("inLine here!!!! cell", cell, cell.type);
+          }
+        });
+      }
+      if (concatDstLeft.length > itemLimitAmount) {
+        concatDstLeft.forEach((cell) => {
+          if (cell.id === dstCell.id) {
+            this.map[cell.y][cell.x].type = this.randomItem();
+            // console.log("inLine here!!!! cell", cell, cell.type);
+          }
+        });
+      }
+      if (concatSrcRight.length > itemLimitAmount) {
+        concatSrcRight.forEach((cell) => {
+          if (cell.id === srcCell.id) {
+            this.map[cell.y][cell.x].type = this.randomItem();
+            // console.log("inLine here!!!! cell", cell, cell.type);
+          }
+        });
+      }
 
       // collect more than 2 animal
       if (concatSrcUpDown.length > 2) {
@@ -300,9 +467,15 @@ export default class BlockManager extends BaseModule {
       const rightSrcLinePang = this.rightLinePang(srcCell);
 
       // dst
-      const downDstLinePang = this.downLinePang(dstCell);
-      const leftDstLinePang = this.leftLinePang(dstCell);
-      const rightDstLinePang = this.rightLinePang(dstCell);
+      const downDstLinePang = dstCell.checkTypeItem()
+        ? []
+        : this.downLinePang(dstCell);
+      const leftDstLinePang = dstCell.checkTypeItem()
+        ? []
+        : this.leftLinePang(dstCell);
+      const rightDstLinePang = dstCell.checkTypeItem()
+        ? []
+        : this.rightLinePang(dstCell);
 
       // collect
       const concatSrcLeftRight = [
@@ -313,6 +486,39 @@ export default class BlockManager extends BaseModule {
       ];
       const concatSrcUp = [...new Set(upSrcLinePang)];
       const concatDstDown = [...new Set(downDstLinePang)];
+
+      if (concatSrcLeftRight.length > itemLimitAmount) {
+        concatSrcLeftRight.forEach((cell) => {
+          if (cell.id === srcCell.id) {
+            this.map[cell.y][cell.x].type = this.randomItem();
+            // console.log("inLine here!!!! cell", cell, cell.type);
+          }
+        });
+      }
+      if (concatDstLeftRight.length > itemLimitAmount) {
+        concatDstLeftRight.forEach((cell) => {
+          if (cell.id === dstCell.id) {
+            this.map[cell.y][cell.x].type = this.randomItem();
+            // console.log("inLine here!!!! cell", cell, cell.type);
+          }
+        });
+      }
+      if (concatSrcUp.length > itemLimitAmount) {
+        concatSrcUp.forEach((cell) => {
+          if (cell.id === srcCell.id) {
+            this.map[cell.y][cell.x].type = this.randomItem();
+            // console.log("inLine here!!!! cell", cell, cell.type);
+          }
+        });
+      }
+      if (concatDstDown.length > itemLimitAmount) {
+        concatDstDown.forEach((cell) => {
+          if (cell.id === dstCell.id) {
+            this.map[cell.y][cell.x].type = this.randomItem();
+            // console.log("inLine here!!!! cell", cell, cell.type);
+          }
+        });
+      }
 
       // collect more than 2 animal
       if (concatSrcLeftRight.length > 2) {
@@ -330,9 +536,15 @@ export default class BlockManager extends BaseModule {
       }
     } else if (direction === "down") {
       // dst
-      const upDstLinePang = this.upLinePang(dstCell);
-      const leftDstLinePang = this.leftLinePang(dstCell);
-      const rightDstLinePang = this.rightLinePang(dstCell);
+      const upDstLinePang = dstCell.checkTypeItem()
+        ? []
+        : this.upLinePang(dstCell);
+      const leftDstLinePang = dstCell.checkTypeItem()
+        ? []
+        : this.leftLinePang(dstCell);
+      const rightDstLinePang = dstCell.checkTypeItem()
+        ? []
+        : this.rightLinePang(dstCell);
 
       // src
       const downSrcLinePang = this.downLinePang(srcCell);
@@ -348,6 +560,39 @@ export default class BlockManager extends BaseModule {
       ];
       const concatDstUp = [...new Set(upDstLinePang)];
       const concatSrcDown = [...new Set(downSrcLinePang)];
+
+      if (concatSrcLeftRight.length > itemLimitAmount) {
+        concatSrcLeftRight.forEach((cell) => {
+          if (cell.id === srcCell.id) {
+            this.map[cell.y][cell.x].type = this.randomItem();
+            // console.log("inLine here!!!! cell", cell, cell.type);
+          }
+        });
+      }
+      if (concatDstLeftRight.length > itemLimitAmount) {
+        concatDstLeftRight.forEach((cell) => {
+          if (cell.id === dstCell.id) {
+            this.map[cell.y][cell.x].type = this.randomItem();
+            // console.log("inLine here!!!! cell", cell, cell.type);
+          }
+        });
+      }
+      if (concatDstUp.length > itemLimitAmount) {
+        concatDstUp.forEach((cell) => {
+          if (cell.id === dstCell.id) {
+            this.map[cell.y][cell.x].type = this.randomItem();
+            // console.log("inLine here!!!! cell", cell, cell.type);
+          }
+        });
+      }
+      if (concatSrcDown.length > itemLimitAmount) {
+        concatSrcDown.forEach((cell) => {
+          if (cell.id === srcCell.id) {
+            this.map[cell.y][cell.x].type = this.randomItem();
+            // console.log("inLine here!!!! cell", cell, cell.type);
+          }
+        });
+      }
 
       // collect more than 2 animal
       if (concatSrcLeftRight.length > 2) {
@@ -466,6 +711,13 @@ export default class BlockManager extends BaseModule {
       .dir("dest")
       .debug("get both cell in this.map", this.map[dstCell?.y]?.[dstCell?.x]);
 
+    // if (srcCell.checkTypeItem()) {
+    //   return false;
+    // }
+    // if (dstCell.checkTypeItem()) {
+    //   return false;
+    // }
+
     if (
       !this.map[srcCell?.y]?.[srcCell?.x] ||
       !this.map[dstCell?.y]?.[dstCell?.x]
@@ -519,12 +771,14 @@ export default class BlockManager extends BaseModule {
     }
 
     pangResult.flat(1).forEach((cell) => {
-      this.animalsPang[cell.type] += 1;
-      this.questManager.questAmountUp(cell.type);
-      cell.pang();
-
-      this.scoreCalculator.scoreUp(cell.score);
+      if (!cell.checkTypeItem()) {
+        this.animalsPang[cell.type] += 1;
+        this.questManager.questAmountUp(cell.type);
+        cell.pang();
+        this.scoreCalculator.scoreUp(cell.score);
+      }
     });
+
     return true;
   }
 
@@ -834,6 +1088,156 @@ export default class BlockManager extends BaseModule {
     return [swapedSrcCell, swapedDstCell];
   }
 
+  /* version 3 features item */
+  allPang(x: number, y: number) {
+    const temp: Cell[] = [];
+    this.map[y][x].type = "";
+    temp.push(...this.verticalPang(x, y));
+    temp.push(...this.horizonPang(x, y));
+    return temp;
+  }
+
+  verticalPang(x: number, y: number) {
+    const temp: Cell[] = [];
+    const vertical = this.getColumnLine(x);
+    vertical.forEach((cell) => {
+      if (cell.type === "horizon") {
+        temp.push(...this.horizonPang(cell.x, cell.y));
+      }
+      if (cell.type === "all") {
+        // console.log("all type detect", cell.type);
+        temp.push(...this.allPang(cell.x, cell.y));
+      }
+      // console.log("type detect", cell.type);
+      temp.push(cell);
+    });
+    return temp;
+  }
+
+  horizonPang(x: number, y: number) {
+    const temp: Cell[] = [];
+    this.map[y].forEach((cell) => {
+      if (cell.type === "vertical") {
+        temp.push(...this.verticalPang(cell.x, cell.y));
+      }
+      if (cell.type === "all") {
+        // console.log("all type detect", cell.type);
+        temp.push(...this.allPang(cell.x, cell.y));
+      }
+      // console.log("type detect", cell.type);
+      temp.push(cell);
+    });
+    return temp;
+  }
+
+  async allPangAndAutoFill(x: number, y: number) {
+    const temp = this.allPang(x, y);
+    temp.forEach((cell) => {
+      this.animalsPang[cell.type] += 1;
+      this.questManager.questAmountUp(cell.type);
+      cell.pang();
+      this.scoreCalculator.scoreUp(
+        cell.score /*  + (plusScore > 0 ? plusScore : 0) */
+      );
+    });
+    return await this.autoPangAndFillInItem();
+  }
+
+  async verticalPangAndAutoFill(x: number, y: number) {
+    const temp = this.verticalPang(x, y);
+    temp.forEach((cell) => {
+      this.animalsPang[cell.type] += 1;
+      this.questManager.questAmountUp(cell.type);
+      cell.pang();
+
+      this.scoreCalculator.scoreUp(
+        cell.score /*  + (plusScore > 0 ? plusScore : 0) */
+      );
+    });
+    return await this.autoPangAndFillInItem();
+  }
+
+  async horizonPangAndAutoFill(x: number, y: number) {
+    const temp = this.horizonPang(x, y);
+    temp.forEach((cell) => {
+      this.animalsPang[cell.type] += 1;
+      this.questManager.questAmountUp(cell.type);
+      cell.pang();
+
+      this.scoreCalculator.scoreUp(
+        cell.score /*  + (plusScore > 0 ? plusScore : 0) */
+      );
+    });
+    return await this.autoPangAndFillInItem();
+  }
+  /* version 3 features item */
+
+  async autoPangAndFillInItem() {
+    const rows = this.searchRowsAndFilterPangable();
+    const columns = this.searchColumnsAndFilterPangable();
+    this.logger.dir("getPangableList").debug(rows.length, columns.length);
+    for (let i = 0; i < rows.length + columns.length; i++) {
+      this.scoreCalculator.countUpCombo();
+    }
+
+    // rows.forEach((group) => {
+    //   const cell = group[Math.floor(group.length / 2)];
+    //   cell.type = this.randomItem();
+    //   cell.score = 0;
+    // });
+    // columns.forEach((group) => {
+    //   const cell = group[Math.floor(group.length / 2)];
+    //   cell.type = this.randomItem();
+    //   cell.score = 0;
+    // });
+
+    const pangableList = this.getPangableList();
+    // const tempType: string[] = [];
+    pangableList.forEach((cell) => {
+      // if (!cell.checkTypeItem()) {
+      this.animalsPang[cell.type] += 1;
+      this.questManager.questAmountUp(cell.type);
+      cell.pang();
+      this.scoreCalculator.scoreUp(cell.score);
+      // }
+    });
+    await this.searchEmptyColumnsAndFill();
+    // await this.searchColumnsAndFillEmptyCell();
+    // console.log("searchEmptyColumnsAndFill done???");
+    const isDone = this.getPangableList().length === 0;
+    this.logger.dir("autoPangAndFill").log("isDone", isDone);
+    if (!isDone) {
+      return await this.autoPangAndFillInItem();
+    }
+
+    // mocking pangable lines
+    const resultColumns = this.mockingPangableColumnLines();
+    const resultRows = this.mockingPangableRowLines();
+
+    this.logger
+      .dir("autoPangAndFill")
+      .dir("check mocking pangable")
+      .debug(resultColumns || resultRows);
+    if (resultColumns.length > 0 || resultRows.length > 0) {
+      //
+    } else {
+      this.logger
+        .dir("autoPangAndFill")
+        .dir("check mocking pangable")
+        .error("required reset game");
+      if (
+        !document.querySelector("#modal") &&
+        !this.gameEnd &&
+        resultColumns.length === 0 &&
+        resultRows.length === 0
+      ) {
+        this.scoreCalculator.popupShuffleModal();
+      }
+    }
+
+    return isDone;
+  }
+
   async autoPangAndFill(loop: boolean = true) {
     const rows = this.searchRowsAndFilterPangable();
     const columns = this.searchColumnsAndFilterPangable();
@@ -845,21 +1249,14 @@ export default class BlockManager extends BaseModule {
     const pangableList = this.getPangableList();
     // const tempType: string[] = [];
     pangableList.forEach((cell) => {
-      this.animalsPang[cell.type] += 1;
-      this.questManager.questAmountUp(cell.type);
-      cell.pang();
-      // if (tempType.length === 0 || tempType.includes(cell.type)) {
-      //   tempType.push(cell.type);
-      // } else {
-      //   tempType.splice(0);
-      // }
-
-      // const plusScore = (tempType.length - 3) * cell.score;
-
-      this.scoreCalculator.scoreUp(
-        cell.score /*  + (plusScore > 0 ? plusScore : 0) */
-      );
+      if (!cell.checkTypeItem()) {
+        this.animalsPang[cell.type] += 1;
+        this.questManager.questAmountUp(cell.type);
+        cell.pang();
+        this.scoreCalculator.scoreUp(cell.score);
+      }
     });
+
     await this.searchEmptyColumnsAndFill();
     // await this.searchColumnsAndFillEmptyCell();
     // console.log("searchEmptyColumnsAndFill done???");
@@ -992,7 +1389,8 @@ export default class BlockManager extends BaseModule {
           rowTemp.push([]);
         }
 
-        rowTemp[rowTemp.length - 1].push(cell);
+        if (!cell.type.match(/^(vertical|horizon|all)$/g))
+          rowTemp[rowTemp.length - 1].push(cell);
       }
       rowTemp.push([]);
     }
@@ -1024,7 +1422,8 @@ export default class BlockManager extends BaseModule {
           columnTemp.push([]);
         }
 
-        columnTemp[columnTemp.length - 1].push(cell);
+        if (!cell.type.match(/^(vertical|horizon|all)$/g))
+          columnTemp[columnTemp.length - 1].push(cell);
       }
       columnTemp.push([]);
     }
@@ -1055,7 +1454,8 @@ export default class BlockManager extends BaseModule {
           rowTemp.push([]);
         }
 
-        rowTemp[rowTemp.length - 1].push(cell);
+        if (!cell.type.match(/^(vertical|horizon|all)$/g))
+          rowTemp[rowTemp.length - 1].push(cell);
       }
       rowTemp.push([]);
     }
@@ -1087,7 +1487,8 @@ export default class BlockManager extends BaseModule {
           columnTemp.push([]);
         }
 
-        columnTemp[columnTemp.length - 1].push(cell);
+        if (!cell.type.match(/^(vertical|horizon|all)$/g))
+          columnTemp[columnTemp.length - 1].push(cell);
       }
       columnTemp.push([]);
     }
@@ -1189,7 +1590,7 @@ export default class BlockManager extends BaseModule {
     //   .dir("fillNewCells")
     //   .debug(origin, startPoint, emptyAmount);
     // tempStartPoint 이게 사용되려나?
-    const startPoint = origin[0].y;
+    // const startPoint = origin[0].y;
     const tempEmptyAmount = emptyAmount;
 
     const temp: Cell[] = origin.map((cell) => {
@@ -1201,8 +1602,16 @@ export default class BlockManager extends BaseModule {
     });
 
     for (let index = 1; index <= tempEmptyAmount; index++) {
-      const [type, score] = this.getRandomCellType();
-      const copyCell = new Cell(type, x, 1 - index - 1, score);
+      const [type, score] = this.getRandomCellTypeMoreThanLessAnimalInMap();
+      // const item = this.randomItemPickBasedOnPercentage();
+      // this.logger.dir("fillNewCells").debug("item", item);
+      const copyCell = new Cell(
+        // item === "none" ? type : item,
+        type,
+        x,
+        1 - index - 1,
+        score
+      );
       // this.logger
       //   .dir("searchColumnsAndFillEmptyCell")
       //   .dir("columnFillNewAnimals")

@@ -70,6 +70,37 @@ export default class Pointer extends BaseModule {
           .dir("clickCell")
           .dir("select first cell")
           .debug(this.swapTemp[0]);
+
+        if (this.swapTemp[0].type.match(/^(horizon)$/g)) {
+          wait.push(0);
+          await this.dependency.blockManager?.horizonPangAndAutoFill(
+            this.swapTemp[0].x,
+            this.swapTemp[0].y
+          );
+          this.swapTemp = [];
+          wait.pop();
+          return;
+        }
+        if (this.swapTemp[0].type.match(/^(vertical)$/g)) {
+          wait.push(0);
+          await this.dependency.blockManager?.verticalPangAndAutoFill(
+            this.swapTemp[0].x,
+            this.swapTemp[0].y
+          );
+          this.swapTemp = [];
+          wait.pop();
+          return;
+        }
+        if (this.swapTemp[0].type.match(/^(all)$/g)) {
+          wait.push(0);
+          await this.dependency.blockManager?.allPangAndAutoFill(
+            this.swapTemp[0].x,
+            this.swapTemp[0].y
+          );
+          this.swapTemp = [];
+          wait.pop();
+          return;
+        }
       }
       if (this.swapTemp.length === 2) {
         this.logger.dir("clickCell").log(this.swapTemp);
@@ -92,6 +123,7 @@ export default class Pointer extends BaseModule {
             this.swapTemp[1]
           );
           this.logger.dir("clickCell").debug("isBoundary", isBoundary);
+
           if (isBoundary) {
             this.dependency.scoreCalculator?.turnCount();
           }

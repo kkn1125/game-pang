@@ -8,6 +8,10 @@ import rabbit from "@src/assets/animals/rabbit-pad.png";
 import panda from "@src/assets/animals/panda2-pad.png";
 import pig from "@src/assets/animals/pig2-pad.png";
 import racoon from "@src/assets/animals/racoon2-pad.png";
+// ver3
+import all from "@src/assets/animals/all-pad.png";
+import horizon from "@src/assets/animals/horizon-pad.png";
+import vertical from "@src/assets/animals/vertical-pad.png";
 
 // global canvas
 export const MODE = import.meta.env.MODE as string;
@@ -46,6 +50,13 @@ pigImg.src = pig;
 const racoonImg = document.createElement("img");
 racoonImg.src = racoon;
 
+const allImg = document.createElement("img");
+allImg.src = all;
+const horizonImg = document.createElement("img");
+horizonImg.src = horizon;
+const verticalImg = document.createElement("img");
+verticalImg.src = vertical;
+
 export const images = {
   cat: catImg,
   dog: dogImg,
@@ -56,6 +67,9 @@ export const images = {
   panda: pandaImg,
   pig: pigImg,
   racoon: racoonImg,
+  all: allImg,
+  horizon: horizonImg,
+  vertical: verticalImg,
 };
 
 export const ROOT = document.querySelector("#root") as HTMLDivElement;
@@ -119,12 +133,15 @@ export const BASE_TYPE_SCORE: BlockTypeNScore[] = [
   ["dog", 1],
   // ["cat", 2], //
   ["duck", 3],
-  ["mouse", 4],
+  // ["mouse", 4],
   // ["rabbit", 5], //
   ["lion", 6],
   ["pig", 7],
   ["panda", 8],
   ["racoon", 9],
+  ["horizon", 0],
+  ["vertical", 0],
+  ["all", 0],
 ];
 export const TestCase1 = [
   [
@@ -248,6 +265,13 @@ export const TestCase2 = [
   ["cat", "lion", "dog", "racoon", "cat", "dog", "lion", "rabbit", "mouse"],
   ["dog", "cat", "lion", "mouse", "dog", "lion", "cat", "racoon", "cat"],
 ];
+
+export const RANDOM_ITEM = {
+  all: 0.01,
+  horizon: 1,
+  vertical: 1,
+  none: 90,
+};
 
 const set3 = (
   obj: {
