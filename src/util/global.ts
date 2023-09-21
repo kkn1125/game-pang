@@ -99,6 +99,9 @@ export const OPTIONS = {
   SIZE: {
     UNIT: 50,
   },
+  ITEM: {
+    MATCH_LIMIT: 3,
+  },
   WIDTH: {
     GAME: {
       X: 9,
@@ -270,7 +273,7 @@ export const RANDOM_ITEM = {
   all: 0.01,
   horizon: 1,
   vertical: 1,
-  none: 90,
+  // none: 90,
 };
 
 const set3 = (

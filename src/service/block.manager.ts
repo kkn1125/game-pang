@@ -299,7 +299,6 @@ export default class BlockManager extends BaseModule {
   }
 
   inLinePang(srcCell: Cell, dstCell: Cell, direction: Direciton) {
-    const itemLimitAmount = 3;
     this.logger
       .dir("inLinePang")
       .debug("validating pangable line by dst cell.");
@@ -339,7 +338,7 @@ export default class BlockManager extends BaseModule {
       const concatSrcLeft = [...new Set(leftSrcLinePang)];
       const concatDstRight = [...new Set(rightDstLinePang)];
 
-      if (concatSrcUpDown.length > itemLimitAmount) {
+      if (concatSrcUpDown.length > OPTIONS.ITEM.MATCH_LIMIT) {
         concatSrcUpDown.forEach((cell) => {
           if (cell.id === srcCell.id) {
             this.map[cell.y][cell.x].type = this.randomItem();
@@ -347,7 +346,7 @@ export default class BlockManager extends BaseModule {
           }
         });
       }
-      if (concatDstUpDown.length > itemLimitAmount) {
+      if (concatDstUpDown.length > OPTIONS.ITEM.MATCH_LIMIT) {
         concatDstUpDown.forEach((cell) => {
           if (cell.id === dstCell.id) {
             this.map[cell.y][cell.x].type = this.randomItem();
@@ -355,7 +354,7 @@ export default class BlockManager extends BaseModule {
           }
         });
       }
-      if (concatSrcLeft.length > itemLimitAmount) {
+      if (concatSrcLeft.length > OPTIONS.ITEM.MATCH_LIMIT) {
         concatSrcLeft.forEach((cell) => {
           if (cell.id === srcCell.id) {
             this.map[cell.y][cell.x].type = this.randomItem();
@@ -363,7 +362,7 @@ export default class BlockManager extends BaseModule {
           }
         });
       }
-      if (concatDstRight.length > itemLimitAmount) {
+      if (concatDstRight.length > OPTIONS.ITEM.MATCH_LIMIT) {
         concatDstRight.forEach((cell) => {
           if (cell.id === dstCell.id) {
             this.map[cell.y][cell.x].type = this.randomItem();
@@ -413,7 +412,7 @@ export default class BlockManager extends BaseModule {
       const concatDstLeft = [...new Set(leftDstLinePang)];
       const concatSrcRight = [...new Set(rightSrcLinePang)];
 
-      if (concatSrcUpDown.length > itemLimitAmount) {
+      if (concatSrcUpDown.length > OPTIONS.ITEM.MATCH_LIMIT) {
         concatSrcUpDown.forEach((cell) => {
           if (cell.id === srcCell.id) {
             this.map[cell.y][cell.x].type = this.randomItem();
@@ -421,7 +420,7 @@ export default class BlockManager extends BaseModule {
           }
         });
       }
-      if (concatDstUpDown.length > itemLimitAmount) {
+      if (concatDstUpDown.length > OPTIONS.ITEM.MATCH_LIMIT) {
         concatDstUpDown.forEach((cell) => {
           if (cell.id === dstCell.id) {
             this.map[cell.y][cell.x].type = this.randomItem();
@@ -429,7 +428,7 @@ export default class BlockManager extends BaseModule {
           }
         });
       }
-      if (concatDstLeft.length > itemLimitAmount) {
+      if (concatDstLeft.length > OPTIONS.ITEM.MATCH_LIMIT) {
         concatDstLeft.forEach((cell) => {
           if (cell.id === dstCell.id) {
             this.map[cell.y][cell.x].type = this.randomItem();
@@ -437,7 +436,7 @@ export default class BlockManager extends BaseModule {
           }
         });
       }
-      if (concatSrcRight.length > itemLimitAmount) {
+      if (concatSrcRight.length > OPTIONS.ITEM.MATCH_LIMIT) {
         concatSrcRight.forEach((cell) => {
           if (cell.id === srcCell.id) {
             this.map[cell.y][cell.x].type = this.randomItem();
@@ -487,7 +486,7 @@ export default class BlockManager extends BaseModule {
       const concatSrcUp = [...new Set(upSrcLinePang)];
       const concatDstDown = [...new Set(downDstLinePang)];
 
-      if (concatSrcLeftRight.length > itemLimitAmount) {
+      if (concatSrcLeftRight.length > OPTIONS.ITEM.MATCH_LIMIT) {
         concatSrcLeftRight.forEach((cell) => {
           if (cell.id === srcCell.id) {
             this.map[cell.y][cell.x].type = this.randomItem();
@@ -495,7 +494,7 @@ export default class BlockManager extends BaseModule {
           }
         });
       }
-      if (concatDstLeftRight.length > itemLimitAmount) {
+      if (concatDstLeftRight.length > OPTIONS.ITEM.MATCH_LIMIT) {
         concatDstLeftRight.forEach((cell) => {
           if (cell.id === dstCell.id) {
             this.map[cell.y][cell.x].type = this.randomItem();
@@ -503,7 +502,7 @@ export default class BlockManager extends BaseModule {
           }
         });
       }
-      if (concatSrcUp.length > itemLimitAmount) {
+      if (concatSrcUp.length > OPTIONS.ITEM.MATCH_LIMIT) {
         concatSrcUp.forEach((cell) => {
           if (cell.id === srcCell.id) {
             this.map[cell.y][cell.x].type = this.randomItem();
@@ -511,7 +510,7 @@ export default class BlockManager extends BaseModule {
           }
         });
       }
-      if (concatDstDown.length > itemLimitAmount) {
+      if (concatDstDown.length > OPTIONS.ITEM.MATCH_LIMIT) {
         concatDstDown.forEach((cell) => {
           if (cell.id === dstCell.id) {
             this.map[cell.y][cell.x].type = this.randomItem();
@@ -561,7 +560,7 @@ export default class BlockManager extends BaseModule {
       const concatDstUp = [...new Set(upDstLinePang)];
       const concatSrcDown = [...new Set(downSrcLinePang)];
 
-      if (concatSrcLeftRight.length > itemLimitAmount) {
+      if (concatSrcLeftRight.length > OPTIONS.ITEM.MATCH_LIMIT) {
         concatSrcLeftRight.forEach((cell) => {
           if (cell.id === srcCell.id) {
             this.map[cell.y][cell.x].type = this.randomItem();
@@ -569,7 +568,7 @@ export default class BlockManager extends BaseModule {
           }
         });
       }
-      if (concatDstLeftRight.length > itemLimitAmount) {
+      if (concatDstLeftRight.length > OPTIONS.ITEM.MATCH_LIMIT) {
         concatDstLeftRight.forEach((cell) => {
           if (cell.id === dstCell.id) {
             this.map[cell.y][cell.x].type = this.randomItem();
@@ -577,7 +576,7 @@ export default class BlockManager extends BaseModule {
           }
         });
       }
-      if (concatDstUp.length > itemLimitAmount) {
+      if (concatDstUp.length > OPTIONS.ITEM.MATCH_LIMIT) {
         concatDstUp.forEach((cell) => {
           if (cell.id === dstCell.id) {
             this.map[cell.y][cell.x].type = this.randomItem();
@@ -585,7 +584,7 @@ export default class BlockManager extends BaseModule {
           }
         });
       }
-      if (concatSrcDown.length > itemLimitAmount) {
+      if (concatSrcDown.length > OPTIONS.ITEM.MATCH_LIMIT) {
         concatSrcDown.forEach((cell) => {
           if (cell.id === srcCell.id) {
             this.map[cell.y][cell.x].type = this.randomItem();
@@ -1131,6 +1130,7 @@ export default class BlockManager extends BaseModule {
   }
 
   async allPangAndAutoFill(x: number, y: number) {
+    this.scoreCalculator.turnCount();
     const temp = this.allPang(x, y);
     temp.forEach((cell) => {
       this.animalsPang[cell.type] += 1;
@@ -1140,10 +1140,11 @@ export default class BlockManager extends BaseModule {
         cell.score /*  + (plusScore > 0 ? plusScore : 0) */
       );
     });
-    return await this.autoPangAndFillInItem();
+    return await this.autoPangAndFill();
   }
 
   async verticalPangAndAutoFill(x: number, y: number) {
+    this.scoreCalculator.turnCount();
     const temp = this.verticalPang(x, y);
     temp.forEach((cell) => {
       this.animalsPang[cell.type] += 1;
@@ -1154,10 +1155,11 @@ export default class BlockManager extends BaseModule {
         cell.score /*  + (plusScore > 0 ? plusScore : 0) */
       );
     });
-    return await this.autoPangAndFillInItem();
+    return await this.autoPangAndFill();
   }
 
   async horizonPangAndAutoFill(x: number, y: number) {
+    this.scoreCalculator.turnCount();
     const temp = this.horizonPang(x, y);
     temp.forEach((cell) => {
       this.animalsPang[cell.type] += 1;
@@ -1168,7 +1170,7 @@ export default class BlockManager extends BaseModule {
         cell.score /*  + (plusScore > 0 ? plusScore : 0) */
       );
     });
-    return await this.autoPangAndFillInItem();
+    return await this.autoPangAndFill();
   }
   /* version 3 features item */
 
@@ -1248,11 +1250,32 @@ export default class BlockManager extends BaseModule {
 
     const pangableList = this.getPangableList();
     // const tempType: string[] = [];
+
+    [...rows, ...columns].forEach((group) => {
+      if (group.length > OPTIONS.ITEM.MATCH_LIMIT) {
+        //
+        const groupMatched = group.every(
+          (gp) => gp.originType === group[0].originType
+        );
+        if (groupMatched) {
+          group[Math.floor(group.length / 2)].type = this.randomItem();
+        }
+      }
+    });
+
+    this.logger
+      .dir("searchEmptyColumnsAndFill")
+      .log("rows columns", rows, columns);
+
     pangableList.forEach((cell) => {
-      if (!cell.checkTypeItem()) {
+      if (!cell.checkOriginTypeItem()) {
+        const change = cell.checkTypeItem() ? cell.type : "";
         this.animalsPang[cell.type] += 1;
         this.questManager.questAmountUp(cell.type);
         cell.pang();
+        if (change) {
+          cell.type = change;
+        }
         this.scoreCalculator.scoreUp(cell.score);
       }
     });
@@ -1262,6 +1285,7 @@ export default class BlockManager extends BaseModule {
     // console.log("searchEmptyColumnsAndFill done???");
     const isDone = this.getPangableList().length === 0;
     this.logger.dir("autoPangAndFill").log("isDone", isDone);
+
     if (loop && !isDone) {
       return await this.autoPangAndFill();
     }
@@ -1454,8 +1478,8 @@ export default class BlockManager extends BaseModule {
           rowTemp.push([]);
         }
 
-        if (!cell.type.match(/^(vertical|horizon|all)$/g))
-          rowTemp[rowTemp.length - 1].push(cell);
+        // if (!cell.type.match(/^(vertical|horizon|all)$/g))
+        rowTemp[rowTemp.length - 1].push(cell);
       }
       rowTemp.push([]);
     }
@@ -1487,8 +1511,8 @@ export default class BlockManager extends BaseModule {
           columnTemp.push([]);
         }
 
-        if (!cell.type.match(/^(vertical|horizon|all)$/g))
-          columnTemp[columnTemp.length - 1].push(cell);
+        // if (!cell.type.match(/^(vertical|horizon|all)$/g))
+        columnTemp[columnTemp.length - 1].push(cell);
       }
       columnTemp.push([]);
     }

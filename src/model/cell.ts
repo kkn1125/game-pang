@@ -14,6 +14,7 @@ export type Direciton = "left" | "right" | "down" | "up" | null;
 export default class Cell {
   static autoIncrement: number = 0;
   id: number;
+  originType: string;
   type: string;
   x: number;
   y: number;
@@ -29,6 +30,7 @@ export default class Cell {
 
   constructor(type: string, x: number, y: number, score: number) {
     this.id = Cell.autoIncrement;
+    this.originType = type;
     this.type = type;
     this.x = x;
     this.y = y;
@@ -169,8 +171,8 @@ export default class Cell {
 
   pang() {
     // if (!this.checkTypeItem()) {
-      this.type = "";
-      this.isPang = true;
+    this.type = "";
+    this.isPang = true;
     // }
   }
 
@@ -192,6 +194,9 @@ export default class Cell {
 
   checkTypeItem() {
     return !!this.type.match(/^(all|horizon|vertical)$/g);
+  }
+  checkOriginTypeItem() {
+    return !!this.originType.match(/^(all|horizon|vertical)$/g);
   }
 
   render() {
