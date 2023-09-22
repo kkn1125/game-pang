@@ -3,7 +3,6 @@ import {
   BASE_TYPE_SCORE,
   OPTIONS,
   RANDOM_ITEM,
-  SUB_OPTIONS,
   TestCase1,
   TestCase2,
   wait,
@@ -54,7 +53,6 @@ export default class BlockManager extends BaseModule {
   }
 
   containsType(type: string) {
-    // console.log(type)
     return this.types.some((types) => types[0] === type);
   }
 
@@ -126,11 +124,7 @@ export default class BlockManager extends BaseModule {
   }
 
   getCellScoreByType(type: string) {
-    // const randomTypeIndex = Math.floor(Math.random() * this.types.length);
-    // console.log(type);
     const index = this.types.findIndex((typeScore) => typeScore[0] === type);
-    // console.log(this.types, index);
-    // console.log(this.types[index]);
     return this.types[index][1];
   }
 
@@ -185,21 +179,10 @@ export default class BlockManager extends BaseModule {
       .concat(this.questManager.quests.map((q) => [q.condition.type, 0]));
 
     const desc = counter.sort((a, b) => a[1] - b[1]).slice(0, -1);
-    // console.log("desc", desc);
-
-    // let min: [string, number] = ["", Infinity];
-    // for (const group of counter) {
-    //   if (min[1] > group[1]) {
-    //     min = group;
-    //   }
-    // }
 
     const randomMinIndex = Math.floor(Math.random() * desc.length);
     const randomMin = desc[randomMinIndex];
     const minIndex = this.types.findIndex((type) => type[0] === randomMin[0]);
-    // console.log("min", randomMin);
-    // console.log("index", minIndex);
-    // const randomTypeIndex = Math.floor(Math.random() * this.types.length);
     const randomTypeIndex = minIndex;
     return this.types[randomTypeIndex];
   }
@@ -224,9 +207,6 @@ export default class BlockManager extends BaseModule {
   }
 
   mockisInBoundary(mockMap: Cell[][], srcCell: Cell, dstCell: Cell) {
-    // this.logger
-    //   .dir("mockisInBoundary")
-    //   .debug("srcCell", "dstCell", srcCell, dstCell);
     const srcX = srcCell?.x;
     const srcY = srcCell?.y;
 
@@ -292,11 +272,6 @@ export default class BlockManager extends BaseModule {
       .dir("inLinePang")
       .debug("validating pangable line by dst cell.");
 
-    // item pang 방지
-    // if (srcCell.checkTypeItem() || dstCell.checkTypeItem()) {
-    //   return [];
-    // }
-
     const horizonPangList: Cell[] = [];
     const verticalPangList: Cell[] = [];
 
@@ -334,7 +309,6 @@ export default class BlockManager extends BaseModule {
               this.randomItemPickBasedOnPercentage(
                 this.map[cell.y][cell.x].type
               );
-            // console.log("inLine here!!!! cell", cell, cell.type);
           }
         });
       }
@@ -345,7 +319,6 @@ export default class BlockManager extends BaseModule {
               this.randomItemPickBasedOnPercentage(
                 this.map[cell.y][cell.x].type
               );
-            // console.log("inLine here!!!! cell", cell, cell.type);
           }
         });
       }
@@ -356,7 +329,6 @@ export default class BlockManager extends BaseModule {
               this.randomItemPickBasedOnPercentage(
                 this.map[cell.y][cell.x].type
               );
-            // console.log("inLine here!!!! cell", cell, cell.type);
           }
         });
       }
@@ -367,7 +339,6 @@ export default class BlockManager extends BaseModule {
               this.randomItemPickBasedOnPercentage(
                 this.map[cell.y][cell.x].type
               );
-            // console.log("inLine here!!!! cell", cell, cell.type);
           }
         });
       }
@@ -420,7 +391,6 @@ export default class BlockManager extends BaseModule {
               this.randomItemPickBasedOnPercentage(
                 this.map[cell.y][cell.x].type
               );
-            // console.log("inLine here!!!! cell", cell, cell.type);
           }
         });
       }
@@ -431,7 +401,6 @@ export default class BlockManager extends BaseModule {
               this.randomItemPickBasedOnPercentage(
                 this.map[cell.y][cell.x].type
               );
-            // console.log("inLine here!!!! cell", cell, cell.type);
           }
         });
       }
@@ -442,7 +411,6 @@ export default class BlockManager extends BaseModule {
               this.randomItemPickBasedOnPercentage(
                 this.map[cell.y][cell.x].type
               );
-            // console.log("inLine here!!!! cell", cell, cell.type);
           }
         });
       }
@@ -453,7 +421,6 @@ export default class BlockManager extends BaseModule {
               this.randomItemPickBasedOnPercentage(
                 this.map[cell.y][cell.x].type
               );
-            // console.log("inLine here!!!! cell", cell, cell.type);
           }
         });
       }
@@ -506,7 +473,6 @@ export default class BlockManager extends BaseModule {
               this.randomItemPickBasedOnPercentage(
                 this.map[cell.y][cell.x].type
               );
-            // console.log("inLine here!!!! cell", cell, cell.type);
           }
         });
       }
@@ -517,7 +483,6 @@ export default class BlockManager extends BaseModule {
               this.randomItemPickBasedOnPercentage(
                 this.map[cell.y][cell.x].type
               );
-            // console.log("inLine here!!!! cell", cell, cell.type);
           }
         });
       }
@@ -528,7 +493,6 @@ export default class BlockManager extends BaseModule {
               this.randomItemPickBasedOnPercentage(
                 this.map[cell.y][cell.x].type
               );
-            // console.log("inLine here!!!! cell", cell, cell.type);
           }
         });
       }
@@ -539,7 +503,6 @@ export default class BlockManager extends BaseModule {
               this.randomItemPickBasedOnPercentage(
                 this.map[cell.y][cell.x].type
               );
-            // console.log("inLine here!!!! cell", cell, cell.type);
           }
         });
       }
@@ -592,7 +555,6 @@ export default class BlockManager extends BaseModule {
               this.randomItemPickBasedOnPercentage(
                 this.map[cell.y][cell.x].type
               );
-            // console.log("inLine here!!!! cell", cell, cell.type);
           }
         });
       }
@@ -603,7 +565,6 @@ export default class BlockManager extends BaseModule {
               this.randomItemPickBasedOnPercentage(
                 this.map[cell.y][cell.x].type
               );
-            // console.log("inLine here!!!! cell", cell, cell.type);
           }
         });
       }
@@ -614,7 +575,6 @@ export default class BlockManager extends BaseModule {
               this.randomItemPickBasedOnPercentage(
                 this.map[cell.y][cell.x].type
               );
-            // console.log("inLine here!!!! cell", cell, cell.type);
           }
         });
       }
@@ -625,7 +585,6 @@ export default class BlockManager extends BaseModule {
               this.randomItemPickBasedOnPercentage(
                 this.map[cell.y][cell.x].type
               );
-            // console.log("inLine here!!!! cell", cell, cell.type);
           }
         });
       }
@@ -741,8 +700,7 @@ export default class BlockManager extends BaseModule {
       if (dstCell.type === "horizon") {
         const temp: Cell[] = [];
         for (const cell of this.map.flat(1)) {
-          if (srcCell.type === cell.type) {
-            // this.horizonPangAndAutoFill(cell.x, cell.y);
+          if (srcCell.originType === cell.originType) {
             temp.push(...this.horizonPang(cell.x, cell.y));
           }
         }
@@ -758,8 +716,7 @@ export default class BlockManager extends BaseModule {
       if (dstCell.type === "vertical") {
         const temp: Cell[] = [];
         for (const cell of this.map.flat(1)) {
-          if (srcCell.type === cell.type) {
-            // this.verticalPangAndAutoFill(cell.x, cell.y);
+          if (srcCell.originType === cell.originType) {
             temp.push(...this.verticalPang(cell.x, cell.y));
           }
         }
@@ -775,8 +732,7 @@ export default class BlockManager extends BaseModule {
       if (dstCell.type === "all") {
         const temp: Cell[] = [];
         for (const cell of this.map.flat(1)) {
-          if (srcCell.type === cell.type) {
-            // this.allPangAndAutoFill(cell.x, cell.y);
+          if (srcCell.originType === cell.originType) {
             temp.push(...this.allPang(cell.x, cell.y));
           }
         }
@@ -802,13 +758,6 @@ export default class BlockManager extends BaseModule {
       .dir("swapBothCell")
       .dir("dest")
       .debug("get both cell in this.map", this.map[dstCell?.y]?.[dstCell?.x]);
-
-    // if (srcCell.checkTypeItem()) {
-    //   return false;
-    // }
-    // if (dstCell.checkTypeItem()) {
-    //   return false;
-    // }
 
     if (
       !this.map[srcCell?.y]?.[srcCell?.x] ||
@@ -875,21 +824,13 @@ export default class BlockManager extends BaseModule {
   }
 
   async swapBothCellAndFill(srcCell: Cell, dstCell: Cell) {
-    // let resolver: (value: unknown) => void;
-    // const promise = new Promise((resolve) => (resolver = resolve));
     const isSwapped = await this.swapBothCell(srcCell, dstCell);
-    // console.log("isSwapped", isSwapped);
     if (!isSwapped) {
       this.logger.dir("swapBothCellAndFill").error("not swapped");
       return false;
     }
 
     await this.searchColumnsAndFillEmptyCell();
-    // setTimeout(() => {
-    //   this.autoPangAndFill().then(() => {
-    //     resolver(true);
-    //   });
-    // }, 100);
     return true;
   }
 
@@ -933,14 +874,12 @@ export default class BlockManager extends BaseModule {
     const columns = this.searchMockColumnsAndFilterPangable(mockMap);
     this.logger.dir("getPangableList").debug("pagable", rows, columns);
     const rowScores = rows.reduce((acc, row) => {
-      // acc += (row?.[0].score || 0) * (row.slice(3)?.length || 0);
       if (row.length > 3) {
         acc += row[0].score * row.slice(3).length;
       }
       return acc;
     }, 0);
     const columnScores = columns.reduce((acc, column) => {
-      // acc += (column?.[0].score || 0) * (column.slice(3)?.length || 0);
       if (column.length > 3) {
         acc += column[0].score * column.slice(3).length;
       }
@@ -959,14 +898,12 @@ export default class BlockManager extends BaseModule {
     const columns = this.searchColumnsAndFilterPangable();
     this.logger.dir("getPangableList").debug("pagable", rows, columns);
     const rowScores = rows.reduce((acc, row) => {
-      // acc += (row?.[0].score || 0) * (row.slice(3)?.length || 0);
       if (row.length > 3) {
         acc += row[0].score * row.slice(3).length;
       }
       return acc;
     }, 0);
     const columnScores = columns.reduce((acc, column) => {
-      // acc += (column?.[0].score || 0) * (column.slice(3)?.length || 0);
       if (column.length > 3) {
         acc += column[0].score * column.slice(3).length;
       }
@@ -981,7 +918,6 @@ export default class BlockManager extends BaseModule {
   }
 
   mockingPangableColumnLines() {
-    // this.logger.dir("mockingPangableLines").debug("here");
     const mockMap = this.mockingMap();
     const isSuccess: Cell[][] = [];
 
@@ -992,27 +928,16 @@ export default class BlockManager extends BaseModule {
           row[Number(column)],
           row[Number(column) + 1]
         );
-        // console.log(src.type, src.x, src.y, "/", dst.type, dst.x, dst.y);
         const pangableColumns = this.searchMockColumnsAndFilterPangable(
           mockMap
         ).map((group) =>
           group.map((cell) => {
             const isSameSrc = Cell.is(src, cell);
             const isSameDst = Cell.is(dst, cell);
-            // this.logger
-            //   .dir("mockingPangableLines")
-            //   .dir("columns")
-            //   .debug("isSameSrc", isSameSrc);
-            // this.logger
-            //   .dir("mockingPangableLines")
-            //   .dir("columns")
-            //   .debug("isSameSrc", isSameDst);
             if (isSameSrc) {
-              // this.logger.dir("mockingPangableLines").dir("columns").debug(src);
               return dst;
             }
             if (isSameDst) {
-              // this.logger.dir("mockingPangableLines").dir("columns").debug(dst);
               return src;
             }
             return cell.deepCopySelf();
@@ -1023,20 +948,10 @@ export default class BlockManager extends BaseModule {
             group.map((cell) => {
               const isSameSrc = Cell.is(src, cell);
               const isSameDst = Cell.is(dst, cell);
-              // this.logger
-              //   .dir("mockingPangableLines")
-              //   .dir("rows")
-              //   .debug("isSameSrc", isSameSrc);
-              // this.logger
-              //   .dir("mockingPangableLines")
-              //   .dir("rows")
-              //   .debug("isSameSrc", isSameDst);
               if (isSameSrc) {
-                // this.logger.dir("mockingPangableLines").dir("rows").debug(src);
                 return dst;
               }
               if (isSameDst) {
-                // this.logger.dir("mockingPangableLines").dir("rows").debug(dst);
                 return src;
               }
               return cell.deepCopySelf();
@@ -1046,11 +961,6 @@ export default class BlockManager extends BaseModule {
 
         const removeDup = [...pangableColumns, ...pangableRows];
         if (removeDup.length > 0) {
-          // removeDup.forEach((group) =>
-          //   group.forEach((cell) => {
-          //     this.map[cell.y][cell.x].isInfo = true;
-          //   })
-          // );
           isSuccess.push(...removeDup);
         }
       }
@@ -1059,7 +969,6 @@ export default class BlockManager extends BaseModule {
     return isSuccess;
   }
   mockingPangableRowLines() {
-    // this.logger.dir("mockingPangableLines").debug("here");
     const mockMap = this.mockingMap();
     const isSuccess: Cell[][] = [];
 
@@ -1079,20 +988,10 @@ export default class BlockManager extends BaseModule {
           group.map((cell) => {
             const isSameSrc = Cell.is(src, cell);
             const isSameDst = Cell.is(dst, cell);
-            // this.logger
-            //   .dir("mockingPangableLines")
-            //   .dir("columns")
-            //   .debug("isSameSrc", isSameSrc);
-            // this.logger
-            //   .dir("mockingPangableLines")
-            //   .dir("columns")
-            //   .debug("isSameSrc", isSameDst);
             if (isSameSrc) {
-              // this.logger.dir("mockingPangableLines").dir("columns").debug(src);
               return dst;
             }
             if (isSameDst) {
-              // this.logger.dir("mockingPangableLines").dir("columns").debug(dst);
               return src;
             }
             return cell.deepCopySelf();
@@ -1103,20 +1002,10 @@ export default class BlockManager extends BaseModule {
             group.map((cell) => {
               const isSameSrc = Cell.is(src, cell);
               const isSameDst = Cell.is(dst, cell);
-              // this.logger
-              //   .dir("mockingPangableLines")
-              //   .dir("rows")
-              //   .debug("isSameSrc", isSameSrc);
-              // this.logger
-              //   .dir("mockingPangableLines")
-              //   .dir("rows")
-              //   .debug("isSameSrc", isSameDst);
               if (isSameSrc) {
-                // this.logger.dir("mockingPangableLines").dir("rows").debug(src);
                 return dst;
               }
               if (isSameDst) {
-                // this.logger.dir("mockingPangableLines").dir("rows").debug(dst);
                 return src;
               }
               return cell.deepCopySelf();
@@ -1124,15 +1013,8 @@ export default class BlockManager extends BaseModule {
         );
         this.mockRevertSwap(mockMap, src, dst);
 
-        // console.log(pangableColumns, pangableRows);
-
         const removeDup = [...new Set([...pangableColumns, ...pangableRows])];
         if (removeDup.length > 0) {
-          // removeDup.forEach((group) =>
-          //   group.forEach((cell) => {
-          //     this.map[cell.y][cell.x].isInfo = true;
-          //   })
-          // );
           isSuccess.push(...removeDup);
         }
       }
@@ -1206,10 +1088,8 @@ export default class BlockManager extends BaseModule {
         temp.push(...this.horizonPang(cell.x, cell.y));
       }
       if (cell.type === "all") {
-        // console.log("all type detect", cell.type);
         temp.push(...this.allPang(cell.x, cell.y));
       }
-      // console.log("type detect", cell.type);
       temp.push(cell);
     });
     return temp;
@@ -1223,10 +1103,8 @@ export default class BlockManager extends BaseModule {
         temp.push(...this.verticalPang(cell.x, cell.y));
       }
       if (cell.type === "all") {
-        // console.log("all type detect", cell.type);
         temp.push(...this.allPang(cell.x, cell.y));
       }
-      // console.log("type detect", cell.type);
       temp.push(cell);
     });
     return temp;
@@ -1286,7 +1164,6 @@ export default class BlockManager extends BaseModule {
     }
 
     const pangableList = this.getPangableList();
-    // const tempType: string[] = [];
     pangableList.forEach((cell) => {
       if (!cell.checkTypeItem()) {
         this.animalsPang[cell.type] += 1;
@@ -1296,8 +1173,6 @@ export default class BlockManager extends BaseModule {
       }
     });
     await this.searchEmptyColumnsAndFill();
-    // await this.searchColumnsAndFillEmptyCell();
-    // console.log("searchEmptyColumnsAndFill done???");
     const isDone = this.getPangableList().length === 0;
     this.logger.dir("autoPangAndFill").log("isDone", isDone);
     if (!isDone) {
@@ -1376,9 +1251,8 @@ export default class BlockManager extends BaseModule {
     });
 
     await this.searchEmptyColumnsAndFill();
-    // await this.searchColumnsAndFillEmptyCell();
-    // console.log("searchEmptyColumnsAndFill done???");
     const isDone = this.getPangableList().length === 0;
+    // 3~ 라인
     this.logger.dir("autoPangAndFill").log("isDone", isDone);
 
     if (loop && !isDone) {
@@ -1441,25 +1315,14 @@ export default class BlockManager extends BaseModule {
 
   // new logic 2023-09-16 17:49:40
   async searchEmptyColumnsAndFill() {
-    let resolver: (value: boolean) => void;
-    const promise = new Promise((resolve) => (resolver = resolve));
     const promises: Promise<Cell[]>[] = [];
 
     for (let index = 0; index < OPTIONS.WIDTH.GAME.X; index++) {
-      // promises.push(this.columnFillNewAnimals(index));
       promises.push(this.fillColumn(index));
     }
 
     // 전체열 병렬 처리(처럼)하기 위함.
     return await Promise.all(promises);
-
-    return promise;
-
-    // return true;
-
-    // console.log(this.getColumnLine(1));
-    // console.log(animalCells);
-    // console.log(newCellsLine);
   }
 
   fillColumn(index: number) {
@@ -1478,10 +1341,7 @@ export default class BlockManager extends BaseModule {
         new Promise((resolve) => {
           cell.moveY(idxx).then(() => {
             cell.y = idxx;
-            // console.log(cell, index);
             resolve(cell);
-            // if (cell === newCellsLine[newCellsLine.length - 1]) {
-            // }
           });
         })
       );
@@ -1491,10 +1351,6 @@ export default class BlockManager extends BaseModule {
 
   // all cell filter pangable by rows
   searchMockRowsAndFilterPangable(mockMap: Cell[][], round: number = 2) {
-    // this.logger
-    //   .dir("searchRowsAndFilterPangable")
-    //   .debug("check row cells is pangable");
-
     const rowTemp: Cell[][] = [];
     for (const row of mockMap) {
       for (const cell of row) {
@@ -1516,16 +1372,11 @@ export default class BlockManager extends BaseModule {
       rowTemp.push([]);
     }
     const getPangRows = rowTemp.filter((row) => row.length > round);
-    // this.logger.dir("searchRowsAndFilterPangable").debug(getPangRows);
     return getPangRows;
   }
 
   // all cell filter pangable by columns
   searchMockColumnsAndFilterPangable(mockMap: Cell[][], round: number = 2) {
-    // this.logger
-    //   .dir("searchColumnsAndFilterPangable")
-    //   .debug("check column cells is pangable");
-
     const columnTemp: Cell[][] = [];
     for (let index = 0; index < OPTIONS.WIDTH.GAME.X; index++) {
       const columns = this.getMockColumnLine(mockMap, index);
@@ -1550,16 +1401,11 @@ export default class BlockManager extends BaseModule {
     }
 
     const getPangColumns = columnTemp.filter((column) => column.length > round);
-    // this.logger.dir("searchColumnsAndFilterPangable").debug(getPangColumns);
     return getPangColumns;
   }
 
   // all cell filter pangable by rows
   searchRowsAndFilterPangable(round: number = 2) {
-    // this.logger
-    //   .dir("searchRowsAndFilterPangable")
-    //   .debug("check row cells is pangable");
-
     const rowTemp: Cell[][] = [];
     for (const row of this.map) {
       for (const cell of row) {
@@ -1581,16 +1427,17 @@ export default class BlockManager extends BaseModule {
       rowTemp.push([]);
     }
     const getPangRows = rowTemp.filter((row) => row.length > round);
-    // this.logger.dir("searchRowsAndFilterPangable").debug(getPangRows);
-    return getPangRows;
+
+    return getPangRows.filter(
+      (group) =>
+        // item stack score loop 방지
+        !group[0].checkTypeItem() &&
+        group.every((gp) => gp.type === group[0].type)
+    );
   }
 
   // all cell filter pangable by columns
   searchColumnsAndFilterPangable(round: number = 2) {
-    // this.logger
-    //   .dir("searchColumnsAndFilterPangable")
-    //   .debug("check column cells is pangable");
-
     const columnTemp: Cell[][] = [];
     for (let index = 0; index < OPTIONS.WIDTH.GAME.X; index++) {
       const columns = this.getColumnLine(index);
@@ -1608,15 +1455,18 @@ export default class BlockManager extends BaseModule {
           columnTemp.push([]);
         }
 
-        // if (!cell.type.match(/^(vertical|horizon|all)$/g))
         columnTemp[columnTemp.length - 1].push(cell);
       }
       columnTemp.push([]);
     }
 
     const getPangColumns = columnTemp.filter((column) => column.length > round);
-    // this.logger.dir("searchColumnsAndFilterPangable").debug(getPangColumns);
-    return getPangColumns;
+    return getPangColumns.filter(
+      (group) =>
+        // item stack score loop 방지
+        !group[0].checkTypeItem() &&
+        group.every((gp) => gp.type === group[0].type)
+    );
   }
 
   async searchColumnsAndFillEmptyCell() {
@@ -1633,10 +1483,6 @@ export default class BlockManager extends BaseModule {
 
     const isDone = this.map.flat(1).every((cell) => cell.type !== "");
 
-    // if (!isDone) {
-    //   return await this.searchColumnsAndFillEmptyCell();
-    // }
-
     return isDone;
   }
 
@@ -1644,9 +1490,7 @@ export default class BlockManager extends BaseModule {
     const yValue = OPTIONS.WIDTH.GAME.Y - 1;
     const [startPoint, emptyAmount] = this.getEmptyStartPointAndAmount(x);
 
-    // const columnLine = this.getColumnLineFromStartPoint(x, startPoint);
     const columnLine = this.getColumnLine(x);
-    // console.log(columnLine);
     const filterCells = this.filterEmptyCell(columnLine);
     const concatOriginAndNewCells = this.fillNewCells(
       filterCells,
@@ -1686,10 +1530,6 @@ export default class BlockManager extends BaseModule {
 
     return Promise.all(promiseTemp);
     /* fill column animation */
-
-    // this.logger
-    //   .dir("columnFillNewAnimals")
-    //   .debug("concatOriginAndNewCells", concatOriginAndNewCells);
   }
 
   findEmptyCell(cells: Cell[]) {
@@ -1701,44 +1541,17 @@ export default class BlockManager extends BaseModule {
   }
 
   fillNewCells(origin: Cell[], emptyAmount: number, x: number) {
-    // let resolver: (value: Cell[]) => void;
-    // const promise: Promise<Cell[]> = new Promise(
-    //   (resolve) => (resolver = resolve)
-    // );
-    // this.logger
-    //   .dir("searchColumnsAndFillEmptyCell")
-    //   .dir("columnFillNewAnimals")
-    //   .dir("fillNewCells")
-    //   .debug(origin, startPoint, emptyAmount);
-    // tempStartPoint 이게 사용되려나?
-    // const startPoint = origin[0].y;
     const tempEmptyAmount = emptyAmount;
 
     const temp: Cell[] = origin.map((cell) => {
       const copyCell = cell.deepCopySelf();
-      // OPTIONS.WIDTH.GAME.Y - copyCell.y
-      // copyCell.y += emptyAmount;
 
       return copyCell;
     });
 
     for (let index = 1; index <= tempEmptyAmount; index++) {
-      const [type, score] = this.getRandomCellTypeMoreThanLessAnimalInMap();
-      // const item = this.randomItemPickBasedOnPercentage();
-      // this.logger.dir("fillNewCells").debug("item", item);
-      const copyCell = new Cell(
-        // item === "none" ? type : item,
-        type,
-        x,
-        1 - index - 1,
-        score
-      );
-      // this.logger
-      //   .dir("searchColumnsAndFillEmptyCell")
-      //   .dir("columnFillNewAnimals")
-      //   .dir("fillNewCells")
-      //   .dir("for loop")
-      //   .debug(copyCell);
+      const [type, score] = this.getRandomCellType();
+      const copyCell = new Cell(type, x, 1 - index - 1, score);
       temp.unshift(copyCell);
     }
     return temp;

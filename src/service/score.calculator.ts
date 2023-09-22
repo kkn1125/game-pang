@@ -1,4 +1,4 @@
-import { isMobile, OPTIONS, scoreCtx, wait } from "@src/util/global";
+import { isMobile, OPTIONS, scoreCtx } from "@src/util/global";
 import Logger from "@src/util/logger";
 import BaseModule from "./base.moudle";
 

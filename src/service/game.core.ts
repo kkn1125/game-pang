@@ -7,7 +7,6 @@ import {
   effectCtx,
   gameCanvas,
   gameCtx,
-  OPTIONS,
   questCanvas,
   questCtx,
   RESPONSIVE_UNIT_SIZE,
@@ -167,9 +166,6 @@ export default class GameCore extends BaseModule {
     this.gameEnd = false;
     this.pointer.gameEnd = false;
     this.blockManager.gameEnd = false;
-    // this.stopRender();
-    // this.initialize();
-    // this.render();
     const map = await this.blockManager.initialize(force);
     this.mapGenerator.initialize(map);
     this.resetScore();
@@ -219,16 +215,10 @@ export default class GameCore extends BaseModule {
   async handleNewGame(e: MouseEvent) {
     const target = e.target as HTMLButtonElement;
 
-    if (
-      // wait.length > 0 &&
-      target &&
-      target.id.match(/^(newGame|restartGame)/)
-    ) {
+    if (target && target.id.match(/^(newGame|restartGame)/)) {
       await this.newGame(true);
       this.gameEnd = false;
       window.removeEventListener("click", this.handleNewGame.bind(this));
-      // target.parentElement?.parentElement?.remove();
-      // console.log(target);
       wait.splice(0);
       setTimeout(() => {
         document.querySelectorAll("#modal").forEach((modal) => modal.remove());
@@ -236,13 +226,9 @@ export default class GameCore extends BaseModule {
     } else if (target && target.id === "refreshGame") {
       document.querySelectorAll("#modal").forEach((modal) => modal.remove());
       await this.refreshGame(true);
-      // wait.splice(0);
     } else if (target && target.id === "hintingGame") {
       await this.showHint();
     } else if (target && target.id === "modal-close") {
-      // this.newGame();
-      // window.removeEventListener("click", this.handleNewGame.bind(this));
-      // wait.splice(0);
       document.querySelectorAll("#modal").forEach((modal) => modal.remove());
     }
   }
@@ -363,12 +349,6 @@ export default class GameCore extends BaseModule {
     const milliseconds = time;
     time *= 0.001;
 
-    // if (Math.floor(milliseconds) % 60 === 0) {
-    // timer zone
-    // this.renderPerSecond.call(this);
-    // console.log("map check", this.blockManager.map);
-    // }
-    // console.log(wait, this.gameEnd, this.scoreCalculator.turn);
     if (wait.length === 0 && !this.gameEnd && this.scoreCalculator.turn === 0) {
       wait.push(0);
       this.gameEnd = true;
@@ -380,14 +360,7 @@ export default class GameCore extends BaseModule {
     }
 
     if (Math.floor(time) !== this.seek) {
-      // console.log(
-      //   "this.blockManager.animalsPang",
-      //   this.blockManager.animalsPang
-      // );
-      // console.log(
-      //   "this.questManager.animalsPang",
-      //   this.questManager.animalsPang
-      // );
+      //
     }
 
     this.scoreCalculator.render();

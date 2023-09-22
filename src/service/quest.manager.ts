@@ -116,7 +116,6 @@ export default class QuestManager {
     const quests = this.quests.filter((quest) => quest.condition.type === type);
     this.logger.dir("questAmountUp").debug(type);
     quests.forEach((quest) => {
-      // console.log(quest);
       quest.currentAmount += 1;
     });
   }

@@ -138,7 +138,6 @@ export default class Pointer extends BaseModule {
               if (isBoundary) {
                 this.dependency.scoreCalculator?.divideCombo();
               }
-              // console.log(this.swapTemp);
               const first =
                 this.dependency.blockManager.map?.[this.swapTemp[0]?.y]?.[
                   this.swapTemp?.[0]?.x
@@ -164,7 +163,6 @@ export default class Pointer extends BaseModule {
             return;
           }
 
-          // this.dependency.scoreCalculator?.countUpCombo();
           await this.dependency.blockManager.autoPangAndFill();
           this.logger.dir("clickCell").debug("release??");
           // release
@@ -201,14 +199,13 @@ export default class Pointer extends BaseModule {
       const cell = this.getCellInfo(resX, resY);
       this.grab = cell;
       if (cell) {
-        // document.body.style.cursor = "pointer";
+        //
       }
       if (!this.grab.isHover) {
         this.grab.isHover = true;
       }
     } catch (error) {
       this.grab = null;
-      // document.body.style.cursor = "inherit";
     }
   }
 
