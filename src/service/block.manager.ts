@@ -145,7 +145,7 @@ export default class BlockManager extends BaseModule {
   randomItemPickBasedOnPercentage(defaultType: string) {
     const randomValue = Math.random() * 100;
     let runningSum = 0;
-    let choice = Object.keys(RANDOM_ITEM).filter((q) => q !== "all")[
+    let choice = Object.keys(RANDOM_ITEM)/* .filter((q) => q !== "all") */[
       Math.floor(Math.random() * 2)
     ];
     for (let i = 0; i < Object.keys(RANDOM_ITEM).length; i++) {
@@ -156,6 +156,7 @@ export default class BlockManager extends BaseModule {
         break;
       }
     }
+    this.logger.dir('randomItemPickBasedOnPercentage').debug(choice)
     return choice;
   }
 

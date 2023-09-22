@@ -270,7 +270,7 @@ export const TestCase2 = [
 ];
 
 export const RANDOM_ITEM = {
-  all: 0.01,
+  all: 0.1,
   horizon: 1,
   vertical: 1,
   // none: 90,
