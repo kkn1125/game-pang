@@ -696,6 +696,44 @@ export default class BlockManager extends BaseModule {
   }
 
   async swapBothCell(srcCell: Cell, dstCell: Cell) {
+    this.logger.dir("swapBothCell").debug("before swap both cell:", this.map);
+    this.logger
+      .dir("swapBothCell")
+      .dir("src")
+      .debug("get both cell in this.map", this.map[srcCell?.y]?.[srcCell?.x]);
+    this.logger
+      .dir("swapBothCell")
+      .dir("dest")
+      .debug("get both cell in this.map", this.map[dstCell?.y]?.[dstCell?.x]);
+
+    if (
+      !this.map[srcCell?.y]?.[srcCell?.x] ||
+      !this.map[dstCell?.y]?.[dstCell?.x]
+    ) {
+      return false;
+    }
+
+    try {
+      const isBoundary = this.isInBoundary(srcCell, dstCell);
+
+      if (!isBoundary) return false;
+    } catch (error) {
+      console.error(error);
+      return false;
+    }
+
+    const swapDirection = srcCell.getDirectionWith(dstCell);
+    if (swapDirection === null) return false;
+
+    this.logger.dir("swapBothCell").log(swapDirection);
+
+    const swapResult = await srcCell.swapEffect(dstCell, swapDirection);
+    if (!swapResult) {
+      this.logger.dir("swapBothCell").error("swap error");
+    }
+
+    this.logger.dir("swapBothCell").debug("success swapEffect.");
+
     if (dstCell.checkTypeItem()) {
       if (dstCell.type === "horizon") {
         const temp: Cell[] = [];
@@ -749,44 +787,6 @@ export default class BlockManager extends BaseModule {
       return true;
     }
 
-    this.logger.dir("swapBothCell").debug("before swap both cell:", this.map);
-    this.logger
-      .dir("swapBothCell")
-      .dir("src")
-      .debug("get both cell in this.map", this.map[srcCell?.y]?.[srcCell?.x]);
-    this.logger
-      .dir("swapBothCell")
-      .dir("dest")
-      .debug("get both cell in this.map", this.map[dstCell?.y]?.[dstCell?.x]);
-
-    if (
-      !this.map[srcCell?.y]?.[srcCell?.x] ||
-      !this.map[dstCell?.y]?.[dstCell?.x]
-    ) {
-      return false;
-    }
-
-    try {
-      const isBoundary = this.isInBoundary(srcCell, dstCell);
-
-      if (!isBoundary) return false;
-    } catch (error) {
-      console.error(error);
-      return false;
-    }
-
-    const swapDirection = srcCell.getDirectionWith(dstCell);
-    if (swapDirection === null) return false;
-
-    this.logger.dir("swapBothCell").log(swapDirection);
-
-    const swapResult = await srcCell.swapEffect(dstCell, swapDirection);
-    if (!swapResult) {
-      this.logger.dir("swapBothCell").error("swap error");
-    }
-
-    this.logger.dir("swapBothCell").debug("success swapEffect.");
-
     const destCopyCell = Cell.copy(dstCell, srcCell);
     const srcCopyCell = Cell.copy(srcCell, dstCell);
     this.map[srcCell.y][srcCell.x] = destCopyCell;
@@ -825,6 +825,7 @@ export default class BlockManager extends BaseModule {
 
   async swapBothCellAndFill(srcCell: Cell, dstCell: Cell) {
     const isSwapped = await this.swapBothCell(srcCell, dstCell);
+
     if (!isSwapped) {
       this.logger.dir("swapBothCellAndFill").error("not swapped");
       return false;
