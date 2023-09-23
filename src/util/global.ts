@@ -269,12 +269,17 @@ export const TestCase2 = [
   ["dog", "cat", "lion", "mouse", "dog", "lion", "cat", "racoon", "cat"],
 ];
 
-export const RANDOM_ITEM = {
-  all: 0.1,
-  horizon: 1,
-  vertical: 1,
-  // none: 90,
-};
+export const RANDOM_ITEM = [
+  { item: "all", probability: 0.25 },
+  { item: "horizon", probability: 0.3 },
+  { item: "vertical", probability: 0.3 },
+];
+// export const RANDOM_ITEM = {
+//   all: 0.005,
+//   horizon: 1,
+//   vertical: 1,
+//   // none: 90,
+// };
 
 const set3 = (
   obj: {

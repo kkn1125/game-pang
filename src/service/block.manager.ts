@@ -136,28 +136,52 @@ export default class BlockManager extends BaseModule {
     return onlyAnimals[randomTypeIndex];
   }
 
-  randomItem() {
-    const itemKeys = Object.keys(RANDOM_ITEM).filter((item) => item !== "none");
-    const randomIndex = Math.floor(Math.random() * itemKeys.length);
-    return itemKeys[randomIndex];
-  }
+  // randomItem() {
+  //   const itemKeys = Object.keys(RANDOM_ITEM).filter((item) => item !== "none");
+  //   const randomIndex = Math.floor(Math.random() * itemKeys.length);
+  //   return itemKeys[randomIndex];
+  // }
 
   randomItemPickBasedOnPercentage(defaultType: string) {
-    const randomValue = Math.random() * 100;
-    let runningSum = 0;
-    let choice = Object.keys(RANDOM_ITEM)/* .filter((q) => q !== "all") */[
-      Math.floor(Math.random() * 2)
+    const choice = RANDOM_ITEM.filter((q) => q.item !== "all")[
+      Math.floor(Math.random() * (RANDOM_ITEM.length - 1))
     ];
-    for (let i = 0; i < Object.keys(RANDOM_ITEM).length; i++) {
-      runningSum += Object.values(RANDOM_ITEM)[i];
+    this.logger.dir("randomItemPickBasedOnPercentage").debug(choice);
 
-      if (randomValue <= runningSum) {
-        choice = Object.keys(RANDOM_ITEM)[i];
-        break;
+    // Define the item probabilities
+    const itemProbabilities = RANDOM_ITEM;
+
+    const randomValue = Math.random();
+
+    // Initialize cumulative probability
+    let cumulativeProbability = 0;
+
+    // Iterate through item probabilities and select an item based on probability
+    for (const itemInfo of itemProbabilities) {
+      cumulativeProbability += itemInfo.probability;
+      if (randomValue <= cumulativeProbability) {
+        return itemInfo.item;
       }
     }
-    this.logger.dir('randomItemPickBasedOnPercentage').debug(choice)
-    return choice;
+
+    // Return a default item if no item is selected (this should not happen)
+    return choice.item;
+
+    // const randomValue = Math.random() * 100;
+    // let runningSum = 0;
+    // let choice = Object.keys(RANDOM_ITEM).filter((q) => q !== "all")[
+    //   Math.floor(Math.random() * 2)
+    // ];
+    // for (let i = 0; i < Object.keys(RANDOM_ITEM).length; i++) {
+    //   runningSum += Object.values(RANDOM_ITEM)[i];
+
+    //   if (randomValue <= runningSum) {
+    //     choice = Object.keys(RANDOM_ITEM)[i];
+    //     break;
+    //   }
+    // }
+    // this.logger.dir("randomItemPickBasedOnPercentage").debug(choice);
+    // return choice;
   }
 
   getRandomCellTypeMoreThanLessAnimalInMap() {
@@ -737,13 +761,16 @@ export default class BlockManager extends BaseModule {
 
     if (dstCell.checkTypeItem()) {
       if (dstCell.type === "horizon") {
+        dstCell.type = "";
         const temp: Cell[] = [];
         for (const cell of this.map.flat(1)) {
           if (srcCell.originType === cell.originType) {
             temp.push(...this.horizonPang(cell.x, cell.y));
           }
         }
-        temp.forEach((cell) => {
+        const removeDuplicated = [...new Set(temp)];
+        this.logger.dir("swapBothCell").dir("horizon").debug(removeDuplicated);
+        removeDuplicated.forEach((cell) => {
           this.animalsPang[cell.originType] += 1;
           this.questManager.questAmountUp(cell.originType);
           cell.pang();
@@ -754,12 +781,15 @@ export default class BlockManager extends BaseModule {
       }
       if (dstCell.type === "vertical") {
         const temp: Cell[] = [];
+        dstCell.type = "";
         for (const cell of this.map.flat(1)) {
           if (srcCell.originType === cell.originType) {
             temp.push(...this.verticalPang(cell.x, cell.y));
           }
         }
-        temp.forEach((cell) => {
+        const removeDuplicated = [...new Set(temp)];
+        this.logger.dir("swapBothCell").dir("vertical").debug(removeDuplicated);
+        removeDuplicated.forEach((cell) => {
           this.animalsPang[cell.originType] += 1;
           this.questManager.questAmountUp(cell.originType);
           cell.pang();
@@ -770,12 +800,15 @@ export default class BlockManager extends BaseModule {
       }
       if (dstCell.type === "all") {
         const temp: Cell[] = [];
+        dstCell.type = "";
         for (const cell of this.map.flat(1)) {
           if (srcCell.originType === cell.originType) {
             temp.push(...this.allPang(cell.x, cell.y));
           }
         }
-        temp.forEach((cell) => {
+        const removeDuplicated = [...new Set(temp)];
+        this.logger.dir("swapBothCell").dir("all").debug(removeDuplicated);
+        removeDuplicated.forEach((cell) => {
           this.animalsPang[cell.originType] += 1;
           this.questManager.questAmountUp(cell.originType);
           cell.pang();
@@ -1115,7 +1148,9 @@ export default class BlockManager extends BaseModule {
   async allPangAndAutoFill(x: number, y: number) {
     this.scoreCalculator.turnCount();
     const temp = this.allPang(x, y);
-    temp.forEach((cell) => {
+    const removeDuplicated = [...new Set(temp)];
+    this.logger.dir("allPangAndAutoFill").debug(removeDuplicated);
+    removeDuplicated.forEach((cell) => {
       this.animalsPang[cell.type] += 1;
       this.questManager.questAmountUp(cell.type);
       cell.pang();
@@ -1129,7 +1164,9 @@ export default class BlockManager extends BaseModule {
   async verticalPangAndAutoFill(x: number, y: number) {
     this.scoreCalculator.turnCount();
     const temp = this.verticalPang(x, y);
-    temp.forEach((cell) => {
+    const removeDuplicated = [...new Set(temp)];
+    this.logger.dir("verticalPangAndAutoFill").debug(removeDuplicated);
+    removeDuplicated.forEach((cell) => {
       this.animalsPang[cell.type] += 1;
       this.questManager.questAmountUp(cell.type);
       cell.pang();
@@ -1144,7 +1181,9 @@ export default class BlockManager extends BaseModule {
   async horizonPangAndAutoFill(x: number, y: number) {
     this.scoreCalculator.turnCount();
     const temp = this.horizonPang(x, y);
-    temp.forEach((cell) => {
+    const removeDuplicated = [...new Set(temp)];
+    this.logger.dir("horizonPangAndAutoFill").debug(removeDuplicated);
+    removeDuplicated.forEach((cell) => {
       this.animalsPang[cell.type] += 1;
       this.questManager.questAmountUp(cell.type);
       cell.pang();
@@ -1253,6 +1292,7 @@ export default class BlockManager extends BaseModule {
     });
 
     await this.searchEmptyColumnsAndFill();
+
     const isDone = this.getPangableList().length === 0;
     // 3~ 라인
     this.logger.dir("autoPangAndFill").log("isDone", isDone);
