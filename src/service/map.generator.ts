@@ -2,13 +2,14 @@ import Cell from "@src/model/cell";
 import {
   bgCtx,
   BG_COLOR,
+  CELL_OUTLINE_COLOR,
   effectCtx,
   OPTIONS,
   RESPONSIVE_UNIT_SIZE,
 } from "@src/util/global";
 import Logger from "@src/util/logger";
 import { responseBlockAxis } from "@src/util/tool";
-import BaseModule from "./base.moudle";
+import BaseModule from "./base.module";
 
 export default class MapGenerator extends BaseModule {
   // seek: number = 0;
@@ -36,7 +37,7 @@ export default class MapGenerator extends BaseModule {
     bgCtx.fillStyle = BG_COLOR + "b6";
     bgCtx.fillRect(0, 0, innerWidth, innerHeight);
     if (this.mode === "test") {
-      bgCtx.strokeStyle = "#56565626";
+      bgCtx.strokeStyle = CELL_OUTLINE_COLOR + "26";
 
       for (const row of this.map) {
         for (const cell of row) {
@@ -53,7 +54,7 @@ export default class MapGenerator extends BaseModule {
         }
       }
 
-      bgCtx.strokeStyle = "black";
+      bgCtx.strokeStyle = CELL_OUTLINE_COLOR;
     }
 
     effectCtx.fillStyle = BG_COLOR;

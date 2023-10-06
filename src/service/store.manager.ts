@@ -1,5 +1,5 @@
 import Logger from "@src/util/logger";
-import BaseModule from "./base.moudle";
+import BaseModule from "./base.module";
 
 type StoreType = {
   id: number;

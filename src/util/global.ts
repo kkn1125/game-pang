@@ -123,6 +123,7 @@ export const RESPONSIVE_UNIT_SIZE = () =>
   OPTIONS.SIZE.UNIT + SUB_OPTIONS.SIZE.RATIO;
 
 export const BG_COLOR = "#dddddd";
+export const CELL_OUTLINE_COLOR = "#565656";
 
 export const wait: number[] = [];
 

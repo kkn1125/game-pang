@@ -8,7 +8,7 @@ import {
   wait,
 } from "@src/util/global";
 import Logger from "@src/util/logger";
-import BaseModule from "./base.moudle";
+import BaseModule from "./base.module";
 import QuestManager from "./quest.manager";
 import ScoreCalculator from "./score.calculator";
 

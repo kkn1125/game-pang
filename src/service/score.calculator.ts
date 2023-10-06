@@ -1,6 +1,6 @@
 import { isMobile, OPTIONS, scoreCtx } from "@src/util/global";
 import Logger from "@src/util/logger";
-import BaseModule from "./base.moudle";
+import BaseModule from "./base.module";
 
 export default class ScoreCalculator extends BaseModule {
   logger: Logger;

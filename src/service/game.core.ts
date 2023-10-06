@@ -21,7 +21,7 @@ import {
 } from "@src/util/global";
 import Logger from "@src/util/logger";
 import Animator from "./animator";
-import BaseModule from "./base.moudle";
+import BaseModule from "./base.module";
 import BlockManager from "./block.manager";
 import MapGenerator from "./map.generator";
 import Pointer from "./pointer";
