@@ -55,7 +55,11 @@ export default class Pointer extends BaseModule {
     this.logger.dir("clickCell").dir("debug wait").debug("!!!!!!!!wait", wait);
     if (wait.length > 0) {
       this.logger.dir("clickCell").error("current working click event", wait);
-      this.swapTemp = [];
+
+      // 스왑 후 block일 때 계속 클릭하면 스왑 실패 시 돌아오지 않는 버그 원인
+      // 2023-10-07 14:25:19
+
+      // this.swapTemp = [];
       return;
     }
 
@@ -63,8 +67,16 @@ export default class Pointer extends BaseModule {
       this.logger.dir("clickCell").debug(this.grab);
 
       if (this.swapTemp.length < 2) {
-        this.grab.isSelected = true;
+        if (this.swapTemp.length === 0) {
+          wait.push(0);
+          await this.grab.zoomMotion();
+          wait.pop();
+        }
         this.swapTemp.push(this.grab);
+        this.grab.isSelected = true;
+        if (this.swapTemp.length === 2) {
+          this.swapTemp.forEach((cell) => (cell.scale = 1));
+        }
         this.logger.dir("clickCell").log(this.swapTemp);
         this.logger
           .dir("clickCell")
@@ -151,6 +163,7 @@ export default class Pointer extends BaseModule {
 
               // release
               wait.pop();
+              console.log("wait initialize");
 
               this.swapTemp[0] && (this.swapTemp[0].isSelected = false);
               this.swapTemp[1] && (this.swapTemp[1].isSelected = false);
@@ -182,6 +195,14 @@ export default class Pointer extends BaseModule {
       this.logger.dir("clickCell2").debug(this.swapTemp);
     } else {
       this.logger.dir("clickCell").debug("no grab");
+      if (this.swapTemp.length > 0) {
+        this.swapTemp.forEach((cell) => {
+          cell.isHover = false;
+          cell.isSelected = false;
+          cell.scale = 1;
+        });
+        this.swapTemp = [];
+      }
     }
     this.logger
       .dir("clickCell")
@@ -189,6 +210,7 @@ export default class Pointer extends BaseModule {
   }
 
   moveMouse(e: MouseEvent) {
+    if (wait.length > 0) return;
     const x = e.clientX;
     const y = e.clientY;
     const [resX, resY] = responsePointerAxis(x, y);

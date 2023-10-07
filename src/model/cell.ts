@@ -1,4 +1,7 @@
 import {
+  bgCtx,
+  CELL_HOVER_COLOR,
+  CELL_SELECTED_COLOR,
   effectCtx,
   gameCtx,
   images,
@@ -18,6 +21,7 @@ export default class Cell {
   type: string;
   x: number;
   y: number;
+  scale: number;
   matched: boolean;
   isPang: boolean;
   score: number;
@@ -34,6 +38,7 @@ export default class Cell {
     this.type = type;
     this.x = x;
     this.y = y;
+    this.scale = 1;
     this.matched = false;
     this.isPang = false;
     this.score = score;
@@ -135,14 +140,33 @@ export default class Cell {
     return promise;
   }
 
+  scaleUp() {
+    const LIMIT = 1.2;
+    let resolver: (value: unknown) => void;
+    const promise = new Promise((resolve) => (resolver = resolve));
+    const animation = setInterval(() => {
+      this.scale += 5 * OPTIONS.ANIMATION.SPEED ** 2;
+      // console.log(this.scale);
+      if (LIMIT < this.scale) {
+        clearInterval(animation);
+        resolver(true);
+      }
+    }, OPTIONS.ANIMATION.FRAME);
+    return promise;
+  }
+
+  async zoomMotion() {
+    await this.scaleUp();
+  }
+
   swapEffect(target: Cell, direction: string) {
     let resolver: (value: unknown) => void;
     const promise = new Promise((resolve) => (resolver = resolve));
-    const selfX = this.x;
-    const selfY = this.y;
-    const targetX = target.x;
-    const targetY = target.y;
-    let move: number;
+    // const selfX = this.x;
+    // const selfY = this.y;
+    // const targetX = target.x;
+    // const targetY = target.y;
+    // let move: number;
     switch (direction) {
       case "left":
       case "right":
@@ -183,13 +207,21 @@ export default class Cell {
     );
     switch (type) {
       case "hover":
-        selectCtx.fillStyle = "#56565656";
+        bgCtx.fillStyle = CELL_HOVER_COLOR + "56";
         break;
       case "select":
-        selectCtx.fillStyle = "#48c46e56";
+        bgCtx.fillStyle = CELL_SELECTED_COLOR + "56";
         break;
     }
-    selectCtx.fillRect(x, y, RESPONSIVE_UNIT_SIZE(), RESPONSIVE_UNIT_SIZE());
+    bgCtx.beginPath();
+    bgCtx.roundRect(
+      x,
+      y,
+      RESPONSIVE_UNIT_SIZE(),
+      RESPONSIVE_UNIT_SIZE(),
+      15
+    );
+    bgCtx.fill();
   }
 
   checkTypeItem() {
@@ -201,16 +233,24 @@ export default class Cell {
 
   render() {
     const [x, y] = responseBlockAxis(this.x, this.y);
-    const image = images[this.type];
+    const image = images[this.type] as HTMLImageElement;
     if (image) {
       gameCtx.imageSmoothingQuality = "low";
       gameCtx.imageSmoothingEnabled = true;
       gameCtx.drawImage(
         image,
-        Math.floor(this.x * RESPONSIVE_UNIT_SIZE() + Math.floor(x - this.x)),
-        Math.floor(this.y * RESPONSIVE_UNIT_SIZE() + Math.floor(y - this.y)),
-        RESPONSIVE_UNIT_SIZE(),
-        RESPONSIVE_UNIT_SIZE()
+        Math.floor(
+          ((1 - this.scale) * RESPONSIVE_UNIT_SIZE()) / 2 +
+            this.x * RESPONSIVE_UNIT_SIZE() +
+            Math.floor(x - this.x)
+        ),
+        Math.floor(
+          ((1 - this.scale) * RESPONSIVE_UNIT_SIZE()) / 2 +
+            this.y * RESPONSIVE_UNIT_SIZE() +
+            Math.floor(y - this.y)
+        ),
+        RESPONSIVE_UNIT_SIZE() * this.scale,
+        RESPONSIVE_UNIT_SIZE() * this.scale
       );
       if (this.isInfo) {
         selectCtx.fillStyle = "green";
@@ -295,6 +335,22 @@ export default class Cell {
 
     if (this.isSelected) {
       this.highlight("select");
+
+      // effectCtx.fillStyle = "#000000";
+      // effectCtx.beginPath();
+      // effectCtx.arc(
+      //   Math.floor(this.x * RESPONSIVE_UNIT_SIZE() + Math.floor(x - this.x)) +
+      //     RESPONSIVE_UNIT_SIZE() / 2,
+      //   Math.floor(this.y * RESPONSIVE_UNIT_SIZE() + Math.floor(y - this.y)) +
+      //     RESPONSIVE_UNIT_SIZE() / 2,
+      //   (RESPONSIVE_UNIT_SIZE() / 2) * this.scale * 0.95,
+      //   0,
+      //   2 * Math.PI
+      // );
+      // effectCtx.lineWidth = 3;
+      // effectCtx.stroke();
+      // gameCtx.shadowBlur = 1;
+      // gameCtx.shadowColor = "black";
     }
     // if (this.isHover) {
     //   this.highlight("hover");
