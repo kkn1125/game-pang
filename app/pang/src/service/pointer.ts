@@ -1,5 +1,5 @@
 import Cell from "@src/model/cell";
-import { isMobile, wait } from "@src/util/global";
+import { wait } from "@src/util/global";
 import Logger from "@src/util/logger";
 import { capitalize, responsePointerAxis } from "@src/util/tool";
 import BaseModule from "./base.module";
@@ -15,9 +15,6 @@ export default class Pointer extends BaseModule {
   grab: Cell | null = null;
   swapTemp: Cell[] = [];
   gameEnd: boolean = false;
-  bindTouchStart: (e: TouchEvent) => Promise<void>;
-  bindMoveMouse: (e: MouseEvent) => void;
-  bindClickCell: (e: any) => Promise<void>;
 
   // TODO: mode 받는 공통 상속 클래스 생성하기 2023-09-14 22:30:34
   constructor(mode: string) {
@@ -25,24 +22,8 @@ export default class Pointer extends BaseModule {
     this.logger = new Logger(this.constructor.name);
     this.logger.dir("constructor").log("initialize mode:", mode);
 
-    this.bindTouchStart = this.touchStart.bind(this);
-    this.bindMoveMouse = this.moveMouse.bind(this);
-    this.bindClickCell = this.clickCell.bind(this);
-
-    this.initialize();
-  }
-
-  initialize() {
-    window.removeEventListener("touchstart", this.bindTouchStart);
-    window.removeEventListener("mousemove", this.bindMoveMouse);
-    window.removeEventListener("mousedown", this.bindClickCell);
-
-    if (isMobile()) {
-      window.addEventListener("touchstart", this.bindTouchStart);
-    } else {
-      window.addEventListener("mousemove", this.bindMoveMouse);
-      window.addEventListener("mousedown", this.bindClickCell);
-    }
+    window.addEventListener("mousemove", this.moveMouse.bind(this));
+    window.addEventListener("mousedown", this.clickCell.bind(this));
   }
 
   inject(module: MapGenerator | ScoreCalculator | BlockManager) {
@@ -52,15 +33,7 @@ export default class Pointer extends BaseModule {
     this.dependency[capitalize(module.constructor.name)] = module;
   }
 
-  async touchStart(e: TouchEvent) {
-    const touch = e.touches[0];
-    this.moveMouse(touch as unknown as MouseEvent);
-    await this.clickCell(touch);
-  }
-
-  async clickCell(e) {
-    // console.log("event", e instanceof Touch);
-
+  async clickCell() {
     // if (this.mode === "test") {
     //   if (wait.length === 0) {
     //     this.logger.only().dir("test").dir("clickCell").log("auto pang");
@@ -237,7 +210,6 @@ export default class Pointer extends BaseModule {
   }
 
   moveMouse(e: MouseEvent) {
-    // console.log("event", e instanceof Touch);
     if (wait.length > 0) return;
     const x = e.clientX;
     const y = e.clientY;

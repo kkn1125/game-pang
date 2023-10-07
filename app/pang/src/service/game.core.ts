@@ -7,7 +7,6 @@ import {
   effectCtx,
   gameCanvas,
   gameCtx,
-  isMobile,
   questCanvas,
   questCtx,
   RESPONSIVE_UNIT_SIZE,
@@ -51,8 +50,6 @@ export default class GameCore extends BaseModule {
   _baseHeight: number = innerHeight;
   _storeName: string;
   _animation: number;
-
-  currentMobile: boolean = isMobile();
 
   questQueue: Quest[] = [];
 
@@ -336,11 +333,6 @@ export default class GameCore extends BaseModule {
       } else {
         SUB_OPTIONS.SIZE.RATIO = 5;
       }
-    }
-
-    if (this.currentMobile !== isMobile()) {
-      this.currentMobile = isMobile();
-      this.pointer.initialize();
     }
   };
 

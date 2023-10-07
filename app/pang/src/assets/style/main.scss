@@ -1,0 +1,147 @@
+html,
+body,
+#root {
+  margin: 0;
+  height: 100%;
+  overflow: hidden;
+  user-select: none;
+}
+
+#root {
+  position: relative;
+  // background-color: #b6b6b656;
+  // background-color: #232323;
+  background-color: #ffffff;
+
+  & canvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+  }
+}
+
+#modal {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  overflow: hidden;
+
+  min-width: 60%;
+  min-height: 20%;
+  // height: 30vh;
+  // max-height: 80%;
+  z-index: 100;
+
+  .modal-head {
+    display: flex;
+    gap: 1rem;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 1.2rem;
+    font-weight: 700;
+    text-transform: capitalize;
+    padding: 0.8rem;
+    position: relative;
+
+    &::after {
+      position: absolute;
+      bottom: 1px;
+      left: 0;
+      right: 0;
+      width: inherit;
+      height: 0.1px;
+      background-color: #56565656;
+      display: block;
+      content: "";
+    }
+  }
+
+  .modal-body {
+    font-weight: 200;
+    padding: 1rem;
+  }
+
+  background-color: white;
+
+  border-radius: 0.5rem;
+  -webkit-border-radius: 0.5rem;
+  -moz-border-radius: 0.5rem;
+  -ms-border-radius: 0.5rem;
+  -o-border-radius: 0.5rem;
+  transform: translate(-50%, -50%);
+  -webkit-transform: translate(-50%, -50%);
+  -moz-transform: translate(-50%, -50%);
+  -ms-transform: translate(-50%, -50%);
+  -o-transform: translate(-50%, -50%);
+}
+
+button#modal-close {
+  cursor: pointer;
+  padding: 0.5rem 0.7rem;
+  border: none;
+
+  text-transform: uppercase;
+
+  color: white;
+  background-color: #9f3c48;
+
+  font-size: 1.25rem;
+  font-weight: 700;
+
+  border-radius: 0.5rem;
+  -webkit-border-radius: 0.5rem;
+  -moz-border-radius: 0.5rem;
+  -ms-border-radius: 0.5rem;
+  -o-border-radius: 0.5rem;
+}
+
+button[id*="Game"] {
+  cursor: pointer;
+  padding: 0.5rem 0.7rem;
+  border: none;
+
+  text-transform: uppercase;
+
+  color: white;
+  background-color: #3c4e9f;
+
+  font-size: 1rem;
+  font-weight: 700;
+
+  border-radius: 0.5rem;
+  -webkit-border-radius: 0.5rem;
+  -moz-border-radius: 0.5rem;
+  -ms-border-radius: 0.5rem;
+  -o-border-radius: 0.5rem;
+
+  max-height: 3.5rem;
+}
+
+#btnWrap {
+  position: fixed;
+  bottom: 0px;
+  right: 15px;
+  padding: 1rem;
+  display: flex;
+  gap: 1rem;
+}
+
+button#restartGame {
+  background-color: #3c9f74;
+}
+button#refreshGame {
+  background-color: #2d6398;
+}
+button#hintingGame {
+  background-color: #cf964a;
+}
+
+button[disabled] {
+  opacity: 0.5;
+  filter: grayscale(0.8);
+  -webkit-filter: grayscale(0.8);
+}

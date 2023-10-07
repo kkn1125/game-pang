@@ -1,0 +1,7 @@
+{
+  "name": "pang",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "react-vite"
+}
